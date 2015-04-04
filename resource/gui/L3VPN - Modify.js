@@ -16,8 +16,8 @@
 
 Ext.ns("Jx.cpp.service");
 var scriptObj = {};
-scriptObj.namespace = 'Jx.cpp.service.vpls';
-Ext.define('Jx.cpp.service.vpls', {
+scriptObj.namespace = 'Jx.cpp.service.l3vpn';
+Ext.define('Jx.cpp.service.l3vpn', {
     extend: 'Ext.window.Window',
 
     requires: [
@@ -35,16 +35,24 @@ Ext.define('Jx.cpp.service.vpls', {
         'Ext.button.Button'
     ],
 
-    height: 750,
+    height: 730,
     hidden: false,
     width: 960,
     autoScroll: true,
+	name:'l3vpnModify',
+	//autoRender: true,
+	//resizable: true,
+	//manageHeight: true,
+	x: 200,
+    y: 20,
+	//maximizable: true,
     title: 'L3VPN Service',
 	FIELDSET_BACKGROUND_COLOR:'background-color:#F8F8F8',
 	FIELDSET_WHITE_COLOR:'background-color:#FFFFFF',
 	site: '', port: '', encapsulation: '',moid: '',
 	isCCI: false,
 	isPortValid: false,
+
 	MAX_SUBNET_MASK:32,
 	MIN_SUBNET_MASK:24,
 	DEFAULT_SUBNET_MASK:30,
@@ -64,7 +72,7 @@ Ext.define('Jx.cpp.service.vpls', {
                     items: [
                         {
                             xtype: 'fieldcontainer',
-                            height: 180,
+                            height: 221,
                             width: 900,
                             fieldLabel: '',
                             layout: {
@@ -76,9 +84,11 @@ Ext.define('Jx.cpp.service.vpls', {
                                 {
                                     xtype: 'fieldset',
                                     flex: 1,
-                                    height: 180,
+                                    height: 220,
                                     width: 300,
 									maxWidth: 300,
+									name: 'customerFieldset',
+									id: 'customerFieldset',
                                     title: 'Customer Information',
 									margin: '0 10 0 0',
 									style: this.FIELDSET_BACKGROUND_COLOR,
@@ -122,7 +132,7 @@ Ext.define('Jx.cpp.service.vpls', {
 											readOnly: true,
 											disabled: true
                                         },
-                                        {
+                                        /*{
                                             xtype: 'textfield',
                                             flex: 1,
                                             //maxWidth: 250,
@@ -132,7 +142,7 @@ Ext.define('Jx.cpp.service.vpls', {
 											id: 'email',
 											readOnly: true,
 											disabled: true
-                                        },
+                                        },*/
                                         {
                                             xtype: 'textareafield',
                                             flex: 1,
@@ -145,13 +155,67 @@ Ext.define('Jx.cpp.service.vpls', {
                                         }
                                     ]
                                 },
+								{
+				
+													xtype: 'fieldset',
+													height: 180,
+													width: 350,
+													layout: 'column',
+													//title: 'IPv4 Prefix List',
+													id: 'prefixListFieldSet1',
+													itemId: 'prefixListFieldSet1',
+													hidden: true,
+													style: this.FIELDSET_BACKGROUND_COLOR,
+												   items: [
+														{
+									  
+														xtype: 'gridpanel',
+														height: 170,
+														margin: '0 0 0 0',
+														id: 'prefixListGrid1',
+														name: 'prefixListGrid1',
+														//layout: 'fit',
+														autoScroll: true,
+														forceFit: true,
+														width: 338,
+														title: '',
+														columnLines: true,
+														hideHeaders: false,
+														forceFit: true,
+														store: this.getPrefixListStore(),
+														style: this.FIELDSET_BACKGROUND_COLOR,
+														
+														columns: [
+															{
+																xtype: 'rownumberer',
+																width: 25,
+																sortable: false,
+																locked: true,
+																align: 'center'
+															},
+															{
+																xtype: 'gridcolumn',
+																maxWidth: 310,
+																width: 310,
+																align: 'center',
+																sortable: true,
+																dataIndex: 'prefixList',
+																text: ''
+													}
+												]
+													
+											}
+										]
+									},
                                 {
                                     xtype: 'fieldset',
                                     flex: 1,
-                                    height: 180,
-									minWidth: 590,
+                                    height: 220,
+									minWidth: 600,
                                     margin: '0 10 0 0',
                                     title: 'Service Details',
+									name: 'serviceFieldset',
+									id: 'serviceFieldset',
 									style: this.FIELDSET_BACKGROUND_COLOR,
 									layout: 'column',
 									/*layout: {
@@ -206,9 +270,10 @@ Ext.define('Jx.cpp.service.vpls', {
                                             fieldLabel: '<b>Service ID</b>',
 											name: 'serviceId',
 											id: 'serviceId',
-											margin: '0 100 0 0',
-											disabled: true,
+											margin: '0 80 0 0',
+											//colspan:1,
 											allowBlank: false,
+											width: 220,
 											labelWidth: 95,
                                             maxValue: 389999,
                                             minValue: 380000,
@@ -217,19 +282,79 @@ Ext.define('Jx.cpp.service.vpls', {
 											mouseWheelEnabled: false
                                         },
 										{
-                                            xtype: 'combobox',
-                                            flex: 1,
-                                            fieldLabel: 'Policy Group',
-											name: 'policyGroup',
-											margin: '0 0 0 0',
-											id: 'policyGroup',
+											xtype: 'combobox',
+											flex: 1,
+											fieldLabel: 'Topology',
+											//labelSeparator: ' ',
+											width: 220,
+											labelWidth: 105,
+											margin: '0 10 0 0',
 											labelAlign: 'left',
-											width: 205,
-											labelWidth: 80,
-											value: 'Standard',
-											store: ['Standard','TQ Standard','BVoIP','CNS3']
-                                        },
-										
+											value: 'Mesh',
+											//colspan:1,
+											name: 'topology',
+											id: 'topology',
+											store: ['Mesh', 'Hub' , 'Spoke'],
+											listeners: {
+												render: function (field) {
+														console.log("render");
+															Ext.getCmp("rd").setValue("852:");
+														},
+												'change':function(list,record) {
+												
+													var topology = Ext.getCmp('topology').getValue();
+													var endPointType = Ext.getCmp('endPointType');
+													var values = [];
+													var siteInterfaceCount = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0].getStore().count();
+													if(topology == 'Mesh'){
+														Ext.getCmp("vpnName").setFieldLabel("VRF Name");
+														//Ext.getCmp("AsRd").setFieldLabel("Route Distinguisher");
+														Ext.getCmp("rd").setFieldLabel("Route Distinguisher");
+														Ext.getCmp("spkVrfName").hide();
+														//Ext.getCmp("AsRdSpk").hide();
+														Ext.getCmp("spkRd").hide();
+														Ext.getCmp("spkVrfId").hide();
+														Ext.getCmp("spkVrfName").setDisabled(true);
+														//Ext.getCmp("AsRdSpk").setDisabled(true);
+														Ext.getCmp("spkRd").setDisabled(true);
+														Ext.getCmp("spkVrfId").setDisabled(true);
+														//Ext.getCmp("AsRd").setValue("852");
+														Ext.getCmp("rd").setValue("852:");
+													}if(topology == 'Hub'){
+														Ext.getCmp("vpnName").setFieldLabel("Hub VRF Name");
+														//Ext.getCmp("AsRd").setFieldLabel("Hub Route Distinguisher");
+														Ext.getCmp("rd").setFieldLabel("Hub Route Distinguisher");
+														Ext.getCmp("spkVrfName").show();
+														//Ext.getCmp("AsRdSpk").show();
+														Ext.getCmp("spkRd").show();
+														Ext.getCmp("spkVrfId").show();
+														Ext.getCmp("spkVrfName").setDisabled(false);
+														//Ext.getCmp("AsRdSpk").setDisabled(false);
+														Ext.getCmp("spkRd").setDisabled(false);
+														Ext.getCmp("spkVrfId").setDisabled(false);
+														//Ext.getCmp("AsRd").setValue("");
+														Ext.getCmp("rd").setValue("");
+													}if(topology == 'Spoke'){
+														Ext.getCmp("vpnName").setFieldLabel("Hub VRF Name/ID");
+														//Ext.getCmp("AsRd").setFieldLabel("Hub Route Distinguisher");
+														Ext.getCmp("rd").setFieldLabel("Hub Route Distinguisher");
+														Ext.getCmp("spkVrfName").show();
+														//Ext.getCmp("AsRdSpk").show();
+														Ext.getCmp("spkRd").show();
+														Ext.getCmp("spkVrfId").hide();
+														Ext.getCmp("spkVrfName").setDisabled(false);
+														//Ext.getCmp("AsRdSpk").setDisabled(false);
+														Ext.getCmp("spkRd").setDisabled(false);
+														Ext.getCmp("spkVrfId").setDisabled(true);
+														//Ext.getCmp("AsRd").setValue("");
+														Ext.getCmp("rd").setValue("");
+													}
+												
+												
+											
+												}
+											}
+										},
 										{
 											xtype:'label',
 											text: "Service ID must be in the range 380000 to 389999",
@@ -245,87 +370,41 @@ Ext.define('Jx.cpp.service.vpls', {
 												//font: normal 6px
 											}
 										 },
+										 
 										{
                                             xtype: 'combobox',
                                             flex: 1,
-                                            fieldLabel: '<b>Topology</b>',
-											labelWidth: 95,
-											margin: '2 100 0 0',
+                                            fieldLabel: 'Policy Group',
+											name: 'policyGroup',
+											margin: '5 80 0 0',
+											id: 'policyGroup',
 											labelAlign: 'left',
-											//colspan:1,
-											name: 'topology',
-											id: 'topology',
-											value: 'Full Mesh',
-											store: ['Full Mesh', 'Hub & Spoke'],
-											listeners: {
-														'change':function(list,record) {
-														
-														var topology = Ext.getCmp('topology').getValue();
-														var endPointType = Ext.getCmp('endPointType');
-														var values = [];
-														var siteInterfaceCount = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0].getStore().count();
-														if(topology == 'Full Mesh'){
-															me.setFieldDisabled('rt',false);
-															me.setFieldDisabled('rtHub',true);
-														    me.setFieldDisabled('rtSpoke',true);
-															Ext.getCmp('endPointType').store.removeAll();
-															var records = [];
-															records.push({"displayText":"Full Mesh", "valueText":"Full Mesh"});
-															Ext.getCmp('endPointType').store.getProxy().data=records;
-															Ext.getCmp('endPointType').store.loadData=records;
-															Ext.getCmp('endPointType').store.reload();
-															
-															me.setFieldDisabled('endPointType',true);
-															endPointType.emptyText = 'Select..';
-															endPointType.applyEmptyText();
-														    values.push(' ');
-															values.push('Full Mesh');
-															values.push('Select..');
-															endPointType.setValue(values);
-															if(siteInterfaceCount > 0){
-																Ext.ComponentQuery.query('#endpointPanel')[0].show();
-															
-																	//Ext.getCmp('optionPanelGrid').getSelectionModel().select(0);
-																	Ext.getCmp('accessOptionGrid').show();
-																
-															}else{
-																Ext.ComponentQuery.query('#endpointPanel')[0].hide();
-															}
-														}else if(topology.indexOf('Hub') != -1){ //Hub & spoke
-														    me.setFieldDisabled('rtHub',false);
-														    me.setFieldDisabled('rtSpoke',false);
-															me.setFieldDisabled('rt',true);
-															Ext.getCmp('endPointType').store.removeAll();
-															var records = [];
-															records.push({"displayText":"Hub", "valueText":"Hub"});
-															records.push({"displayText":"Spoke", "valueText":"Spoke"});
-															Ext.getCmp('endPointType').store.getProxy().data=records;
-															Ext.getCmp('endPointType').store.loadData=records;
-															Ext.getCmp('endPointType').store.reload();
-														me.setFieldDisabled('endPointType',false);
-														/*if(siteInterfaceCount > 0){
-															me.setFieldDisabled('endPointType',false);
-														}else{
-															me.setFieldDisabled('endPointType',true);
-														}*/
-														
-														//endPointType.reset();
-														Ext.ComponentQuery.query('#endpointPanel')[0].hide();
-															
-															//Ext.getCmp('siteInterfaceGrid').reset();
-															//Ext.getCmp("siteInterfaceGrid").getSelectionModel().clearSelections();
-														}
-														
-														
-													
-														}
-													}
+											width: 220,
+											labelWidth: 95,
+											value: 'STD',
+											store: ['STD','TQSTD','BVOIP','CNS3']
                                         },
 										{
+											xtype: 'textfield',
+											flex: 1,
+											fieldLabel: '<b>VRF Name</b>',
+											margin: '1 0 0 0',
+											width: 258,
+											labelWidth: 105,
+											maxHeight: 23,
+											height: 23,
+											allowBlank: false,
+											labelAlign: 'left',
+											name: 'vpnName',
+											maxLength:20,											
+											id: 'vpnName',
+											maskRe:/^[A-Za-z0-9 _-]/
+										},
+										{
 											xtype: 'combobox',
-											margin: '0 0 0 0',
-											width: 205,
-											labelWidth: 80,
+											margin: '7 80 0 0',
+											width: 220,
+											labelWidth: 95,
 											//labelAlign: 'right',
 											emptyText:'Pick an Option',
 											fieldLabel: '<b>Service Type</b>',
@@ -364,32 +443,58 @@ Ext.define('Jx.cpp.service.vpls', {
 														}
 													}
 										},
+										{
+											xtype: 'textfield',
+											margin: '0 0 0 0',
+											width: 258,
+											labelWidth: 105,
+											fieldLabel: 'Route Distinguisher',
+											labelAlign: 'left',
+											name: 'rd',
+											id: 'rd',
+											allowBlank: false,
+											value: '852:',
+											maskRe:/^[0-9 :]/,
+											listeners: {
+												blur : function() {
+														//console.log("off focus ** ")
+															var rd = Ext.getCmp("rd").getValue();
+															console.log("off focus ** "+rd)
+															if(rd.split(":").length == 2 && rd.split(":")[0].length <=5 && rd.split(":")[1].length <=5 && rd.split(":")[0].length > 1 && rd.split(":")[1].length > 1){
+																//do nothing
+															}else{
+																Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please enter a valid Route Distinguisher");
+																Ext.getCmp('rd').focus(true, 200);
+															return;
+															}
+															console.log("off focus ** ")
+														}
+											}
+										},
+										
 										
 										{
                                             xtype: 'textfield',
                                             flex: 1,
-                                            fieldLabel: '<b>VRF Name</b>',
-											margin: '7 100 0 0',
+                                            fieldLabel: '<b>VPN Alias</b>',
+											margin: '7 0 0 0',
+											width: 278,
 											labelWidth: 95,
 											maxHeight: 23,
 											height: 23,
-											allowBlank: false,
-											name: 'vpnName',
+											allowBlank: true,
+											name: 'vpnAlias',
 											maxLength:20,											
-											id: 'vpnName',
-											disabled: true,
-											maskRe:/^[A-Za-z0-9 _-]/
+											id: 'vpnAlias',
+											maskRe:/^[A-Za-z0-9 _-]/,
+											hidden: true
                                         },
 										{
                                             xtype: 'checkboxfield',
                                             id: 'enforceRoute',
 											name: 'enforceRoute',
-											margin: '7 10 0 0',
+											margin: '9 5 0 0',
 											labelAlign: 'left',
-											//colspan:1,
-                                            //margin: '10 0 0 0',
-											//width: 130,
-											//maxWidth: 130,
 											labelWidth: 120,
 											
                                             fieldLabel: 'Enforce Max  Routes',
@@ -409,9 +514,10 @@ Ext.define('Jx.cpp.service.vpls', {
 												}
 											}
                                         },
+										
 										{
                                             xtype: 'numberfield',
-                                            margin: '7 0 0 0',
+                                            margin: '9 95 0 0',
                                             maxWidth: 60,
                                             width: 60,
 											//colspan:1,
@@ -422,64 +528,81 @@ Ext.define('Jx.cpp.service.vpls', {
 											minValue: 1,
 											maxValue: 1000
 									    },
-                                        
 										{
-                                            xtype: 'textfield',
-                                            flex: 1,
-                                            fieldLabel: '<b>VPN Alias</b>',
-											margin: '7 90 0 0',
-											labelWidth: 95,
+											xtype: 'textfield',
+											flex: 1,
+											fieldLabel: 'Spoke VRF Name',
+											margin: '5 0 0 0',
+											width: 258,
+											labelWidth: 105,
 											maxHeight: 23,
 											height: 23,
-											allowBlank: false,
-											name: 'vpnAlias',
-											maxLength:20,											
-											id: 'vpnAlias',
-											disabled: true,
-											maskRe:/^[A-Za-z0-9 _-]/
-                                        },
-										{
-                                            xtype: 'textfield',
-                                            width: 85,
-                                            fieldLabel: 'RD',
 											labelAlign: 'left',
-											margin: '7 0 0 0',
-											value: '852:',
-											readOnly: true,
-											labelAlign: 'right',
-											fieldStyle: 'text-align:right',
-                                            labelWidth: 30,
-											name: 'peerAsRd',
-											id: 'peerAsRd'
-											
-                                        },
+											name: 'spkVrfName',
+											id: 'spkVrfName',
+											disabled: true,
+											maxLength:20,
+											maskRe:/^[A-Za-z0-9 _-]/,
+											hidden: true
+										},
                                         {
-                                            xtype: 'numberfield',
-                                            margin: '7 0 0 0',
-                                            width: 70,
-											labelWidth: 0,
-                                            fieldLabel: '',
-                                            labelAlign: 'right',
-											name: 'rd',
-											id: 'rd',
-											minValue: 0,
-											hideTrigger: true,
-											keyNavEnabled: false,
-											mouseWheelEnabled: false
-                                        },
-										{
                                             xtype: 'combobox',
                                             flex: 1,
                                             fieldLabel: 'Application Type',
 											name: 'application',
-											margin: '7 90 0 0',
+											margin: '11 80 0 0',
 											value: 'GEN',
 											id: 'application',
+											width: 220,
 											labelWidth: 95,
 											//colspan:1,
 											store: ['GEN']
 											//store: ['GEN','UniCaaS']
                                         },
+										{
+											xtype: 'textfield',
+											margin: '0 0 0 0',
+											width: 258,
+											labelWidth: 105,
+											fieldLabel: 'Spoke Route Distinguisher',
+											labelAlign: 'left',
+											name: 'spkRd',
+											id: 'spkRd',
+											maskRe:/^[0-9 :]/,
+											hidden: true,
+											listeners: {
+												blur : function() {
+														//console.log("off focus ** ")
+															var rd = Ext.getCmp("spkRd").getValue();
+															console.log("off focus ** "+rd)
+															if(rd.split(":").length == 2 && rd.split(":")[0].length <=5 && rd.split(":")[1].length <=5 && rd.split(":")[0].length > 1 && rd.split(":")[1].length > 1){
+																//do nothing
+															}else{
+																Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please enter a valid Route Distinguisher");
+																Ext.getCmp('spkRd').focus(true, 200);
+															return;
+															}
+															console.log("off focus ** ")
+														}
+											}
+										},
+										{
+											xtype: 'textfield',
+											flex: 1,
+											fieldLabel: 'Spoke Service ID',
+											margin: '5 0 0 300',
+											width: 258,
+											labelWidth: 105,
+											maxHeight: 23,
+											height: 23,
+											labelAlign: 'left',
+											name: 'spkVrfId',
+											id: 'spkVrfId',
+											disabled: true,
+											maxLength:20,
+											maskRe:/^[A-Za-z0-9 _-]/,
+											hidden: true
+										},
 										{
 											xtype: 'checkboxfield',
 											fieldLabel: 'Flow Sampling',
@@ -523,7 +646,7 @@ Ext.define('Jx.cpp.service.vpls', {
                         },
                         {
                             xtype: 'fieldset',
-                            height: 270,
+                            height: 220,
                             maxHeight: 300,
                             maxWidth: 900,
                             width: 900,
@@ -539,10 +662,12 @@ Ext.define('Jx.cpp.service.vpls', {
                                     xtype: 'fieldset',
                                     flex: 1,
                                     margins: '0 5 0 0',
-                                    height: 270,
+                                    height: 220,
                                     maxHeight: 300,
                                     maxWidth: 240,
                                     width: 240,
+									name: 'nodeFieldset',
+									id: 'nodeFieldset',
                                     title: 'Select Node',
 									style: this.FIELDSET_BACKGROUND_COLOR,
                                     items: [
@@ -552,6 +677,17 @@ Ext.define('Jx.cpp.service.vpls', {
                                             fieldLabel: '',
                                             items: [
                                               
+												{
+													xtype: 'textfield',
+													flex: 1,
+													fieldLabel: 'Site',
+													margin: '5 0 0 0',
+													labelWidth: 65,
+													name: 'siteNameRO',
+													id: 'siteNameRO',
+													hidden: true,
+													disabled: true										
+												},
 												{
                                                     xtype: 'combobox',
                                                     margin: '5 0 0 0',
@@ -565,6 +701,7 @@ Ext.define('Jx.cpp.service.vpls', {
 													//allowBlank: false,
 													typeAhead: true,
 													minChars: 1,
+													//value: Ext.getCmp("deployedInterfacesGrid").getSelectionModel().getSelection()[0].data.moid,
 													store: this.scriptUtils.getDeviceStore(commonData),
 													queryMode: 'remote',
 													editable: true,
@@ -575,7 +712,14 @@ Ext.define('Jx.cpp.service.vpls', {
 															var siteInterfaceGrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
 															me.getHardwareModel(Ext.getCmp("siteName").getValue());
 															me.getSoftwareVersion(Ext.getCmp("siteName").getValue());
-															me.loadSiteInterfaceGrid(Ext.getCmp("siteName").getValue());														
+															me.loadSiteInterfaceGrid(Ext.getCmp("siteName").getValue(),'');
+															
+															Ext.getCmp("csId").setDisabled(false);
+															Ext.getCmp("isAF1Selected").setDisabled(false);
+															Ext.getCmp("isAF2Selected").setDisabled(false);
+															Ext.getCmp("isAF3Selected").setDisabled(false);
+															Ext.getCmp("isAllAFSelected").setDisabled(false);
+															//me.setFieldDisabled("classifier",false);	
 														}
 													}
 													
@@ -621,243 +765,12 @@ Ext.define('Jx.cpp.service.vpls', {
 										 
                                     ]
                                 },
-                                {
-                                    xtype: 'fieldset',
-                                    flex: 1,
-                                    margins: '0 5 0 0',
-                                    height: 270,
-                                    maxHeight: 300,
-                                    maxWidth: 240,
-                                    width: 240,
-                                    title: 'Set Access Details',
-									readOnly: true,
-									style: this.FIELDSET_BACKGROUND_COLOR,
-                                    items: [
-                                        {
-                                            xtype: 'fieldcontainer',
-                                            height: 45,
-                                            fieldLabel: '',
-                                            items: [
-                                              
-												{
-													xtype: 'combobox',
-													//margin: '10 10 0 0',
-													width: 220,
-													labelWidth: 100,
-													fieldLabel: '<b>Connection Type</b>',
-													allowBlank: false,
-													name: 'connectionType',
-													id: 'connectionType',
-													value: 'RE Direct',
-													//store: ['RE Direct','RE DUAL'],
-													store: this.getConnectionType(),
-															queryMode: 'local',
-															editable: true,
-															displayField: 'displayText',
-															valueField: 'valueText',
-													listeners: {
-																 change: function(field, newValue, oldValue) {
-																 console.log("connection type********: "+newValue);
-																 
-																 var pathPreference = Ext.getCmp("pathPreferences");
-																 
-																 if(newValue == 'RE Direct'){
-																 //console.log("connection type 11********: "+newValue);
-																  pathPreference.setValue("Primary");
-																	me.setFieldDisabled("pathPreferences",true);	
-																 }else{
-																	me.setFieldDisabled("pathPreferences",false);	
-																 }
-																}
-															}
-												},
-												{
-													xtype: 'combobox',
-													//margin: '5 10 0 0',
-													width: 220,
-													//labelWidth: 75,
-													fieldLabel: 'Access Type',
-													labelWidth: 100,
-													name: 'accessType',
-													id: 'accessType',
-													value: 'HS',
-													store: ['HS'] 
-													//store: ['HS', 'DSL'] 
-												},
-											   {
-													xtype: 'combobox',
-													margin: '10 10 0 0',
-													width: 220,
-													//labelWidth: 130,
-													fieldLabel: '<b>Path Preference</b>',
-													labelWidth: 100,
-													//labelAlign: 'right',
-													name: 'pathPreferences',
-													id: 'pathPreferences',
-													value: 'Primary',
-													maxLength:15,
-													store: ['Primary', 'Secondary'] 
-												},
-												{
-												xtype: 'textfield',
-												width: 1,
-												name: 'oldEndPointServiceType',
-												id: 'oldEndPointServiceType',
-												hidden: true
-												},
-												{
-													xtype: 'combobox',
-													//margin: '0 0 0 0',
-													flex: 1,
-													width: 220,
-													fieldLabel: '<b>QoS Type</b>',
-													labelWidth: 100,
-													labelAlign: 'left',
-													//colspan:1,
-													disabled: true,
-													id: 'qosType',
-													value: 'QoS per Access',
-													store: ['QoS per Access', 'QoS per VPN'],
-													listeners: {
-																 change: function(field, newValue, oldValue) {
-																 console.log("connection type********: "+newValue);
-																 
-																 var pathPreference = Ext.getCmp("pathPreferences");
-																 
-																 if(newValue == 'QoS per VPN'){
-																	Ext.getCmp("vpnSpeed").setDisabled(false);
-																 }else{
-																	Ext.getCmp("vpnSpeed").setDisabled(true);
-																 }
-																}
-															}
-												},
-												{
-                                                    xtype: 'combobox',
-                                                    //margin: '10 0 0 0',
-                                                    fieldLabel: '<b>Endpoint Type</b>',
-													emptyText:'Select EndPoint',
-													name: 'endPointType',
-													id: 'endPointType',
-                                                    width: 220,
-													maxWidth: 220,
-                                                    labelWidth: 100,
-													selectOnFocus: true,
-													forceSelection: true,
-													allowBlank: false,
-													typeAhead: true,
-													disabled: true,
-													minChars: 1,
-													value: 'Full Mesh',
-													store: this.getEndPointType(),
-													queryMode: 'local',
-													editable: true,
-													displayField: 'displayText',
-													valueField: 'valueText',
-													listeners: {
-													'select':function(list,record) {
-															//if(Ext.getCmp('endPointType').getValue() != 'Full Mesh')
-																Ext.ComponentQuery.query('#endpointPanel')[0].show();
-														},
-														change:   function(field, newValue, oldValue) {
-														 var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
-														console.log('endPointType .... '+newValue);
-														if(newValue == 'Full Mesh'){
-															Ext.getCmp('rt').show();
-															Ext.getCmp('rtHub').hide();
-															Ext.getCmp('rtSpoke').hide();
-														}else{
-															Ext.getCmp('rt').hide();
-															Ext.getCmp('rtHub').show();
-															Ext.getCmp('rtSpoke').show();
-														}
-														if(newValue ==''){
-															endpointPanel.hide();
-														}
-														//if(newValue == 'Hub'){
-															else{
-																//var panel1 = Ext.ComponentQuery.query('#endpointPanel')[0];
-																 //this.isCCI=true;
-																  //endpointPanel.show();
-																  
-																 // Ext.getCmp('optionPanelGrid').getSelectionModel().select(0);
-																 // Ext.getCmp('accessOptionGrid').show();
-																  
-																 // var stageBtn = Ext.getCmp('stageBtn');
-																 // stageBtn.show();
-															  }
-														}
-													}
-                                                },
-												{
-													xtype: 'combobox',
-													flex: 1,
-													width: 220,
-													maxWidth: 220,
-													fieldLabel: 'Operational Mode',
-													labelSeparator: ' ',
-													labelWidth: 100,
-													labelAlign: 'left',
-													name: 'operationalMode',
-													id: 'operationalMode',
-													store: this.getOperatioanlMode(),
-													queryMode: 'local',
-													editable: true,
-													displayField: 'displayText',
-													valueField: 'valueText',
-													listeners: {
-														render: function (field) {
-														console.log("render");
-															Ext.getCmp('operationalMode').setValue("Pending");
-														},
-														load: function () {
-														console.log("load");
-															var combo = Ext.getCmp('operationalMode');
-															combo.setValue("Pending");
-														}
-													}
-													
-												},
-												{
-                                                    xtype: 'combobox',
-                                                    fieldLabel: 'Admin State',
-													margin: '10 0 0 0',
-                                                    boxLabel: '',
-													name: 'adminState',
-													id: 'adminState',
-													value: 'Down',
-													width: 170,
-													labelWidth: 100,
-													store: [['Up','Up'],['Down','Down']],
-												},
-												{
-													xtype: 'checkboxfield',
-													fieldLabel: 'Accounting',
-												    boxLabel: '',
-													width: 90,
-													labelAlign: 'left',
-													name: 'accounting',
-													id: 'accounting',
-													labelWidth: 100,
-												},
-												{
-                                                    xtype: 'checkboxfield',
-													margin: '10 0 0 0',
-                                                    fieldLabel: 'Auto Negotiate',
-                                                    boxLabel: '',
-													name: 'autonegotiate',
-													id: 'autonegotiate',
-													labelWidth: 100,
-                                                }											
-                                            ]		
-                                        }	 
-                                    ]
-                                },
+                                ,
 								{
                                     xtype: 'fieldset',
                                     flex: 1,
                                     margins: '0 5 0 0',
-                                    height: 270,
+                                    height: 220,
                                     maxHeight: 300,
 									name: 'siteInterface',
 									id: 'siteInterface',
@@ -874,7 +787,7 @@ Ext.define('Jx.cpp.service.vpls', {
 											 
                                                 {
                                                     xtype: 'gridpanel',
-                                                    height: 200,
+                                                    height: 150,
 													width: 350,
 													forceFit: true,
                                                     title: '',
@@ -941,41 +854,32 @@ Ext.define('Jx.cpp.service.vpls', {
 													listeners: {
 															itemclick: function(dv, record, item, index, e) {
 																console.log("item****************  "+item.cells[0]);
-																	me.getSelectedSite(record);
-																	me.setFieldDisabled('endPointType',false);
+																Ext.ComponentQuery.query('#endpointPanel')[0].show();
+																Ext.getCmp("lblIUnitDescription").setValue("");
+																me.getSelectedSite(record);
+																me.getInterfaceDescription(record.get('portName'), record.get('deviceId'));
+																//Ext.getCmp("topologyFieldset").setDisabled(false);
+																Ext.getCmp("rd").setDisabled(false);
+																var topology = Ext.getCmp('topology').getValue();
+																
+																var portCombo = Ext.getCmp("portSpeed");
+																	//childCombo.clearValue();
+																	portCombo.getStore().removeAll();
+																	var portName = record.get('portName');
+																	console.log("port name** "+portName);
+																	if(portName.indexOf("ge") != -1){
+																		portCombo.setValue("1G");
+																		portCombo.bindStore(me.getPortSpeed()); //bind the store for up
+																		
+																	}
+																	else if(portName.indexOf("xe") != -1){
+																		portCombo.bindStore(me.getPortSpeedForXEPort()); //bind the store for up
+																		portCombo.setValue("10G");
+																	}else{
+																	portCombo.bindStore(['']); //bind the store for up
+																		portCombo.setValue("");
+																	}
 																	
-																	var topology = Ext.getCmp('topology').getValue();
-																		//alert("topology> "+topology);
-																	var endPointType = Ext.getCmp('endPointType');
-																
-																
-																	me.getInterfaceDescription(record.get('portName'));
-																	if(topology == 'Full Mesh' && endPointType.getValue() =='Full Mesh') {
-																        me.setFieldDisabled('endPointType',true);
-																		endPointType.emptyText = 'Select Endpoint Type';
-																		endPointType.applyEmptyText();
-																		var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
-																		endpointPanel.show();
-																		
-																		//Ext.getCmp('optionPanelGrid').getSelectionModel().select(0);
-																		Ext.getCmp('accessOptionGrid').show();
-																	}
-																	else if(topology == 'Hub & Spoke'  && endPointType.getValue() != null) {
-																		me.setFieldDisabled('endPointType',false);
-																		endPointType.emptyText = 'Select Endpoint Type';
-																		endPointType.applyEmptyText();
-																		var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
-																		endpointPanel.show();
-																		
-																		//Ext.getCmp('optionPanelGrid').getSelectionModel().select(0);
-																		Ext.getCmp('accessOptionGrid').show();
-																		
-																	}else if(topology == null) {
-																		me.setFieldDisabled('endPointType',true);
-																	}
-																	else{
-																		me.setFieldDisabled('endPointType',false);
-																	}
 															}
 															},
                                                     selModel: Ext.create('Ext.selection.CheckboxModel', {
@@ -995,18 +899,19 @@ Ext.define('Jx.cpp.service.vpls', {
                                                 },
 												{
 													xtype:'textareafield',
-													fieldLabel: 'Description',
+													fieldLabel: 'Port Description',
 													labelWidth: 60,
-													height: 50,
+													height: 70,
 													width: 350,
 													readOnly: true,
+													disabled: true,
 													name: 'lblInterfaceDescription',
 													id: 'lblInterfaceDescription',
 													margin: '0 0 0 0',
 													fieldStyle: {
 													 //'fontFamily'   : 'Garamond',
-													 'fontFamily'   : 'Calibri',
-													 'fontSize'     : '11px'
+													 //'fontFamily'   : 'Calibri',
+													 //'fontSize'     : '13px'
 												   },
 													
 													style : {
@@ -1015,6 +920,141 @@ Ext.define('Jx.cpp.service.vpls', {
 												 }
                                             ]
                                         }
+                                    ]
+                                },
+								{
+                                    xtype: 'fieldset',
+                                    flex: 1,
+                                    margins: '0 5 0 0',
+                                    height: 220,
+                                    maxHeight: 300,
+                                    maxWidth: 250,
+                                    width: 250,
+									name: 'accessDetailFieldset',
+									id: 'accessDetailFieldset',
+                                    title: 'Set Access Details',
+									readOnly: true,
+									style: this.FIELDSET_BACKGROUND_COLOR,
+                                    items: [
+                                        {
+                                            xtype: 'fieldcontainer',
+                                            height: 45,
+                                            fieldLabel: '',
+                                            items: [
+                                              
+												{
+													xtype: 'combobox',
+													//margin: '10 10 0 0',
+													width: 220,
+													labelWidth: 100,
+													fieldLabel: '<b>Connection Type</b>',
+													allowBlank: false,
+													name: 'connectionType',
+													id: 'connectionType',
+													value: 'RE Direct',
+													//store: ['RE Direct','RE DUAL'],
+													store: this.getConnectionType(),
+															queryMode: 'local',
+															editable: true,
+															displayField: 'displayText',
+															valueField: 'valueText',
+													listeners: {
+																 change: function(field, newValue, oldValue) {
+																 console.log("connection type********: "+newValue);
+																 
+																 var pathPreference = Ext.getCmp("pathPreferences");
+																 
+																 if(newValue == 'RE Direct'){
+																 //console.log("connection type 11********: "+newValue);
+																  pathPreference.setValue("Primary");
+																	//me.setFieldDisabled("pathPreferences",true);	
+																 }else{
+																	//me.setFieldDisabled("pathPreferences",false);	
+																 }
+																}
+															}
+												},
+												{
+													xtype: 'combobox',
+													//margin: '5 10 0 0',
+													width: 220,
+													//labelWidth: 75,
+													fieldLabel: 'Access Type',
+													labelWidth: 100,
+													name: 'accessType',
+													id: 'accessType',
+													value: 'HS',
+													store: ['HS'] 
+													//store: ['HS', 'DSL'] 
+												},
+												{
+													xtype: 'combobox',
+													width: 220,
+													labelWidth: 100,
+													fieldLabel: 'Port Speed',
+													name: 'portSpeed',
+													id: 'portSpeed',
+													store: '' ,
+													queryMode: 'local',
+													editable: true,
+													displayField: 'displayText',
+													valueField: 'valueText'
+												},
+											   {
+													xtype: 'combobox',
+													margin: '10 10 0 0',
+													width: 220,
+													//labelWidth: 130,
+													fieldLabel: '<b>Path Preference</b>',
+													labelWidth: 100,
+													//labelAlign: 'right',
+													name: 'pathPreferences',
+													id: 'pathPreferences',
+													value: 'Primary',
+													maxLength:15,
+													store: ['Primary', 'Secondary'] 
+												},
+												{
+												xtype: 'textfield',
+												width: 1,
+												name: 'oldEndPointServiceType',
+												id: 'oldEndPointServiceType',
+												hidden: true
+												},
+												{
+                                                    xtype: 'combobox',
+                                                    fieldLabel: 'Admin State',
+													margin: '10 0 0 0',
+                                                    boxLabel: '',
+													name: 'adminState',
+													id: 'adminState',
+													value: 'Down',
+													width: 170,
+													labelWidth: 100,
+													store: [['Up','Up'],['Down','Down']]
+												},
+												{
+													xtype: 'checkboxfield',
+													fieldLabel: 'Accounting',
+												    boxLabel: '',
+													width: 90,
+													labelAlign: 'left',
+													name: 'accounting',
+													id: 'accounting',
+													labelWidth: 100,
+													hidden: true
+												},
+												{
+                                                    xtype: 'checkboxfield',
+													margin: '10 0 0 0',
+                                                    fieldLabel: 'Auto Negotiate',
+                                                    boxLabel: '',
+													name: 'autonegotiate',
+													id: 'autonegotiate',
+													labelWidth: 100
+                                                }											
+                                            ]		
+                                        }	 
                                     ]
                                 },
 								{
@@ -1084,33 +1124,36 @@ Ext.define('Jx.cpp.service.vpls', {
 						{
                             xtype: 'panel',
                             dock: 'top',
-                            height: 650,
+                            //height: 550, //650
+							 height:'auto !important',
 							width: 900,
 							id: 'endpointPanel',
-                            animCollapse: true,
+                            //hidden: true,
+                            //title: '',
+							animCollapse: false,
                             collapsed: false,
-                            collapsible: true,
-							//hidden: true,
-                            title: 'Endpoint Details',
+                            collapsible: false,
+							preventHeader: true ,
 							style: this.FIELDSET_BACKGROUND_COLOR,
                             items: [
 								{
 									xtype: 'container',
                                     flex: 1,
-									height: 575,
+									//height: 525,
+									height:'auto !important',
 									width: 900,
 									style: this.FIELDSET_BACKGROUND_COLOR,
                                     items: [
 									{
                                     xtype: 'panel',
-									animCollapse: true,
+									animCollapse: false,
 									collapsed: false,
-									collapsible: true,
-                                    height: 100,
+									collapsible: false,
+                                    height: 125,
                                     width: 900,
 									layout: 'column',
                                     
-                                    title: 'Access Options',
+                                    title: 'L3 Interface Options',
 									id: 'accessOptionGrid',
                                     itemId: 'accessOptionGrid',
 									//hidden: true,
@@ -1118,8 +1161,30 @@ Ext.define('Jx.cpp.service.vpls', {
                                     items: [
 										
 										{
+											xtype:'textfield',
+											fieldLabel: 'L3 Interface Description',
+											labelWidth: 135,
+											//height: 70,
+											width: 875,
+											disabled: true,
+											readOnly: true,
+											name: 'lblIUnitDescription',
+											id: 'lblIUnitDescription',
+											margin: '5 0 0 10',
+											readOnly: true,
+											fieldStyle: {
+											 //'fontFamily'   : 'Garamond',
+											 //'fontFamily'   : 'Calibri',
+											 //'fontSize'     : '13px'
+										   },
+											
+											style : {
+												color : 'grey'
+											}
+										 },
+										{
                                             xtype: 'numberfield',
-                                            margin: '5 10 0 10',
+                                            margin: '8 10 0 10',
                                             width: 140,
 											labelWidth: 40,
                                             fieldLabel: '<b>CSID</b>',
@@ -1138,7 +1203,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                         },
 										{
                                             xtype: 'numberfield',
-                                            margin: '5 3 0 0',
+                                            margin: '8 3 0 0',
                                             width: 110,
 											labelWidth: 40,
                                             fieldLabel: '<b>VLAN</b>',
@@ -1169,7 +1234,7 @@ Ext.define('Jx.cpp.service.vpls', {
 											text: 'Validate',
 											name: 'validateBtn',
 											id: 'validateBtn',
-											margin: '5 10 0 0',
+											margin: '8 10 0 0',
 											tooltip: 'Validate Vlan',
 											handler: function(button, event) {
 												var vlanId = Ext.getCmp('vlanId').getValue();
@@ -1179,7 +1244,7 @@ Ext.define('Jx.cpp.service.vpls', {
 										},
                                         {
                                             xtype: 'textfield',
-                                            margin: '5 10 0 0',
+                                            margin: '8 10 0 0',
                                             width: 230,
 											maxWidth: 230,
                                             fieldLabel: '<b>IPv4 Address/Mask</b>',
@@ -1187,10 +1252,17 @@ Ext.define('Jx.cpp.service.vpls', {
                                             name: 'ipAddress',
 											id: 'ipAddress',
 											allowBlank: false,
-											vtype:'IPAddress',
+											//vtype:'IPAddress',
 											listeners: {
-											'change':function(list,record) {
-												 var ipAddress = Ext.getCmp("ipAddress").getValue();
+											blur : function() {
+												var ipAddress = Ext.getCmp("ipAddress").getValue();
+																	
+												if(ipAddress !='' && ipAddress != null && ipAddress.split(".").length == 4 && (parseInt(ipAddress.split(".")[0]) > 0 && parseInt(ipAddress.split(".")[0]) < 256 && !isNaN(ipAddress.split(".")[0]) && parseInt(ipAddress.split(".")[1]) >= 0 && parseInt(ipAddress.split(".")[1]) < 256 && !isNaN(ipAddress.split(".")[1]) && parseInt(ipAddress.split(".")[2]) >= 0 && parseInt(ipAddress.split(".")[2]) < 256 && !isNaN(ipAddress.split(".")[2]) && parseInt(ipAddress.split(".")[3]) >= 0 && parseInt(ipAddress.split(".")[3]) < 256 && !isNaN(ipAddress.split(".")[3]))){
+													//return  true;
+												} else {
+													 Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Error: valid value is xxx.xxx.xxx.xxx");
+												}
+																	
 												 if(ipAddress.split(".").length == 4){
 												 if(me.validateIpAddress()){
 														Ext.getCmp("neighbourAddress").setValue("");
@@ -1216,23 +1288,26 @@ Ext.define('Jx.cpp.service.vpls', {
 													
 													 neighbourAddress = ipAddress.split(".")[0]+"."+ipAddress.split(".")[1]+"."+ipAddress.split(".")[2]+"."+neighbourAddress4;
 													 
-													 console.log("neighbourAddress > "+neighbourAddress);
+													 //console.log("neighbourAddress > "+neighbourAddress);
 													 Ext.getCmp("neighbourAddress").setValue(neighbourAddress);
 													}
+											},
+											'change':function(list,record) {
+												 
 												}
 												
 											}
 									    },
                                         {
                                             xtype: 'label',
-                                            margin: '6 4 0 0',
+                                            margin: '11 4 0 0',
 											width: 3,
 											maxWidth: 3,
                                             text: '/'
                                         },
                                         {
                                             xtype: 'numberfield',
-                                            margin: '5 10 0 0',
+                                            margin: '8 10 0 0',
                                             width: 30,
 											maxWidth: 30,
                                             labelSeparator: ' ',
@@ -1241,7 +1316,7 @@ Ext.define('Jx.cpp.service.vpls', {
 											allowBlank: false,
 											
 											//fieldLabel: '/',
-											value: '30',
+											value: '31',
 											allowDecimals: false,
 											hideTrigger: true,
 											keyNavEnabled: false,
@@ -1292,10 +1367,11 @@ Ext.define('Jx.cpp.service.vpls', {
                                         },
                                         {
                                             xtype: 'combobox',
-                                            margin: '5 50 10 0',
-                                            width: 142,
+                                            margin: '8 50 10 0',
+                                            width: 132,
 											fieldLabel: 'IP MTU',
-                                            labelWidth: 43,
+                                            labelWidth: 53,
+											value: '1500',
 											labelAlign: 'right',
 											name: 'ipMTU',
 											id: 'ipMTU',
@@ -1333,7 +1409,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                         },
 										{
                                             xtype: 'textfield',
-                                            margin: '5 0 0 0',
+                                            margin: '5 10 0 0',
 											width: 430,
 											maxWidth: 430,
 											labelWidth: 150,
@@ -1346,7 +1422,74 @@ Ext.define('Jx.cpp.service.vpls', {
 											hidden: true
 											
                                         },
-										
+										{
+											xtype: 'combobox',
+											flex: 1,
+											margin: '5 0 0 0',
+											width: 220,
+											maxWidth: 220,
+											fieldLabel: 'Operational Mode',
+											labelSeparator: ' ',
+											labelWidth: 100,
+											labelAlign: 'left',
+											name: 'operationalMode',
+											id: 'operationalMode',
+											store: this.getOperatioanlMode(),
+											queryMode: 'local',
+											editable: true,
+											displayField: 'displayText',
+											valueField: 'valueText',
+											listeners: {
+												render: function (field) {
+												console.log("render");
+													Ext.getCmp('operationalMode').setValue("PEN");
+												},
+												load: function () {
+												console.log("load");
+													var combo = Ext.getCmp('operationalMode');
+													combo.setValue("PEN");
+												},
+												'select':function(list,record) {
+													//var siteInterfaceGrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
+													//me.loadSiteInterfaceGrid(Ext.getCmp("siteName").getValue());
+													
+													var operationalMode = Ext.getCmp('operationalMode').getValue();
+													if( operationalMode == 'TST'){
+													Ext.getCmp("prefixDetailBtn").show();
+													console.log("operationalMode> selected > "+operationalMode);
+														//Ext.getCmp("prefixListGrid1").getStore().removeAll();
+														//var win = this.up('window').openPrefixListWindow();//grid, rowIndex, colIndex
+														//win.show();			
+													}else{
+														Ext.getCmp("prefixDetailBtn").hide();
+													}													
+												}
+											}
+											
+										},
+										{
+											xtype: 'button',
+											text: 'Performance Prefixes',
+											name: 'prefixDetailBtn',
+											margin: '3 0 0 0',
+											id: 'prefixDetailBtn',
+											tooltip: '',
+											hidden: true,
+											//icon: '../serviceuicommon/images/cpp/Settings_16x16.png',
+											//width: 20,
+											//margin: '0 0 0 0',
+											
+											
+											handler: function(button, event) {
+												var operationalMode = Ext.getCmp('operationalMode').getValue();
+													if( operationalMode == 'TST'){
+													console.log("operationalMode> selected > "+operationalMode);
+														//Ext.getCmp("prefixListGrid1").getStore().removeAll();
+														var win = this.up('window').openPrefixListWindow();//grid, rowIndex, colIndex
+														win.show();			
+													}	
+											}
+										},
 										{
 											xtype: 'hiddenfield',
 											name: 'index',
@@ -1357,7 +1500,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                 },
                                 {
                                     xtype: 'panel',
-                                    height: 100,
+                                    height: 60,
                                     width: 900,
 									layout: 'column',
                                      /*layout: {
@@ -1384,8 +1527,8 @@ Ext.define('Jx.cpp.service.vpls', {
 											id: 'peerAS',
 											allowBlank: false,
 											//value: '65001',
-											minValue: 64512,
-											maxValue: 65534,
+											//minValue: 64512,
+											//maxValue: 65534,
 											hideTrigger: true,
 											keyNavEnabled: false,
 											mouseWheelEnabled: false,
@@ -1395,48 +1538,6 @@ Ext.define('Jx.cpp.service.vpls', {
 											}
                                         },
                                         {
-                                            xtype: 'textfield',
-                                            margin: '5 10 0 0',
-                                            maxWidth: 130,
-                                            width: 130,
-											labelWidth: 70,
-											//colspan:2,
-											labelAlign: 'right',
-											name: 'rt',
-											id: 'rt',
-                                            fieldLabel: '<b>RT(Mesh)</b>'
-											//hidden: true,
-											//disabled:true
-                                        },
-										{
-                                            xtype: 'textfield',
-                                            margin: '5 10 0 0',
-                                            maxWidth: 130,
-                                            width: 130,
-											labelWidth: 70,
-											//colspan:2,
-											labelAlign: 'right',
-											name: 'rtHub',
-											id: 'rtHub',
-                                            fieldLabel: '<b>RT(Hub)</b>',
-											hidden: true,
-											disabled:true
-                                        },
-										{
-                                            xtype: 'textfield',
-                                            margin: '5 0 0 0',
-                                            maxWidth: 130,
-                                            width: 130,
-											labelWidth: 70,
-											labelAlign: 'right',
-											allowBlank: false,
-											name: 'rtSpoke',
-											id: 'rtSpoke',
-                                            fieldLabel: '<b>RT(Spoke)</b>',
-											hidden: true,
-											disabled:true
-                                        },
-										{
                                             xtype: 'hiddenfield',
                                             name: 'oldRT',
 											id: 'oldRT'
@@ -1474,10 +1575,10 @@ Ext.define('Jx.cpp.service.vpls', {
 										{
                                             xtype: 'textfield',
                                             margin: '5 10 0 10',
-                                            width: 215,
-											maxWidth: 215,
+                                            width: 205,
+											maxWidth: 205,
                                             fieldLabel: '<b>IPv4 Neighbour</b>',
-											labelWidth: 90,
+											labelWidth: 100,
                                             name: 'neighbourAddress',
 											id: 'neighbourAddress',
 											allowBlank: false,
@@ -1639,7 +1740,23 @@ Ext.define('Jx.cpp.service.vpls', {
                                             name: 'ciuLoopback',
 											id: 'ciuLoopback',
 											allowBlank: false,
-											vtype: 'IPAddress'
+											//vtype: 'IPAddress'
+											listeners: {
+											blur : function() {
+												var ipAddress = Ext.getCmp("ciuLoopback").getValue();
+																
+												if(ipAddress !='' && ipAddress != null && ipAddress.split(".").length == 4 && (parseInt(ipAddress.split(".")[0]) > 0 && parseInt(ipAddress.split(".")[0]) < 256 && !isNaN(ipAddress.split(".")[0]) && parseInt(ipAddress.split(".")[1]) >= 0 && parseInt(ipAddress.split(".")[1]) < 256 && !isNaN(ipAddress.split(".")[1]) && parseInt(ipAddress.split(".")[2]) >= 0 && parseInt(ipAddress.split(".")[2]) < 256 && !isNaN(ipAddress.split(".")[2]) && parseInt(ipAddress.split(".")[3]) >= 0 && parseInt(ipAddress.split(".")[3]) < 256 && !isNaN(ipAddress.split(".")[3]))){
+													//return  true;
+												} else {
+													 Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Error: valid value is xxx.xxx.xxx.xxx");
+												}
+													
+											},
+											'change':function(list,record) {
+												 
+												}
+												
+											}
 									   },
 									   {
                                             xtype: 'hiddenfield',
@@ -1705,7 +1822,7 @@ Ext.define('Jx.cpp.service.vpls', {
 										{
                                             xtype: 'textfield',
                                             margin: '5 50 0 0',
-                                            width: 250,
+                                            width: 320,
 											labelWidth: 65,
 											fieldLabel: 'CIU Alias',
 											name: 'ciuAlias',
@@ -1789,6 +1906,35 @@ Ext.define('Jx.cpp.service.vpls', {
 									//hidden: true,
 									style: this.FIELDSET_BACKGROUND_COLOR,
                                     items: [
+											{
+												xtype: 'combobox',
+												//margin: '0 0 0 0',
+												flex: 1,
+												width: 190,
+												fieldLabel: '<b>QoS Type</b>',
+												labelWidth: 60,
+												margin: '5 10 0 10',
+												labelAlign: 'left',
+												//colspan:1,
+												disabled: true,
+												id: 'qosType',
+												value: 'QoS per Access',
+												store: ['QoS per Access', 'QoS per VPN'],
+												listeners: {
+															 change: function(field, newValue, oldValue) {
+															 console.log("connection type********: "+newValue);
+															 
+															 var pathPreference = Ext.getCmp("pathPreferences");
+															 
+															 if(newValue == 'QoS per VPN'){
+																Ext.getCmp("vpnSpeed").setDisabled(false);
+															 }else{
+																Ext.getCmp("vpnSpeed").setDisabled(true);
+															 }
+															}
+														}
+												},
+												
                                         {
                                             xtype: 'combobox',
                                             //margin: '0 20 0 0',
@@ -1829,18 +1975,13 @@ Ext.define('Jx.cpp.service.vpls', {
                                             margin: '5 10 0 0',
                                             width: 145,
 											labelWidth: 70,
-                                            fieldLabel: 'VPN Speed',
+                                            fieldLabel: '<b>VPN Speed</b>',
 											name: 'vpnSpeed',
 											id: 'vpnSpeed',
 											store: this.getAccessRate(),
 											queryMode: 'local',
 											displayField: 'displayText',
-											valueField: 'valueText'/*,
-											disabled:true,
-											enforceMaxLength: true,
-											hideTrigger: true,
-											keyNavEnabled: false,
-											mouseWheelEnabled: false*/
+											valueField: 'valueText'
                                         },
 										 {
                                             xtype: 'checkboxfield',
@@ -1858,17 +1999,17 @@ Ext.define('Jx.cpp.service.vpls', {
 												console.log(this.checkValue);
 												if (this.checkValue == true) {
 													
-													me.setFieldDisabled("efRate",false);	
+													//me.setFieldDisabled("efRate",false);	
 												}
 												else if (this.checkValue == false) {
-													me.setFieldDisabled("efRate",true);	
+													//me.setFieldDisabled("efRate",true);	
 												}
 											}
                                         },
 										{
 													xtype: 'combobox',
 													//margin: '0 160 0 0',
-													margin: '5 180 0 0',
+													margin: '5 50 0 0',
 													maxWidth: 170,
 													width: 170,
 													fieldLabel: 'EF Rate',
@@ -1938,6 +2079,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                             width: 190,
                                             fieldLabel: '<b>Classifier</b>',
                                             labelWidth: 60,
+											//disabled: true,
 											store: this.getClassifier(),
 											queryMode: 'local',
 											displayField: 'displayText',
@@ -1948,10 +2090,16 @@ Ext.define('Jx.cpp.service.vpls', {
 														 change: function(field, newValue, oldValue) {
 														 console.log("selected classifier* "+newValue);
 														 if(newValue == 'v2-802.1ad'){
+															Ext.getCmp("isAllAFSelected").setValue(true);
+															me.setFieldDisabled("isAllAFSelected",true);	
+															
 															me.setFieldDisabled("beService",false);	
 															Ext.getCmp("beService").setValue(true);
 															}
 														else{
+															Ext.getCmp("isAllAFSelected").setValue(false);
+															if(!Ext.getCmp("ciuName").disabled)
+																me.setFieldDisabled("isAllAFSelected",false);	
 															me.setFieldDisabled("beService",true);	
 															Ext.getCmp("beService").setValue(false);
 															}	
@@ -1964,6 +2112,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                             id: 'isAllAFSelected',
 											name: 'isAllAFSelected',
                                             margin: '15 30 0 0',
+											disabled: true,
 											width: 130,
 											labelWidth: 111,
 											fieldLabel: '<b>AF3%/AF2%/AF1%</b>',
@@ -2015,7 +2164,8 @@ Ext.define('Jx.cpp.service.vpls', {
 											id: 'af3',
 											disabled: true,
 											maxValue: 100,
-                                            minValue: 1
+                                            minValue: 10,
+											step: 10
                                         },
 										{
                                             xtype: 'checkboxfield',
@@ -2024,7 +2174,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                             margin: '15 10 10 0',
 											width: 25,
 											labelWidth: 15,
-                                            
+                                            disabled: true,
                                             boxLabel: '',
 											scope: this,
 											handler: function (field, value) {
@@ -2081,7 +2231,8 @@ Ext.define('Jx.cpp.service.vpls', {
 											id: 'af2',
 											disabled: true,
 											maxValue: 100,
-                                            minValue: 1
+                                            minValue: 10,
+											step: 10
                                         },
 										{
                                             xtype: 'checkboxfield',
@@ -2090,7 +2241,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                             margin: '15 5 0 0',
 											width: 25,
 											labelWidth: 15,
-                                            
+                                            disabled: true,
                                             boxLabel: '',
 											scope: this,
 											handler: function (field, value) {
@@ -2143,7 +2294,8 @@ Ext.define('Jx.cpp.service.vpls', {
 											id: 'af1',
 											disabled: true,
 											maxValue: 100,
-                                            minValue: 1
+                                            minValue: 10,
+											step: 10
                                         },
 										{
                                             xtype: 'checkboxfield',
@@ -2152,7 +2304,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                             margin: '15 0 10 0',
 											width: 25,
 											labelWidth: 15,
-                                            
+                                            disabled: true,
                                             boxLabel: '',
 											scope: this,
 											handler: function (field, value) {
@@ -2240,11 +2392,11 @@ Ext.define('Jx.cpp.service.vpls', {
                                 },
 								{
                                     xtype: 'button',
-                                    text: 'Delete',
+                                    text: 'Delete L3 Interface',
 									name: 'deleteBtn',
 									id: 'deleteBtn',
 									hidden: true,
-									width: 100,
+									width: 170,
                                     margin: 5,
 									handler: function(button, event) {
                                         me.handleDeleteStagedInterface();
@@ -2255,6 +2407,7 @@ Ext.define('Jx.cpp.service.vpls', {
 									width: 100,
 									id: 'clearAddSiteInterfacePanelButton',
 									text: 'Reset',
+									hidden: true,
 									tooltip: 'Clear Panel Entries',
 									handler: function(button, event) {
 										me.handleClearAddSiteInterfacePanelButton();
@@ -2284,6 +2437,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                     flex: 1,
                                     //height: 367,
                                     //maxHeight: 125,
+									height: 148,
                                     headerPosition: 'right',
                                     activeTab: 0,
 									style: this.FIELDSET_BACKGROUND_COLOR,
@@ -2300,10 +2454,10 @@ Ext.define('Jx.cpp.service.vpls', {
                                             items: [
                                                 {
                                                     xtype: 'gridpanel',
-                                                    height: 148,
-													name: 'cciInterfacesDeployedGrid',
-                                                    id: 'cciInterfacesDeployedGrid',
-                                                    maxHeight: 148,
+                                                    height: 135,
+													name: 'deployedInterfacesGrid',
+                                                    id: 'deployedInterfacesGrid',
+                                                    maxHeight: 135,
 													layout: 'fit',
                                                     maxWidth: 875,
                                                     width: 875,
@@ -2313,22 +2467,30 @@ Ext.define('Jx.cpp.service.vpls', {
                                                     forceFit: true,
                                                     store: this.provisionedInterfacesGridStore(),
 													style: this.FIELDSET_BACKGROUND_COLOR,
+													plugins:[Ext.create('Ext.ux.grid.JxFilterRow', {
+														remoteFilter:false,
+														
+													})],
 													columns: [
 														{
 															xtype: 'gridcolumn',
-															//width: 1,
 															hidden: true,
 															hideable: false,
-															dataIndex: 'moid'
+															dataIndex: 'pedeviceId'
 														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
-															align: 'center',
-															dataIndex: 'site',
-															text: 'Site Name',
-															hidden: false,
-															hideable:false
+															text: 'IP Address',
+															dataIndex: 'ipAddress',
+															hidden: true,
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: 'IP Address',
+															maxWidth: 120,
+															dataIndex: 'ipAddressAndMask'
 														},
 														{
 															xtype: 'gridcolumn',
@@ -2336,9 +2498,34 @@ Ext.define('Jx.cpp.service.vpls', {
 															align: 'center',
 															dataIndex: 'port',
 															//hideable: false,
-															maxWidth: 160,
+															maxWidth: 90,
 															text: 'Port',
 															hidden: false
+														},
+														{
+                                                            xtype: 'gridcolumn',
+                                                            text: 'CIU Name',
+                                                            align: 'center',
+                                                            dataIndex: 'ciuName',
+															maxWidth: 180
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
+                                                            text: 'CIU Alias',
+                                                            align: 'center',
+                                                            dataIndex: 'ciuAlias',
+															maxWidth: 180
+                                                        },
+														
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															align: 'center',
+															dataIndex: 'site',
+															text: 'Site Name',
+															hidden: false,
+															hideable:false,
+															maxWidth: 130,
 														},
 														{
 															xtype: 'gridcolumn',
@@ -2346,41 +2533,29 @@ Ext.define('Jx.cpp.service.vpls', {
 															align: 'center',
 															sortable: true,
 															dataIndex: 'endPointServiceType',
-															text: 'Service Type'
-														},
-														{
-															xtype: 'gridcolumn',
-															align: 'center',
-															dataIndex: 'oldEndPointServiceType',
 															text: 'Service Type',
-															hidden: true
+															maxWidth: 90,
 														},
 														{
                                                             xtype: 'gridcolumn',
                                                             text: 'CIU LB',
                                                             align: 'center',
-                                                            dataIndex: 'oldCiuLoopback',
+                                                            dataIndex: 'ciuLoopback',
                                                             hidden: true
-                                                        },
-														{
-                                                            xtype: 'gridcolumn',
-                                                            text: 'CIU Name',
-                                                            align: 'center',
-                                                            dataIndex: 'ciuName',
-                                                            hidden: true
-                                                        },{
-                                                            xtype: 'gridcolumn',
-                                                            text: 'CIU Alias',
-                                                            align: 'center',
-                                                            dataIndex: 'ciuAlias',
-                                                            hidden: true
+															
                                                         },
 														{
                                                             xtype: 'gridcolumn',
                                                             text: 'Access Type',
                                                             align: 'center',
                                                             dataIndex: 'accessType',
-                                                            hidden: true
+															maxWidth: 90
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
+                                                            align: 'center',
+                                                            dataIndex: 'portSpeed',
+															hidden: true
                                                         },
 														{
                                                             xtype: 'gridcolumn',
@@ -2392,36 +2567,14 @@ Ext.define('Jx.cpp.service.vpls', {
 														{
 															xtype: 'gridcolumn',
 															editable: true,
-															maxWidth: 160,
-															//maxValue: 4096,
-															//minValue: 1,
 															sortable: true,
 															editable: true,
 															align: 'center',
 															dataIndex: 'vlanId',
-															//hideable: false,
-															text: 'VLAN',
-															width: 50
+															hidden: true,
+															text: 'VLAN'
                                                             
 														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															text: 'IP Address',
-															//align: 'center',
-															editable: true,
-															dataIndex: 'ipAddress',
-															hidden: true
-														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															text: 'IP Address',
-															//align: 'center',
-															editable: true,
-															dataIndex: 'oldIPV4AddressAndMask',
-															hidden: true
-														},				
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
@@ -2434,18 +2587,14 @@ Ext.define('Jx.cpp.service.vpls', {
 														
 														{
 															xtype: 'gridcolumn',
-															//maxWidth: 100,
-															//width: 100,
 															sortable: true,
 															align: 'left',
 															dataIndex: 'accessRate',
 															text: 'Access Rate',
-															hidden: true,
+															hidden: true
 														},
 														{
 															xtype: 'gridcolumn',
-															//maxWidth: 100,
-															//width: 100,
 															sortable: true,
 															align: 'center',
 															dataIndex: 'efRate',
@@ -2454,8 +2603,6 @@ Ext.define('Jx.cpp.service.vpls', {
 														},
 														{
 															xtype: 'gridcolumn',
-															//maxWidth: 100,
-															//width: 100,
 															sortable: true,
 															align: 'center',
 															dataIndex: 'efService',
@@ -2502,14 +2649,6 @@ Ext.define('Jx.cpp.service.vpls', {
 														},
 														{
                                                             xtype: 'gridcolumn',
-                                                            text: 'Classifier',
-                                                            align: 'center',
-                                                            dataIndex: 'classifier',
-                                                            hidden: true,
-															width: 0
-                                                        },
-														{
-                                                            xtype: 'gridcolumn',
                                                             text: 'EF1',
                                                             align: 'center',
                                                             dataIndex: 'ef1',
@@ -2529,6 +2668,14 @@ Ext.define('Jx.cpp.service.vpls', {
                                                             text: 'EF3',
                                                             align: 'center',
                                                             dataIndex: 'ef3',
+                                                            hidden: true,
+															width: 0
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
+                                                            text: 'Classifier',
+                                                            align: 'center',
+                                                            dataIndex: 'classifier',
                                                             hidden: true,
 															width: 0
                                                         },
@@ -2562,25 +2709,29 @@ Ext.define('Jx.cpp.service.vpls', {
 														},
 														{
 															xtype: 'gridcolumn',
-															text: 'Neighbour Address',
-															dataIndex: 'neighbourAddress',
+															dataIndex: 'spkVrfName',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR
+														},
+														{
+															xtype: 'gridcolumn',
+															dataIndex: 'spkRd',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR
+														},
+														{
+															xtype: 'gridcolumn',
+															dataIndex: 'spkVrfId',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR
 														},
 														{
 															xtype: 'gridcolumn',
 															text: 'Neighbour Address',
-															dataIndex: 'oldNeighbourAddress',
+															dataIndex: 'neighbourAddress',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR
 														},
-														/*{
-															xtype: 'gridcolumn',
-															text: '',
-															dataIndex: 'neighbourSubnetMask',
-															hidden: true,
-															style: this.FIELDSET_WHITE_COLOR
-														},*/
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
@@ -2628,6 +2779,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'ipv6Address'
+															
 														},
 														{
 															xtype: 'gridcolumn',
@@ -2689,24 +2841,14 @@ Ext.define('Jx.cpp.service.vpls', {
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'rpGprRange'
 														},
-														
-														
-														
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
-															text: 'Endpoint Type',
+															text: 'CSID',
 															hidden: true,
-															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'endPointType'
-														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															text: '',
-															hidden: true,
-															style: this.FIELDSET_WHITE_COLOR,
+															//style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'csId'
+															
 														},
 														{
 															xtype: 'gridcolumn',
@@ -2719,17 +2861,16 @@ Ext.define('Jx.cpp.service.vpls', {
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
-															text: '',
+															text: 'Topology',
+															dataIndex: 'topology',
 															hidden: true,
-															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'topology'
 														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
 															text: 'RT(Mesh)',
 															hidden: true,
-															//style: this.FIELDSET_WHITE_COLOR,
+															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'rt'
 														},
 														{
@@ -2737,7 +2878,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															sortable: true,
 															text: 'RT(Hub)',
 															hidden: true,
-															//style: this.FIELDSET_WHITE_COLOR,
+															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'rtHub'
 														},
 														{
@@ -2745,22 +2886,14 @@ Ext.define('Jx.cpp.service.vpls', {
 															sortable: true,
 															text: 'RT(Spoke)',
 															hidden: true,
-															//style: this.FIELDSET_WHITE_COLOR,
+															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'rtSpoke'
 														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
-															text: '',
-															hidden: true,
-															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'oldRT'
-														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
 															text: 'End Point',
-															//hidden: true,
+															hidden: true,
 															//style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'endPointType'
 														},
@@ -2780,6 +2913,15 @@ Ext.define('Jx.cpp.service.vpls', {
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'adminState'
 														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'operationalMode'
+														},
+														
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
@@ -2826,6 +2968,22 @@ Ext.define('Jx.cpp.service.vpls', {
 															text: '',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'oldQosType'
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'vpnName'
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'vpnAlias'
 														},
 														{
@@ -2844,6 +3002,69 @@ Ext.define('Jx.cpp.service.vpls', {
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'vpnRate'
 														},
+														/*{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'AsRd'
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'AsRdSpk'
+														},*/
+														{
+															xtype: 'gridcolumn',
+															align: 'center',
+															dataIndex: 'oldEndPointServiceType',
+															text: 'Service Type',
+															hidden: true
+														},
+														{
+                                                            xtype: 'gridcolumn',
+                                                            text: 'CIU LB',
+                                                            align: 'center',
+                                                            dataIndex: 'oldCiuLoopback',
+                                                            hidden: true
+                                                        },
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															editable: true,
+															dataIndex: 'oldVlanId',
+															hidden: true
+                                                            
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: 'IP Address',
+															//align: 'center',
+															editable: true,
+															dataIndex: 'oldIPV4AddressAndMask',
+															hidden: true
+														},																
+														{
+															xtype: 'gridcolumn',
+															text: 'Neighbour Address',
+															dataIndex: 'oldNeighbourAddress',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR
+														},
+														
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'oldRT'
+														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
@@ -2859,15 +3080,8 @@ Ext.define('Jx.cpp.service.vpls', {
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'oldQoSOptionDetail'
-														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															text: '',
-															hidden: true,
-															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'oldEndpointType'
-														},
+														}
+														,
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
@@ -2875,54 +3089,150 @@ Ext.define('Jx.cpp.service.vpls', {
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'oldEFRate'
+														},
+														{
+                                                            xtype: 'gridcolumn',
+                                                            align: 'center',
+                                                            dataIndex: 'dataForDisplay',
+															hidden: true
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
+                                                            align: 'center',
+                                                            dataIndex: 'deployedInterface',
+															hidden: true
+                                                        },
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'prefixList'
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'prefixListBeforeUpdate'
 														}
-														
 														
 													],
 													listeners: {
 															itemdblclick: function(dv, record, item, index, e) {
+															console.log("hello**********************************");
 															console.log("selected row1 : "+index);
-															console.log(">>>endpoint type>>>   : "+record.get('endPointType'));
+															console.log("port : "+record.get('port'));
+															//me.getInterfaceDescription(record.get('port'), record.get('moid'));
+															//me.getUnitDescription(record.get('port'), record.get('vlanId'),record.get('moid'));
 															
+															var dataForDisplay = record.get('dataForDisplay');
+															if(dataForDisplay != undefined){
+																var displayData = dataForDisplay.split("|");
+																//softwareVersion + "|"+ nodeType + "|" + siteName;	
+																Ext.getCmp("siteNameRO").setValue(record.get('site'))
+																Ext.getCmp("softwareVersion").setValue(displayData[0]);
+																Ext.getCmp("nodeType").setValue(displayData[1]);
+																Ext.getCmp("siteNameRO").setValue(displayData[2]);
+																Ext.getCmp("lblInterfaceDescription").setValue(displayData[3]);
+															}
+															var csId = record.get('csId');
+															var ciuName = record.get('ciuName');
+															var accessType = record.get('accessType');
+															var accessRate = record.get('accessRate');
+															var endPointServiceType = record.get('endPointServiceType');
+															var application = Ext.getCmp('application').getValue();
+															var protocol = (record.get('ipv6Peer') == true) ? 'MV6' : 'MV4';
+															var topology = record.get('topology');
+															var vrfName = '';
+															if(topology == 'Mesh'){
+																vrfName = record.get('vrfName');
+															}else if(topology == 'Hub'){
+																vrfName = record.get('vrfName');
+															}else if(topology == 'Spoke'){
+																vrfName = record.get('spkVrfName');
+															}
+															var pathPreferences = record.get('pathPreferences');
+															var vpnSpeed = record.get('vpnSpeed') == undefined ? '' : record.get('vpnSpeed');
+															var architecture = 'JCE';
+															var connectionnType = (record.get('connectionType') == 'RE Direct') ? 'REDI' : 'REDU';
+															var policyGroup = record.get('policyGroup');
+															var operationalMode = record.get('operationalMode');
+															var ciuAlias = record.get('ciuAlias');
+															
+															var unitDescription = csId + "." + ciuName + "." + accessType + "." + accessRate + "." + endPointServiceType + "." + application + "." + protocol + "." + vrfName + "." + pathPreferences + "." + vpnSpeed +"." + architecture + "." + connectionnType + "." +policyGroup + "." + operationalMode + "." + ciuAlias;
+															
+															console.log("unitDescription >: "+unitDescription);
+															
+															Ext.getCmp("lblIUnitDescription").setValue(unitDescription);
+															
+															
+															console.log("moid******************: "+record.get('moid'));
+															Ext.getCmp("siteName").setValue(record.get('moid'));	
 															Ext.getCmp("isDeployedUpdated").setValue("true");
-															console.log("1");
+															Ext.getCmp("endpointPanel").setDisabled(false);
+															Ext.getCmp('spkVrfId').setDisabled(false);
+															Ext.getCmp('spkVrfName').setDisabled(false);
+															Ext.getCmp('siteName').setDisabled(false);
+															Ext.getCmp('csId').setDisabled(false);
+															Ext.getCmp('vlanId').setDisabled(false);
+															Ext.getCmp('ipAddress').setDisabled(false);
+															Ext.getCmp('peerAS').setDisabled(false);
+															Ext.getCmp('neighbourAddress').setDisabled(false);
+															Ext.getCmp('ciuLoopback').setDisabled(false);
+															//Ext.getCmp('ciuName').setDisabled(false);
+															Ext.getCmp('accessRate').setDisabled(false);
+															
+															
+															Ext.getCmp('csId').setDisabled(true);
+															Ext.getCmp('localPref').setDisabled(true);
+															Ext.getCmp('med').setDisabled(true);
+															Ext.getCmp('ciuName').setDisabled(true);
+															Ext.getCmp('ciuAlias').setDisabled(true);
+															
+															/////Ext.getCmp('af1').setDisabled(true);
+															/////Ext.getCmp('af2').setDisabled(true);
+															/////Ext.getCmp('af3').setDisabled(true);
+															/////Ext.getCmp('isAF1Selected').setDisabled(true);
+															/////Ext.getCmp('isAF2Selected').setDisabled(true);
+															/////Ext.getCmp('isAF3Selected').setDisabled(true);
+															/////Ext.getCmp('isAllAFSelected').setDisabled(true);
+													 
+															Ext.getCmp('qosType').setDisabled(true);
+															
+															var portCombo = Ext.getCmp("portSpeed");
+															//childCombo.clearValue();
+															portCombo.getStore().removeAll();
+															var portName = record.get('port');
+															
+															console.log("port name** "+portName);
+															if(portName.indexOf("ge") != -1){
+																portCombo.setValue("1g");
+																portCombo.bindStore(me.getPortSpeed()); //bind the store for up
+																
+															}
+															else if(portName.indexOf("xe") != -1){
+																portCombo.bindStore(me.getPortSpeedForXEPort()); //bind the store for up
+																portCombo.setValue("10g");
+															}else{
+															portCombo.bindStore(['']); //bind the store for up
+																portCombo.setValue("");
+															}
+																	
+															
 															var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
 															endpointPanel.show();
 															this.isCCI=true;
 															console.log("2");
 															var topology = Ext.getCmp("topology").getValue();
 															console.log("3");
-															var records = [];
-															records.push({"displayText":record.get('endPointType'), "valueText":record.get('endPointType')});
-															console.log("4");
-															Ext.getCmp('endPointType').store.getProxy().data=records;
-															Ext.getCmp('endPointType').store.loadData=records;
-															Ext.getCmp('endPointType').store.reload();
-
-															me.setFieldDisabled('endPointType',true);
-															console.log("5");
-															var endPointType =Ext.getCmp("endPointType").setValue(record.get('endPointType'));
 															
-															/*if(Ext.isChrome){
-																if(record.get('endPointType').indexOf('Full Mesh')!== -1){
-																	Ext.getCmp("topology").setValue('Full Mesh');
-																}else
-																	Ext.getCmp("topology").setValue('Hub & Spoke');
-															}else{
-																if(record.get('endPointType').indexOf('Full Mesh') != -1){
-																	Ext.getCmp("topology").setValue('Full Mesh');
-																}else
-																	Ext.getCmp("topology").setValue('Hub & Spoke');
-																}*/
-															
-																if(record.get('endPointType').indexOf('Full Mesh') != -1){
-																	Ext.getCmp("topology").setValue('Full Mesh');
-																}else
-																	Ext.getCmp("topology").setValue('Hub & Spoke');
-																	
-															console.log("6");	
 															var autonegotiate =Ext.getCmp("autonegotiate").setValue(record.get('autonegotiate'));	
 															var adminState =Ext.getCmp("adminState").setValue(record.get('adminState'));
+															Ext.getCmp("operationalMode").setValue(record.get('operationalMode'));
+															
 															var nextHOP =Ext.getCmp("nextHOP").setValue(record.get('nextHOP'));
 															
 															var multiVRF =Ext.getCmp("multiVRF").setValue(record.get('multiVRF'));
@@ -2930,6 +3240,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															var traficControlProfile =Ext.getCmp("traficControlProfile").setValue(record.get('traficControlProfile'));
 															
 															var qosType =Ext.getCmp("qosType").setValue(record.get('qosType'));
+															//Ext.getCmp("oldQosType").setValue(record.get('oldQosType'));
 															
 															var oldAccessDetail =Ext.getCmp("oldAccessDetail").setValue(record.get('oldAccessDetail'));
 															var oldQoSOptionDetail =Ext.getCmp("oldQoSOptionDetail").setValue(record.get('oldQoSOptionDetail'));
@@ -2944,9 +3255,9 @@ Ext.define('Jx.cpp.service.vpls', {
 															me.setFieldDisabled('subnetMask',true);
 															me.setFieldDisabled('vlanId',true);
 															me.setFieldDisabled('neighbourAddress',true);
-															me.setFieldDisabled('rt',true);
-															me.setFieldDisabled('rtHub',true);
-															me.setFieldDisabled('rtSpoke',true);
+															//me.setFieldDisabled('rt',true);
+															//me.setFieldDisabled('rtHub',true);
+															//me.setFieldDisabled('rtSpoke',true);
 															me.setFieldDisabled('ciuLoopback',true);
 															me.setFieldDisabled('loopbackSubnetMask',true);
 															console.log("8");
@@ -2966,11 +3277,31 @@ Ext.define('Jx.cpp.service.vpls', {
 															var clearInactiveEntriesFromListButton = Ext.getCmp('clearInactiveEntriesFromListButton');
 															clearInactiveEntriesFromListButton.hide();
 															
-															console.log("endpt type .  "+record.get('endPointType'));
+															var operationalMode = record.get('operationalMode');
+															//Ext.getCmp("prefixListGrid1").getStore().removeAll();
+															if(operationalMode == 'TST'){
+																Ext.getCmp("operationalMode").setValue(record.get('operationalMode'));
+																Ext.getCmp("prefixDetailBtn").show();
+																if(record.get('prefixList').length !=undefined)	{	
+																	for (var i=0; i< record.get('prefixList').length; i++) {
+																		console.log("prefixList "+ record.get('prefixList')[i].prefixList);
+																			Ext.getCmp("prefixListGrid1").getStore().add({
+																				prefixList: record.get('prefixList')[i].prefixList
+																			
+																			}); 
+																		}
+																	}else{
+																		Ext.getCmp("prefixListGrid1").getStore().add({
+																			prefixList: record.get('prefixList').prefixList
+																		
+																		}); 
+																	}
+																	Ext.getCmp("prefixListGrid1").getView().refresh();	
+																}
+															
 															//Ext.getCmp('topology').setDisabled(false);
 															me.setFieldDisabled('topology',true);
-															me.setFieldDisabled('endPointType',true);
-															var endPointType =Ext.getCmp("endPointType").setValue(record.get('endPointType'));
+															
 															var endPointServiceType =Ext.getCmp("endPointServiceType").setValue(record.get('endPointServiceType'));
 															var oldEndPointServiceType =Ext.getCmp("oldEndPointServiceType").setValue(record.get('oldEndPointServiceType'));
 
@@ -2981,6 +3312,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															var ciuName =Ext.getCmp("ciuName").setValue(record.get('ciuName'));
 															var ciuAlias =Ext.getCmp("ciuAlias").setValue(record.get('ciuAlias'));
 															var accessType =Ext.getCmp("accessType").setValue(record.get('accessType'));
+															Ext.getCmp("portSpeed").setValue(record.get('portSpeed'));
 															var connectionType =Ext.getCmp("connectionType").setValue(record.get('connectionType'));
 															var csId =Ext.getCmp("csId").setValue(record.get('csId'));
 															var pathPreferences =Ext.getCmp("pathPreferences").setValue(record.get('pathPreferences'));
@@ -2989,6 +3321,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															console.log(">>> oldVlanId >> "+Ext.getCmp("oldVlanId").getValue());
 															console.log("ip address: "+record.get('ipAddress'));
 															var ipAddress =Ext.getCmp("ipAddress").setValue(record.get('ipAddress'));
+															//Ext.getCmp("ipAddressAndMask").setValue(record.get('ipAddressAndMask'));
 															Ext.getCmp("oldIPV4AddressAndMask").setValue(record.get('oldIPV4AddressAndMask'));
 															console.log("neighbourAddress: "+record.get('neighbourAddress'));
 															var neighbourAddress =Ext.getCmp("neighbourAddress").setValue(record.get('neighbourAddress'));
@@ -3011,11 +3344,54 @@ Ext.define('Jx.cpp.service.vpls', {
 															var localPref =Ext.getCmp("localPref").setValue(record.get('localPref'));
 															var med =Ext.getCmp("med").setValue(record.get('med'));
 															var peerAS =Ext.getCmp("peerAS").setValue(record.get('peerAS'));
-															var peerAS =Ext.getCmp("peerAsRd").setValue("852:");
-														    var rt =Ext.getCmp("rt").setValue(record.get('rt'));
+															//var peerAS =Ext.getCmp("peerAsRd").setValue("852:");
+														    //var rt =Ext.getCmp("rt").setValue(record.get('rt'));
 															var oldRT =Ext.getCmp("oldRT").setValue(record.get('oldRT'));
-															var rtHub =Ext.getCmp("rtHub").setValue(record.get('rtHub'));
-															var rtSpoke =Ext.getCmp("rtSpoke").setValue(record.get('rtSpoke'));
+															//var rtHub =Ext.getCmp("rtHub").setValue(record.get('rtHub'));
+															//var rtSpoke =Ext.getCmp("rtSpoke").setValue(record.get('rtSpoke'));
+															
+															Ext.getCmp("spkVrfName").setValue(record.get('spkVrfName'));
+															//Ext.getCmp("AsRdSpk").setValue(record.get('AsRdSpk'));
+															//Ext.getCmp("AsRd").setValue(record.get('AsRd'));
+															Ext.getCmp("spkRd").setValue(record.get('spkRd'));
+															Ext.getCmp("spkVrfId").setValue(record.get('spkVrfId'));
+															
+															var topology = record.get('topology');
+															Ext.getCmp("topology").setValue(topology);
+															if(topology == 'Mesh'){
+																Ext.getCmp("vpnName").setFieldLabel("VRF Name");
+																Ext.getCmp("rd").setFieldLabel("Route Distinguisher");
+																Ext.getCmp("spkVrfName").hide();
+																//Ext.getCmp("AsRdSpk").hide();
+																Ext.getCmp("spkRd").hide();
+																Ext.getCmp("spkVrfId").hide();
+																Ext.getCmp("spkVrfName").setDisabled(true);
+																//Ext.getCmp("AsRdSpk").setDisabled(true);
+																Ext.getCmp("spkRd").setDisabled(true);
+																Ext.getCmp("spkVrfId").setDisabled(true);
+															}if(topology == 'Hub'){
+																Ext.getCmp("vpnName").setFieldLabel("Hub VRF Name");
+																Ext.getCmp("rd").setFieldLabel("Hub Route Distinguisher");
+																Ext.getCmp("spkVrfName").show();
+																//Ext.getCmp("AsRdSpk").show();
+																Ext.getCmp("spkRd").show();
+																Ext.getCmp("spkVrfId").show();
+																Ext.getCmp("spkVrfName").setDisabled(false);
+																//Ext.getCmp("AsRdSpk").setDisabled(false);
+																Ext.getCmp("spkRd").setDisabled(false);
+																Ext.getCmp("spkVrfId").setDisabled(false);
+															}if(topology == 'Spoke'){
+																Ext.getCmp("vpnName").setFieldLabel("Hub VRF Name/ID");
+																Ext.getCmp("rd").setFieldLabel("Hub Route Distinguisher");
+																Ext.getCmp("spkVrfName").show();
+																//Ext.getCmp("AsRdSpk").show();
+																Ext.getCmp("spkRd").show();
+																Ext.getCmp("spkVrfId").hide();
+																Ext.getCmp("spkVrfName").setDisabled(false);
+																//Ext.getCmp("AsRdSpk").setDisabled(false);
+																Ext.getCmp("spkRd").setDisabled(false);
+																Ext.getCmp("spkVrfId").setDisabled(true);
+															}
 															
 															var accessRate =Ext.getCmp("accessRate").setValue(record.get('accessRate'));
 															var efRate =Ext.getCmp("efRate").setValue(record.get('efRate'));
@@ -3047,13 +3423,21 @@ Ext.define('Jx.cpp.service.vpls', {
 														    stageBtn.hide();
 															var selectedRowIndex = Ext.getCmp('index');
 															//selectedRowIndex.setValue(index);
-															
+															console.log("site*****site******* " +record.get('moid'));
 															me.setFieldDisabled('siteName',true);
 															//me.setFieldDisabled('topology',true);
 															Ext.ComponentQuery.query('#endpointPanel')[0].show();
 															//Ext.getCmp('optionPanelGrid').getSelectionModel().select(0);
-																	Ext.getCmp('accessOptionGrid').show();
-																	//Ext.ComponentQuery.query('gridpanel[name=cciInterfacesDeployedGrid]')[0].getSelectionModel().ClearSelections();
+															Ext.getCmp('accessOptionGrid').show();
+															console.log("site************ " +Ext.getCmp("siteName").getValue());		
+															//me.getHardwareModel(record.get('moid'));
+															//me.getSoftwareVersion(record.get('moid'));
+															Ext.getCmp("siteName").setValue(record.get('moid'));	
+															Ext.getCmp("siteNameRO").setValue(record.get('site'))
+															Ext.getCmp("siteName").hide();
+															Ext.getCmp("siteNameRO").show();
+															me.loadSiteInterfaceGrid(record.get('moid'), record.get('port'));
+															
 														
 															},
 															 itemclick: function(dv, record, item, index, e) {
@@ -3095,7 +3479,7 @@ Ext.define('Jx.cpp.service.vpls', {
                             height: 150,
 							Height: 160,
                             width: 900,
-                            title: 'Change Service Details',
+                            title: 'Changed Service Details',
 							style: this.FIELDSET_BACKGROUND_COLOR,
                            layout: 'fit',
 
@@ -3136,22 +3520,31 @@ Ext.define('Jx.cpp.service.vpls', {
 														scroll:false,
 														style:{overflow: 'auto',overflowX: 'hidden'}
 													},
+													plugins:[Ext.create('Ext.ux.grid.JxFilterRow', {
+														remoteFilter:false,
+														
+													})],
 													columns: [
+														
 														{
 															xtype: 'gridcolumn',
-															//width: 1,
 															hidden: true,
 															hideable: false,
-															dataIndex: 'moid'
+															dataIndex: 'pedeviceId'
 														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
-															align: 'center',
-															dataIndex: 'site',
-															text: 'Site Name',
-															hidden: false,
-															hideable:false
+															text: 'IP Address',
+															dataIndex: 'ipAddress',
+															hidden: true
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: 'IP Address',
+															dataIndex: 'ipAddressAndMask',
+															maxWidth: 130
 														},
 														{
 															xtype: 'gridcolumn',
@@ -3159,9 +3552,34 @@ Ext.define('Jx.cpp.service.vpls', {
 															align: 'center',
 															dataIndex: 'port',
 															//hideable: false,
-															maxWidth: 160,
+															maxWidth: 90,
 															text: 'Port',
 															hidden: false
+														},
+														{
+                                                            xtype: 'gridcolumn',
+                                                            text: 'CIU Name',
+                                                            align: 'center',
+                                                            dataIndex: 'ciuName',
+															maxWidth: 180
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
+                                                            text: 'CIU Alias',
+                                                            align: 'center',
+                                                            dataIndex: 'ciuAlias',
+															maxWidth: 180
+                                                        },
+														
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															align: 'center',
+															dataIndex: 'site',
+															text: 'Site Name',
+															hidden: false,
+															hideable:false,
+															maxWidth: 130
 														},
 														{
 															xtype: 'gridcolumn',
@@ -3169,14 +3587,8 @@ Ext.define('Jx.cpp.service.vpls', {
 															align: 'center',
 															sortable: true,
 															dataIndex: 'endPointServiceType',
-															text: 'Service Type'
-														},
-														{
-															xtype: 'gridcolumn',
-															align: 'center',
-															dataIndex: 'oldEndPointServiceType',
 															text: 'Service Type',
-															hidden: true
+															maxWidth: 90
 														},
 														{
                                                             xtype: 'gridcolumn',
@@ -3187,30 +3599,16 @@ Ext.define('Jx.cpp.service.vpls', {
                                                         },
 														{
                                                             xtype: 'gridcolumn',
-                                                            text: 'CIU LB',
-                                                            align: 'center',
-                                                            dataIndex: 'oldCiuLoopback',
-                                                            hidden: true
-                                                        },
-														{
-                                                            xtype: 'gridcolumn',
-                                                            text: 'CIU Name',
-                                                            align: 'center',
-                                                            dataIndex: 'ciuName'
-                                                           // hidden: true
-                                                        },{
-                                                            xtype: 'gridcolumn',
-                                                            text: 'CIU Alias',
-                                                            align: 'center',
-                                                            dataIndex: 'ciuAlias',
-                                                            hidden: true
-                                                        },
-														{
-                                                            xtype: 'gridcolumn',
                                                             text: 'Access Type',
                                                             align: 'center',
                                                             dataIndex: 'accessType',
-                                                            hidden: true
+															maxWidth: 90
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
+                                                            align: 'center',
+                                                            dataIndex: 'portSpeed',
+															hidden: true
                                                         },
 														{
                                                             xtype: 'gridcolumn',
@@ -3222,44 +3620,14 @@ Ext.define('Jx.cpp.service.vpls', {
 														{
 															xtype: 'gridcolumn',
 															editable: true,
-															maxWidth: 160,
-															//maxValue: 4096,
-															//minValue: 1,
 															sortable: true,
 															editable: true,
 															align: 'center',
 															dataIndex: 'vlanId',
-															//hideable: false,
-															text: 'VLAN',
-															width: 50
+															hidden: true,
+															text: 'VLAN'
                                                             
 														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															editable: true,
-															dataIndex: 'oldVlanId',
-															hidden: true
-                                                            
-														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															text: 'IP Address',
-															//align: 'center',
-															editable: true,
-															dataIndex: 'ipAddress',
-															hidden: true
-														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															text: 'IP Address',
-															//align: 'center',
-															editable: true,
-															dataIndex: 'oldIPV4AddressAndMask',
-															hidden: true
-														},																
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
@@ -3272,18 +3640,14 @@ Ext.define('Jx.cpp.service.vpls', {
 														
 														{
 															xtype: 'gridcolumn',
-															//maxWidth: 100,
-															//width: 100,
 															sortable: true,
 															align: 'left',
 															dataIndex: 'accessRate',
 															text: 'Access Rate',
-															hidden: true,
+															hidden: true
 														},
 														{
 															xtype: 'gridcolumn',
-															//maxWidth: 100,
-															//width: 100,
 															sortable: true,
 															align: 'center',
 															dataIndex: 'efRate',
@@ -3292,8 +3656,6 @@ Ext.define('Jx.cpp.service.vpls', {
 														},
 														{
 															xtype: 'gridcolumn',
-															//maxWidth: 100,
-															//width: 100,
 															sortable: true,
 															align: 'center',
 															dataIndex: 'efService',
@@ -3340,14 +3702,6 @@ Ext.define('Jx.cpp.service.vpls', {
 														},
 														{
                                                             xtype: 'gridcolumn',
-                                                            text: 'Classifier',
-                                                            align: 'center',
-                                                            dataIndex: 'classifier',
-                                                            hidden: true,
-															width: 0
-                                                        },
-														{
-                                                            xtype: 'gridcolumn',
                                                             text: 'EF1',
                                                             align: 'center',
                                                             dataIndex: 'ef1',
@@ -3372,10 +3726,18 @@ Ext.define('Jx.cpp.service.vpls', {
                                                         },
 														{
                                                             xtype: 'gridcolumn',
+                                                            text: 'Classifier',
+                                                            align: 'center',
+                                                            dataIndex: 'classifier',
+                                                            hidden: true,
+															width: 0
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
                                                             text: 'Record OPT Type',
                                                             align: 'center',
-                                                            dataIndex: 'recordOPType'//,
-                                                            //hidden: true
+                                                            dataIndex: 'recordOPType',
+                                                            hidden: true
                                                         },
 														{
 															xtype: 'gridcolumn',
@@ -3400,15 +3762,26 @@ Ext.define('Jx.cpp.service.vpls', {
 														},
 														{
 															xtype: 'gridcolumn',
-															text: 'Neighbour Address',
-															dataIndex: 'neighbourAddress',
+															dataIndex: 'spkVrfName',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR
+														},
+														{
+															xtype: 'gridcolumn',
+															dataIndex: 'spkRd',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR
+														},
+														{
+															xtype: 'gridcolumn',
+															dataIndex: 'spkVrfId',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR
 														},
 														{
 															xtype: 'gridcolumn',
 															text: 'Neighbour Address',
-															dataIndex: 'oldNeighbourAddress',
+															dataIndex: 'neighbourAddress',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR
 														},
@@ -3459,6 +3832,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'ipv6Address'
+															
 														},
 														{
 															xtype: 'gridcolumn',
@@ -3520,24 +3894,14 @@ Ext.define('Jx.cpp.service.vpls', {
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'rpGprRange'
 														},
-														
-														
-														
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															text: 'Endpoint Type',
-															hidden: true,
-															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'endPointType'
-														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
 															text: 'CSID',
-															//hidden: true,
+															hidden: true,
 															//style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'csId'
+															
 														},
 														{
 															xtype: 'gridcolumn',
@@ -3550,45 +3914,39 @@ Ext.define('Jx.cpp.service.vpls', {
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
-															text: '',
+															text: 'Topology',
+															dataIndex: 'topology',
 															hidden: true,
-															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'topology'
 														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
 															text: 'RT(Mesh)',
-															dataIndex: 'rt',
-															hidden: true
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'rt'
 														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
 															text: 'RT(Hub)',
-															dataIndex: 'rtHub',
-															hidden: true
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'rtHub'
 														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
 															text: 'RT(Spoke)',
-															dataIndex: 'rtSpoke',
-															hidden: true
-														},
-														{
-															xtype: 'gridcolumn',
-															sortable: true,
-															text: '',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'oldRT'
+															dataIndex: 'rtSpoke'
 														},
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
 															text: 'End Point',
-															//hidden: true,
+															hidden: true,
 															//style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'endPointType'
 														},
@@ -3608,6 +3966,15 @@ Ext.define('Jx.cpp.service.vpls', {
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'adminState'
 														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'operationalMode'
+														},
+														
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
@@ -3654,6 +4021,22 @@ Ext.define('Jx.cpp.service.vpls', {
 															text: '',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'oldQosType'
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'vpnName'
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'vpnAlias'
 														},
 														{
@@ -3671,6 +4054,69 @@ Ext.define('Jx.cpp.service.vpls', {
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
 															dataIndex: 'vpnRate'
+														},
+														/*{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'AsRd'
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'AsRdSpk'
+														},*/
+														{
+															xtype: 'gridcolumn',
+															align: 'center',
+															dataIndex: 'oldEndPointServiceType',
+															text: 'Service Type',
+															hidden: true
+														},
+														{
+                                                            xtype: 'gridcolumn',
+                                                            text: 'CIU LB',
+                                                            align: 'center',
+                                                            dataIndex: 'oldCiuLoopback',
+                                                            hidden: true
+                                                        },
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															editable: true,
+															dataIndex: 'oldVlanId',
+															hidden: true
+                                                            
+														},
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: 'IP Address',
+															//align: 'center',
+															editable: true,
+															dataIndex: 'oldIPV4AddressAndMask',
+															hidden: true
+														},																
+														{
+															xtype: 'gridcolumn',
+															text: 'Neighbour Address',
+															dataIndex: 'oldNeighbourAddress',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR
+														},
+														
+														{
+															xtype: 'gridcolumn',
+															sortable: true,
+															text: '',
+															hidden: true,
+															style: this.FIELDSET_WHITE_COLOR,
+															dataIndex: 'oldRT'
 														},
 														{
 															xtype: 'gridcolumn',
@@ -3695,15 +4141,27 @@ Ext.define('Jx.cpp.service.vpls', {
 															text: '',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'oldEndpointType'
+															dataIndex: 'oldEFRate'
 														},
+														{
+                                                            xtype: 'gridcolumn',
+                                                            align: 'center',
+                                                            dataIndex: 'dataForDisplay',
+															hidden: true
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
+                                                            align: 'center',
+                                                            dataIndex: 'deployedInterface',
+															hidden: true
+                                                        },
 														{
 															xtype: 'gridcolumn',
 															sortable: true,
 															text: '',
 															hidden: true,
 															style: this.FIELDSET_WHITE_COLOR,
-															dataIndex: 'oldEFRate'
+															dataIndex: 'prefixList'
 														}
 														
 														
@@ -3713,9 +4171,41 @@ Ext.define('Jx.cpp.service.vpls', {
 															itemdblclick: function(dv, record, item, index, e) {
 															console.log("selected row1 : "+index);
 															console.log(">>>   : "+record.get('recordOPType'));
+															Ext.getCmp("siteName").setValue(record.get('moid'));
 															if(record.get('recordOPType') != 'DELETE'){
+																Ext.getCmp("endpointPanel").setDisabled(false);
+																Ext.getCmp('spkVrfId').setDisabled(false);
+																Ext.getCmp('spkVrfName').setDisabled(false);
+																Ext.getCmp('siteName').setDisabled(false);
+																Ext.getCmp("endpointPanel").setDisabled(false);
+																Ext.getCmp('csId').setDisabled(false);
+																Ext.getCmp('vlanId').setDisabled(false);
+																Ext.getCmp('ipAddress').setDisabled(false);
+																Ext.getCmp('peerAS').setDisabled(false);
+																Ext.getCmp('neighbourAddress').setDisabled(false);
+																Ext.getCmp('ciuLoopback').setDisabled(false);
+																Ext.getCmp('ciuName').setDisabled(false);
+																Ext.getCmp('accessRate').setDisabled(false);
 																Ext.ComponentQuery.query('#endpointPanel')[0].show();
+																
+																var portCombo = Ext.getCmp("portSpeed");
+															//childCombo.clearValue();
+															portCombo.getStore().removeAll();
+															var portName = record.get('port');
 															
+															console.log("port name** "+portName);
+															if(portName.indexOf("ge") != -1){
+																portCombo.setValue("1g");
+																portCombo.bindStore(me.getPortSpeed()); //bind the store for up
+																
+															}
+															else if(portName.indexOf("xe") != -1){
+																portCombo.bindStore(me.getPortSpeedForXEPort()); //bind the store for up
+																portCombo.setValue("10g");
+															}else{
+															portCombo.bindStore(['']); //bind the store for up
+																portCombo.setValue("");
+															}
 															
 																//endpointPanel.show();
 																//this.isCCI=true;
@@ -3723,29 +4213,15 @@ Ext.define('Jx.cpp.service.vpls', {
 																Ext.getCmp("isDeployedUpdated").setValue("false");
 																//}
 																var topology = Ext.getCmp("topology").getValue();
-																//if(topology != null && topology == 'Full Mesh'){
-																//Ext.getCmp("endPointType").setValue('Hub');
-																//me.setFieldDisabled('endPointType',true);
-															//}
-
-																var records = [];
-															records.push({"displayText":record.get('endPointType'), "valueText":record.get('endPointType')});
-															Ext.getCmp('endPointType').store.getProxy().data=records;
-															Ext.getCmp('endPointType').store.loadData=records;
-															Ext.getCmp('endPointType').store.reload();
-
-															me.setFieldDisabled('endPointType',true);
-															var endPointType =Ext.getCmp("endPointType").setValue(record.get('endPointType'));
-															if(record.get('endPointType').indexOf('Full Mesh') != -1){
-																Ext.getCmp("topology").setValue('Full Mesh');
-															}else
-																Ext.getCmp("topology").setValue('Hub & Spoke');
+																
 																
 																var updateBtn = Ext.getCmp('updateBtn').show();
 																//updateBtn.show();
 																
 															var autonegotiate =Ext.getCmp("autonegotiate").setValue(record.get('autonegotiate'));	
 															var adminState =Ext.getCmp("adminState").setValue(record.get('adminState'));
+															Ext.getCmp("operationalMode").setValue(record.get('operationalMode'));
+															
 															var nextHOP =Ext.getCmp("nextHOP").setValue(record.get('nextHOP'));
 															
 															var multiVRF =Ext.getCmp("multiVRF").setValue(record.get('multiVRF'));
@@ -3772,9 +4248,28 @@ Ext.define('Jx.cpp.service.vpls', {
 															var clearInactiveEntriesFromListButton = Ext.getCmp('clearInactiveEntriesFromListButton');
 															clearInactiveEntriesFromListButton.hide();
 															
-															console.log("endPointType****   type .  "+record.get('endPointType'));
-															me.setFieldDisabled('endPointType',true);
-															var endPointType =Ext.getCmp("endPointType").setValue(record.get('endPointType'));
+															var operationalMode = record.get('operationalMode');
+															Ext.getCmp("prefixListGrid1").getStore().removeAll();
+															if(operationalMode == 'TST'){
+																Ext.getCmp("operationalMode").setValue(record.get('operationalMode'));
+																Ext.getCmp("prefixDetailBtn").show();
+																if(record.get('prefixList').length !=undefined)	{	
+																	for (var i=0; i< record.get('prefixList').length; i++) {
+																		console.log("prefixList "+ record.get('prefixList')[i].prefixList);
+																			Ext.getCmp("prefixListGrid1").getStore().add({
+																				prefixList: record.get('prefixList')[i].prefixList
+																			
+																			}); 
+																		}
+																	}else{
+																		Ext.getCmp("prefixListGrid1").getStore().add({
+																			prefixList: record.get('prefixList').prefixList
+																		
+																		}); 
+																	}
+																	Ext.getCmp("prefixListGrid1").getView().refresh();	
+																}
+															
 															var endPointServiceType =Ext.getCmp("endPointServiceType").setValue(record.get('endPointServiceType'));
 															var oldEndPointServiceType =Ext.getCmp("oldEndPointServiceType").setValue(record.get('oldEndPointServiceType'));
 															var ciuLoopback =Ext.getCmp("ciuLoopback").setValue(record.get('ciuLoopback'));
@@ -3782,6 +4277,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															var ciuName =Ext.getCmp("ciuName").setValue(record.get('ciuName'));
 															var ciuAlias =Ext.getCmp("ciuAlias").setValue(record.get('ciuAlias'));
 															var accessType =Ext.getCmp("accessType").setValue(record.get('accessType'));
+															Ext.getCmp("portSpeed").setValue(record.get('portSpeed'));
 															var connectionType =Ext.getCmp("connectionType").setValue(record.get('connectionType'));
 															var csId =Ext.getCmp("csId").setValue(record.get('csId'));
 															var pathPreferences =Ext.getCmp("pathPreferences").setValue(record.get('pathPreferences'));
@@ -3791,10 +4287,12 @@ Ext.define('Jx.cpp.service.vpls', {
 															var oldVlanId =Ext.getCmp("oldVlanId").setValue(vlanId);
 															console.log(">>> oldVlanId >> "+Ext.getCmp("oldVlanId").getValue());
 															var ipAddress =Ext.getCmp("ipAddress").setValue(record.get('ipAddress'));
+															console.log("9")
 															var oldIPV4AddressAndMask =Ext.getCmp("oldIPV4AddressAndMask").setValue(record.get('oldIPV4AddressAndMask'));
 															var neighbourAddress =Ext.getCmp("neighbourAddress").setValue(record.get('neighbourAddress'));
 															var oldNeighbourAddress =Ext.getCmp("oldNeighbourAddress").setValue(record.get('oldNeighbourAddress'));
 															var subnetMask =Ext.getCmp("subnetMask").setValue(record.get('subnetMask'));
+															console.log("10")
 															var loopbackSubnetMask =Ext.getCmp("loopbackSubnetMask").setValue(record.get('loopbackSubnetMask'));
 															var ipMTU =Ext.getCmp("ipMTU").setValue(record.get('ipMTU'));
 															
@@ -3814,12 +4312,55 @@ Ext.define('Jx.cpp.service.vpls', {
 															var med =Ext.getCmp("med").setValue(record.get('med'));
 															var peerAS =Ext.getCmp("peerAS").setValue(record.get('peerAS'));
 															
-															var rt =Ext.getCmp("rt").setValue(record.get('rt'));
-															var rtHub =Ext.getCmp("rtHub").setValue(record.get('rtHub'));
-															var rtSpoke =Ext.getCmp("rtSpoke").setValue(record.get('rtSpoke'));
+															//var rt =Ext.getCmp("rt").setValue(record.get('rt'));
+															//var rtHub =Ext.getCmp("rtHub").setValue(record.get('rtHub'));
+															//var rtSpoke =Ext.getCmp("rtSpoke").setValue(record.get('rtSpoke'));
+															
+															Ext.getCmp("spkVrfName").setValue(record.get('spkVrfName'));
+															//Ext.getCmp("AsRdSpk").setValue(record.get('AsRdSpk'));
+															//Ext.getCmp("AsRd").setValue(record.get('AsRd'));
+															Ext.getCmp("spkRd").setValue(record.get('spkRd'));
+															Ext.getCmp("spkVrfId").setValue(record.get('spkVrfId'));
+															
 															var oldRT =Ext.getCmp("oldRT").setValue(record.get('oldRT'));
 															
 															var accessRate =Ext.getCmp("accessRate").setValue(record.get('accessRate'));
+															var topology = record.get('topology');
+															Ext.getCmp("topology").setValue(topology);
+															if(topology == 'Mesh'){
+																Ext.getCmp("vpnName").setFieldLabel("VRF Name");
+																Ext.getCmp("rd").setFieldLabel("Route Distinguisher");
+																Ext.getCmp("spkVrfName").hide();
+																//Ext.getCmp("AsRdSpk").hide();
+																Ext.getCmp("spkRd").hide();
+																Ext.getCmp("spkVrfId").hide();
+																Ext.getCmp("spkVrfName").setDisabled(true);
+																//Ext.getCmp("AsRdSpk").setDisabled(true);
+																Ext.getCmp("spkRd").setDisabled(true);
+																Ext.getCmp("spkVrfId").setDisabled(true);
+															}if(topology == 'Hub'){
+																Ext.getCmp("vpnName").setFieldLabel("Hub VRF Name");
+																Ext.getCmp("rd").setFieldLabel("Hub Route Distinguisher");
+																Ext.getCmp("spkVrfName").show();
+																//Ext.getCmp("AsRdSpk").show();
+																Ext.getCmp("spkRd").show();
+																Ext.getCmp("spkVrfId").show();
+																Ext.getCmp("spkVrfName").setDisabled(false);
+																//Ext.getCmp("AsRdSpk").setDisabled(false);
+																Ext.getCmp("spkRd").setDisabled(false);
+																Ext.getCmp("spkVrfId").setDisabled(false);
+															}if(topology == 'Spoke'){
+																Ext.getCmp("vpnName").setFieldLabel("Hub VRF Name/ID");
+																Ext.getCmp("rd").setFieldLabel("Hub Route Distinguisher");
+																Ext.getCmp("spkVrfName").show();
+																//Ext.getCmp("AsRdSpk").show();
+																Ext.getCmp("spkRd").show();
+																Ext.getCmp("spkVrfId").hide();
+																Ext.getCmp("spkVrfName").setDisabled(false);
+																//Ext.getCmp("AsRdSpk").setDisabled(false);
+																Ext.getCmp("spkRd").setDisabled(false);
+																Ext.getCmp("spkVrfId").setDisabled(true);
+															}
 															var efRate =Ext.getCmp("efRate").setValue(record.get('efRate'));
 															Ext.getCmp("oldEFRate").setValue(record.get('oldEFRate'));
 															var efService =Ext.getCmp("efService").setValue(record.get('efService'));
@@ -3842,20 +4383,30 @@ Ext.define('Jx.cpp.service.vpls', {
 															var rpType =Ext.getCmp("rpType").setValue(record.get('rpType'));
 															var rpAddress =Ext.getCmp("rpAddress").setValue(record.get('rpAddress'));
 															var rpGprRange =Ext.getCmp("rpGprRange").setValue(record.get('rpGprRange'));
+															me.setFieldDisabled('siteName',true);
+															me.setFieldDisabled('topology',true);
 															
-															console.log("rpGprRange .  "+rpGprRange);
+															Ext.getCmp("siteName").setValue(record.get('moid'));
+															me.getHardwareModel(record.get('moid'));
+															me.getSoftwareVersion(record.get('moid'));
+															Ext.getCmp("siteName").setValue(record.get('moid'));	
+															Ext.getCmp("siteNameRO").setValue(record.get('site'))
+															Ext.getCmp("siteName").hide();
+															Ext.getCmp("siteNameRO").show();
+															
 															
 														    stageBtn.hide();
 															var selectedRowIndex = Ext.getCmp('index');
 															selectedRowIndex.setValue(index);
 															
-															me.setFieldDisabled('siteName',true);
-															me.setFieldDisabled('topology',true);
+															
 														
 															}
 															},
 															 itemclick: function(dv, record, item, index, e) {
 																console.log("selected row11 : "+index);
+																console.log("selected moid : "+record.get('moid'));
+																Ext.getCmp("siteName").setValue(record.get('moid'));
 																var selectedRowIndex = Ext.getCmp('index');
 																selectedRowIndex.setValue(index);
 														
@@ -3932,21 +4483,10 @@ Ext.define('Jx.cpp.service.vpls', {
                                     maxHeight: 35,
                                     width: 80,
                                     text: '   Submit      ',
+									margin: '0 40 0 300',
 									handler: function(button, event) {
 										var data = this.getDataJSON();
 										this.scriptUtils.saveModifyForm(this,data);
-	                                },
-									scope: this
-                                },
-								{
-                                    xtype: 'button',
-                                    margin: '0 40 0 0',
-                                    maxHeight: 35,
-                                    width: 80,
-                                    text: '   Verify      ',
-									handler: function(button, event) {
-										var data = this.getDataJSON();
-										this.scriptUtils.verifyForm(this,data);
 	                                },
 									scope: this
                                 },
@@ -3966,10 +4506,26 @@ Ext.define('Jx.cpp.service.vpls', {
                                     xtype: 'button',
                                     maxHeight: 35,
                                     width: 80,
+									margin: '0 200 0 0',
                                     text: 'Cancel',
 									handler: function(button, event) {
         	                                    me.close();
-                                    }
+												//this.cancelFields();
+								    }//,
+	                                    //scope: this,
+                                },
+								,
+								{
+                                    xtype: 'button',
+                                    margin: '0 40 0 0',
+                                    maxHeight: 35,
+                                    width: 80,
+                                    text: '   Developer      ',
+									handler: function(button, event) {
+										var data = this.getDataJSON();
+										this.scriptUtils.verifyForm(this,data);
+	                                },
+									scope: this
                                 }
                             ]
                         }
@@ -3996,7 +4552,9 @@ Ext.define('Jx.cpp.service.vpls', {
     getFieldValue:function(comp){
         return this.scriptUtils.getFieldByName(comp).getValue();
     },
-    
+    getCompByName:function(type, name) {
+    	return Ext.ComponentQuery.query(type+'[name=' + name +']')[0];
+    },
     setFieldVisible:function(comp,show){
         this.scriptUtils.getFieldByName(comp).setVisible(show);
     },
@@ -4024,6 +4582,7 @@ getStagedInterfacesStore: function() {
 				{name: 'ciuName'},
 				{name: 'ciuAlias'},
 				{name: 'accessType'},
+				{name: 'portSpeed'},
 				{name: 'connectionType'},
 				{name: 'csId'},
 				{name: 'pathPreferences'},
@@ -4031,21 +4590,28 @@ getStagedInterfacesStore: function() {
 				{name: 'oldVlanId'},
                 {name: 'ipAddress'},
 				{name: 'oldIPV4AddressAndMask'},
-				
+				{name: 'ipAddressAndMask'},
                 {name: 'subnetMask'},
 				{name: 'loopbackSubnetMask'},
                 {name: 'ipMTU'},
 				{name: 'ipv6Peer'},
 				{name: 'ipv6Address'},
-				
 				{name: 'rd'},
+				{name: 'spkRd'},
+				{name: 'spkVrfName'},
+				{name: 'spkVrfId'},
+				
 				{name: 'neighbourAddress'},
 				
 				{name: 'oldNeighbourAddress'},
 				{name: 'localPref'},
 				{name: 'med'},
 				{name: 'peerAS'},
+				{name: 'vpnName'},
 				{name: 'accessRate'},
+				{name: 'vpnAlias'},
+				{name: 'policyGroup'},
+				{name: 'vpnRate'},
 				{name: 'efService'},
 				{name: 'isAllAFSelected'},
 				{name: 'isAF1Selected'},
@@ -4067,25 +4633,24 @@ getStagedInterfacesStore: function() {
 				{name: 'rpAddress'},
 				{name: 'rpGprRange'},
 				
-				{name: 'endPointType'},
 				{name: 'seId'},
 				{name: 'topology'},
 				{name: 'rt'},
 				{name: 'oldRT'},
-				{name: 'rtHub'},
-				{name: 'rtSpoke'},
 				{name: 'autonegotiate'},
 				{name: 'adminState'},
+				{name: 'operationalMode'},
 				{name: 'nextHOP'},
 				{name: 'multiVRF'},
 				{name: 'firstUnitForVRF'},
 				{name: 'traficControlProfile'},
 				{name: 'qosType'},
-				{name: 'vpnAlias'},
-				{name: 'policyGroup'},
-				{name: 'vpnRate'},
+				{name: 'oldQosType'},
 				{name: 'oldAccessDetail'},
-				{name: 'oldQoSOptionDetail'}
+				{name: 'oldQoSOptionDetail'},
+				{name: 'dataForDisplay'},
+				{name: 'deployedInterface'},
+				{name: 'prefixList'}
                 
             ], groupField: 'site', 
             data: [
@@ -4098,7 +4663,7 @@ getStagedInterfacesStore: function() {
 
 	provisionedInterfacesGridStore:function() {
 		var piGridStore = Ext.create('Ext.data.Store', {
-			fields:['moid','site','port','endPointServiceType','ciuLoopback','ciuName','ciuAlias','accessType','connectionType','csId','pathPreferences','vlanId','csId','ipAddress','subnetMask','loopbackSubnetMask','ipMTU','ipv6Peer','ipv6Address','rd','neighbourAddress','oldNeighbourAddress','localPref','med','peerAS','accessRate','vpnSpeed','efService','beService','classifier','isAllAFSelected','isAF1Selected','isAF2Selected','isAF3Selected','af1','af2','af3','mvpn','senderSite','ssmIP','ssmIpMask','rpType','rpAddress','rpGprRange','endPointType','seId','topology','rt', 'rtHub', 'rtSpoke', 'autonegotiate', 'adminState', 'policyGroup','nextHOP','qosType','vpnAlias','policyGroup','vpnRate','endPointsData'],
+			fields:['moid','site','port','endPointServiceType','ciuLoopback','ciuName','ciuAlias','accessType', 'portspeed','connectionType','csId','pathPreferences','vlanId','csId','ipAddress','subnetMask','loopbackSubnetMask','ipMTU','ipv6Peer','ipv6Address','neighbourAddress','oldNeighbourAddress','localPref','med','peerAS','accessRate','vpnSpeed','efService','beService','classifier','isAllAFSelected','isAF1Selected','isAF2Selected','isAF3Selected','af1','af2','af3','mvpn','senderSite','ssmIP','ssmIpMask','rpType','rpAddress','rpGprRange','seId','topology','rt', 'autonegotiate', 'adminState','operationalMode', 'policyGroup','nextHOP','qosType','vpnAlias','policyGroup','vpnRate','rd','spkRd','spkVrfName','spkVrfId','rdMesh','rdHub','rdSpoke','ASMesh','ASHub','ASSpoke','vrfName', 'dataForDisplay','deployedInterface','endPointsData','prefixList','prefixListBeforeUpdate'],
             groupField:'deviceName',
 			proxy:{
 				url:'/serviceui/resteasy/cpp-service/get-unis/',
@@ -4119,7 +4684,7 @@ getStagedInterfacesStore: function() {
         return piGridStore;
     },
 	loadPIGridStore:function(comp, records, successful, e) {
-		var grid = Ext.ComponentQuery.query('gridpanel[name=cciInterfacesDeployedGrid]')[0];
+		var grid = Ext.ComponentQuery.query('gridpanel[name=deployedInterfacesGrid]')[0];
 		if (grid != undefined) {
 			var store = grid.getStore();
 			
@@ -4136,6 +4701,54 @@ getStagedInterfacesStore: function() {
 				console.log("port: "+endPointRecord.Interface);
 				console.log("site: "+endPointRecord.site);
 				console.log("seId: "+rec.get("seId"));
+				
+				endPointRecord.vpnName = endPointRecord.vrfName;
+				console.log("rdMesh: "+endPointRecord.rdMesh);
+				console.log("rdHub: "+endPointRecord.rdHub);
+				console.log("rdSpoke: "+endPointRecord.rdSpoke);
+				//console.log("1>> "+endPointRecord.ASHub);
+				//console.log("2>> "+endPointRecord.ASSpoke);
+				//console.log("3>> "+endPointRecord.ASMesh);
+				if(endPointRecord.topology == 'Mesh'){
+					endPointRecord.rd = endPointRecord.rdMesh; //RD = RT
+					//endPointRecord.AsRd = endPointRecord.ASMesh;
+					rec.set('rd',endPointRecord.rd);
+					//rec.set('AsRd',endPointRecord.AsRd);
+					
+					//rec.set('ASMesh',endPointRecord.ASMesh);
+					
+				}else if(endPointRecord.topology == 'Hub'){
+					endPointRecord.rd = endPointRecord.rdHub; //RD=RT
+						//endPointRecord.AsRd = endPointRecord.ASHub;
+					//endPointRecord.AsRdSpk = endPointRecord.ASSpoke;
+					
+					//rec.set('ASHub',endPointRecord.ASHub);
+					//rec.set('ASSpoke',endPointRecord.ASSpoke);
+					endPointRecord.spkRd = endPointRecord.rdSpoke;
+					
+					rec.set('rd',endPointRecord.rd);
+					//rec.set('AsRdSpk',endPointRecord.AsRdSpk);
+					//rec.set('AsRd',endPointRecord.AsRd);
+					//rec.set('AsRdSpk',endPointRecord.AsRdSpk);
+					rec.set('spkRd',endPointRecord.spkRd);
+					rec.set('spkVrfId',endPointRecord.spkVrfId);
+					rec.set('spkVrfName',endPointRecord.spkVrfName);
+					
+				}else if(endPointRecord.topology == 'Spoke'){
+				
+					//rec.set('ASHub',endPointRecord.ASHub);
+					//rec.set('ASSpoke',endPointRecord.ASSpoke);
+					
+					endPointRecord.spkRd = endPointRecord.rdSpoke; //RD=RT
+					//endPointRecord.AsRdSpk = endPointRecord.ASSpoke;
+					//endPointRecord.AsRd = endPointRecord.ASHub;
+					rec.set('spkRd',endPointRecord.spkRd);
+					//rec.set('AsRdSpk',endPointRecord.AsRdSpk);
+					//rec.set('AsRd',endPointRecord.AsRd);
+					rec.set('spkVrfName',endPointRecord.spkVrfName);
+				}
+				
+				
 				rec.set('recordOPType','MODIFY');
 				rec.set('port',endPointRecord.Interface);
 				rec.set('moid',endPointRecord.pedeviceId);
@@ -4151,6 +4764,9 @@ getStagedInterfacesStore: function() {
 				rec.set('ciuAlias',endPointRecord.ciuAlias);
 				rec.set('csId',endPointRecord.csId);
 				rec.set('accessType',endPointRecord.accessType);
+				if(endPointRecord.portSpeed != null){
+					rec.set('portSpeed',endPointRecord.portSpeed.toUpperCase());
+				}
 				rec.set('vpnAlias',endPointRecord.vpnAlias);
 				
 				console.log("connection Type: "+endPointRecord.connectionType);
@@ -4165,7 +4781,7 @@ getStagedInterfacesStore: function() {
 				rec.set('pathPreferences',endPointRecord.pathPreferences);
 				rec.set('ipAddress',endPointRecord.ipAddress);
 				rec.set('subnetMask',endPointRecord.subnetMask);
-				
+				rec.set('ipAddressAndMask',endPointRecord.ipAddress + "/" +endPointRecord.subnetMask);
 				
 				rec.set('oldIPV4AddressAndMask',endPointRecord.ipAddress+"/"+endPointRecord.subnetMask);
 				rec.set('loopbackSubnetMask',endPointRecord.loopbackSubnetMask);
@@ -4177,9 +4793,13 @@ getStagedInterfacesStore: function() {
 				console.log("adminState > "+endPointRecord.adminState);
 				rec.set('autonegotiate',endPointRecord.autonegotiate);
 				rec.set('adminState',endPointRecord.adminState);
+				rec.set('operationalMode',endPointRecord.operationalMode);
+				
 				rec.set('policyGroup',endPointRecord.policyGroup);
 				rec.set('qosType',endPointRecord.qosType);
+				rec.set('oldQosType',endPointRecord.qosType);
 				rec.set('vpnRate',endPointRecord.vpnRate);
+				rec.set('vpnName',endPointRecord.vrfName);
 				if(endPointRecord.qosType == 'QoS per Access'){
 					Ext.getCmp("vpnSpeed").setDisabled(true);
 				}
@@ -4216,7 +4836,7 @@ getStagedInterfacesStore: function() {
 				rec.set('af1',endPointRecord.af1);
 				rec.set('af2',endPointRecord.af2);
 				rec.set('af3',endPointRecord.af3);
-				rec.set('oldQoSOptionDetail',endPointRecord.accessRate+"|"+endPointRecord.vpnSpeed+"|"+endPointRecord.efService+"|"+endPointRecord.efRate+"|"+endPointRecord.classifier+"|"+endPointRecord.af3+"|"+endPointRecord.af2+"|"+endPointRecord.af1);
+				rec.set('oldQoSOptionDetail',endPointRecord.accessRate+"|"+endPointRecord.vpnSpeed+"|"+endPointRecord.efService+"|"+endPointRecord.efRate+"|"+endPointRecord.classifier+"|"+endPointRecord.af3+"|"+endPointRecord.af2+"|"+endPointRecord.af1+"|"+endPointRecord.classifier);
 				
 				rec.set('mvpn',endPointRecord.mvpn);
 				rec.set('senderSite',endPointRecord.senderSite);
@@ -4227,17 +4847,35 @@ getStagedInterfacesStore: function() {
 				rec.set('rpGprRange',endPointRecord.rpGprRange);
 				rec.set('seId',rec.get("seId"));
 				rec.set('topology',endPointRecord.topology);
-				console.log("topology type****       ** "+endPointRecord.endPointType);
-				rec.set('endPointType',endPointRecord.endPointType);
-				Ext.getCmp("endPointType").setValue(endPointRecord.endPointType);
-				rec.set('rt',endPointRecord.rt);
-				rec.set('rtHub',endPointRecord.rtHub);
-				rec.set('rtSpoke',endPointRecord.rtSpoke);
+				
+				//rec.set('rt',endPointRecord.rt);
+				//rec.set('rtHub',endPointRecord.rtHub);
+				//rec.set('rtSpoke',endPointRecord.rtSpoke);
 				rec.set('oldRT',endPointRecord.rt);
 				//rec.set('seId',endPointRecord.seId);
 				rec.set('recordOPType','MODIFY');
 				rec.set('rpGprRange',endPointRecord.rpGprRange);
 				rec.set('vendorType',Jx.ProvConstants.JUNIPER);
+				rec.set('dataForDisplay',endPointRecord.dataForDisplay);
+				rec.set('deployedInterface',"true");
+				
+				console.log("**operationalMode** > "+endPointRecord.operationalMode);
+				//console.log("**prefixList** > "+endPointRecord.prefixList.prefixList);
+				
+				//console.log("**prefixList e** > "+endPointRecord.prefixList.prefixList.e);
+				if(endPointRecord.operationalMode == 'TST'&& endPointRecord.prefixList.prefixList.e != undefined ){
+					//endPointRecord.prefixList = endPointRecord.prefixList.prefixList.e;
+					rec.set('prefixList',endPointRecord.prefixList.prefixList.e);
+					rec.set('prefixListBeforeUpdate',endPointRecord.prefixList.prefixList.e);
+					
+				}
+				else if(endPointRecord.operationalMode == 'TST'&& endPointRecord.prefixList.prefixList.e == undefined ){
+					//endPointRecord.prefixList = endPointRecord.prefixList.prefixList;
+					rec.set('prefixList',endPointRecord.prefixList.prefixList);
+					rec.set('prefixListBeforeUpdate',endPointRecord.prefixList.prefixList);
+				}
+				
+				
 				
 			}
 		}	
@@ -4249,6 +4887,21 @@ getStagedInterfacesStore: function() {
 			  
 			  var attribs = Ext.JSON.decode(this.commonData.attribs);
 			  
+			  Ext.getCmp("customerFieldset").setDisabled(true);
+			  Ext.getCmp("serviceFieldset").setDisabled(true);
+			  //Ext.getCmp("topologyFieldset").setDisabled(true);
+			  
+			  //Ext.getCmp("nodeFieldset").setDisabled(true);
+			  //Ext.getCmp("accessDetailFieldset").setDisabled(true);
+			  Ext.getCmp("connectionType").setDisabled(true);
+			  Ext.getCmp("accessType").setDisabled(true);
+			  Ext.getCmp("pathPreferences").setDisabled(true);
+			  //Ext.getCmp("operationalMode").setDisabled(true);
+			  
+
+
+
+
 			  
 			  console.log("accounting : "+attribs[0].accounting);
 			  console.log("vpnAlias : "+attribs[0].vpnAlias);
@@ -4277,24 +4930,13 @@ getStagedInterfacesStore: function() {
 			Ext.getCmp("rd").setValue(attribs[0].rd);
 			Ext.getCmp("endPointServiceType").setValue(attribs[0].endPointServiceType);
 			Ext.getCmp("policyGroup").setValue(attribs[0].policyGroup);
-			
-			//console.log("max route: "+attribs[0].maxRoute);
-			//Ext.getCmp("enforceRoute").setValue(attribs[0].enforceRoute);
-			//console.log("enforceRoute: "+attribs[0].enforceRoute);
-			console.log("topology****  "+attribs[0].topology);
-			//Ext.getCmp("topology").setValue(attribs[0].topology);
-			//Ext.getCmp("qosType").setValue(attribs[0].qosType);
 			Ext.getCmp("application").setValue(attribs[0].application);
 			Ext.getCmp("operationalMode").setValue(attribs[0].operationalMode);
 			Ext.getCmp("redistConnRoutes").setValue(attribs[0].redistConnRoutes);
 			Ext.getCmp("accounting").setValue(attribs[0].accounting);
-			//console.log("endpoint type****: "+attribs[0].endPointType);
-			//Ext.getCmp("architecture").setValue(attribs[0].architecture);
-			//Ext.getCmp("endPointType").setValue(attribs[0].endPointType);
-			
 			Ext.getCmp("customerName").setValue(attribs[0].customer.e.name);
-			Ext.getCmp("customerId").setValue(attribs[0].customer.e.id);
-			Ext.getCmp("email").setValue(attribs[0].customer.e.email);
+			Ext.getCmp("customerId").setValue(attribs[0].customer.e.ossCustomerId);
+			
 			Ext.getCmp("customerDescription").setValue(attribs[0].customer.e.description);
 			
 			console.log("cust info > "+attribs[0].customer.e.description);
@@ -4306,7 +4948,7 @@ getStagedInterfacesStore: function() {
 			console.log("service instance id > "+this.commonData.serviceInstanceId);
 			//Ext.getCmp("description").setValue(attribs[0].description);
 			
-			var grid = Ext.ComponentQuery.query('gridpanel[name=cciInterfacesDeployedGrid]')[0];
+			var grid = Ext.ComponentQuery.query('gridpanel[name=deployedInterfacesGrid]')[0];
 			var store = grid.getStore();
 			store.removeAll();
 			store.getProxy().url = '/serviceui/resteasy/cpp-service/unis/'+this.commonData.serviceInstanceId;
@@ -4380,7 +5022,7 @@ getStagedInterfacesStore: function() {
 		this.moid = record.get('deviceId');
 		console.log("deviceId "+record.get('deviceId'));
 	},
-	loadSiteInterfaceGrid:function(record) {
+	loadSiteInterfaceGrid:function(record, port) {
 		console.log("moid*** "+record);
 		var interfaceList='';
 		Ext.Ajax.request({
@@ -4398,7 +5040,11 @@ getStagedInterfacesStore: function() {
 				} else {
 					var records = [];
 					for (var i=0; i<result.peDeviceInterfaceBeanList.length; i++) {
-						records.push(result.peDeviceInterfaceBeanList[i]);
+						if(port  == ''){
+							records.push(result.peDeviceInterfaceBeanList[i]);
+						}else if(port !='' && port == result.peDeviceInterfaceBeanList[i].portName){
+							records.push(result.peDeviceInterfaceBeanList[i]);
+						}
 					}
 					var storeData={'totalCount':records.length,'interfaceList':records};
 					var siteInterfaceGrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
@@ -4483,7 +5129,16 @@ getStagedInterfacesStore: function() {
         //var form = this.getComponent(0);
         //form.getForm().reset();
 		Ext.getCmp("endpointPanel").hide();
-		this.scriptUtils.getFieldByName("endPointType").setDisabled(true);
+		
+    },
+	cancelFields: function() {
+		Ext.getCmp("updateBtn").hide();
+		Ext.getCmp("deleteBtn").hide();
+		Ext.getCmp("stageBtn").show();
+		Ext.getCmp("endpointPanel").hide();
+		
+		//this.getComponent(0).getForm().reset();
+		
     },
 	
 	getDataJSON:function(){
@@ -4503,7 +5158,7 @@ getStagedInterfacesStore: function() {
        
 		customerArray.push({
 			 "name": cdata.customerName,
-            "id": cdata.customerId,
+            "ossCustomerId": cdata.customerId,
             "email": cdata.email,
             "description": cdata.customerDescription
 		});
@@ -4533,17 +5188,19 @@ getStagedInterfacesStore: function() {
 			"rd": Ext.getCmp("rd").getValue(),
 			"endPointServiceType": Ext.getCmp("endPointServiceType").getValue(),
 			"policyGroup": Ext.getCmp("policyGroup").getValue(),
-			 //"application": cdata.application,
+            "application": Ext.getCmp("application").getValue(),
+			"operationalMode": Ext.getCmp("operationalMode").getValue(),
+			"maxRoute": Ext.getCmp("maxRoute").getValue(),
+			"enforceRoute": Ext.getCmp("enforceRoute").getValue(),
 			//"topology": cdata.topology,
 			"serviceType" : cdata.serviceType,
-			"maxRoute" : cdata.maxRoute,
-			"enforceRoute": Ext.getCmp("enforceRoute").getValue(),
-			"qosType" : cdata.qosType,
-			"accounting" : cdata.accounting,
+			"qosType" : Ext.getCmp("qosType").getValue(),
+			"accounting" : Ext.getCmp("accounting").getValue(),
+			"flowSampling" : Ext.getCmp("flowSampling").getValue(),
 			"architecture" :"JCE",
-			"flowSampling" : cdata.flowSampling,
+			"redistConnRoutes" : Ext.getCmp("redistConnRoutes").getValue(),
 			//"redistConnRoutes" : cdata.redistConnRoutes,
-			//"endPointType" : cdata.endPointType,
+			
 			"customer": customerArray
 		});
 		
@@ -4566,7 +5223,7 @@ getStagedInterfacesStore: function() {
 		var stagedInterfacesStore_RowCount = stagedInterfacesStore.count();
 		console.log("stagedInterfacesStore_RowCount : " + stagedInterfacesStore_RowCount);
 		if(stagedInterfacesStore_RowCount==0){
-			 Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "It Doesn't Look Like Anything Was added to the staged area!");
+			 Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please add at least one interface to the Staged Area");
 			 return;
 		}
 		console.log("Value of 'stagedInterfacesStore_RowCount': " + stagedInterfacesStore_RowCount);
@@ -4605,8 +5262,45 @@ getStagedInterfacesStore: function() {
 				}
 			
 			console.log("pedeviceId : " + row.data.moid);
-			console.log("pedeviceId : " + row.data.site2);
+			var portSpeed = row.data.portSpeed;
+			if(portSpeed != null){
+				portSpeed = portSpeed.toLowerCase();
+				
+			}
+			//console.log("pedeviceId : " + row.data.site2);
 			
+			var multiVRFArray = [];	
+			multiVRFArray.push({
+				"ossCustomerId": Ext.getCmp("customerId").getValue(),
+				"qosType": row.data.qosType,
+				"efRate": row.data.efRate,
+				"efService": row.data.efService,
+				"accessRate": row.data.accessRate,
+				"isAllAFSelected": row.data.isAllAFSelected,
+				"isAF1Selected": row.data.isAF1Selected,
+				"isAF2Selected": row.data.isAF2Selected,
+				"isAF3Selected": row.data.isAF3Selected,
+				"af1": row.data.af1,
+				"af2": row.data.af2,
+				"af3": row.data.af3,
+				"ciuLoopback": row.data.ciuLoopback,
+				"ciuName": row.data.ciuName,
+				"ciuAlias": row.data.ciuAlias,
+				"vlanId": row.data.vlanId
+			});
+			var dataForDisplay = row.data.dataForDisplay+"|"+row.data.csId + "."+row.data.ciuName + "."+ row.data.accessRate;	
+			var prefix_list =  {
+				"prefixList": row.data.prefixList
+			}
+			
+			var prefixListBeforeUpdateArr = [];
+
+			Ext.Array.push(prefixListBeforeUpdateArr,row.data.prefixListBeforeUpdate);
+
+
+			var prefix_list_beforeModify =  {
+				"prefixListBeforeUpdate": prefixListBeforeUpdateArr
+			}
 			try{
 			formDataArray.push({
 				"Interface": row.data.port,
@@ -4621,6 +5315,7 @@ getStagedInterfacesStore: function() {
 				"ciuName": row.data.ciuName,
 				"ciuAlias": row.data.ciuAlias,//.trim()
 				"accessType": row.data.accessType,
+				"portSpeed": portSpeed,
 				"connectionType": row.data.connectionType,
 				"pathPreferences": row.data.pathPreferences,
 				"csId": row.data.csId,
@@ -4631,6 +5326,17 @@ getStagedInterfacesStore: function() {
 				"ipMTU": row.data.ipMTU,
 				"ipv6Peer": row.data.ipv6Peer,
 				"ipv6Address": row.data.ipv6Address,
+				
+				"rdMesh": row.data.rd,
+				"rtMesh": row.data.rd, //in the future, if RD and RT are not same. then will assigning appropriate value.
+				"rdHub": row.data.rd,
+				"rtHub": row.data.rd, //in the future, if RD and RT are not same. then will assigning appropriate value.
+				"rdSpoke": row.data.spkRd,
+				"rtSpoke": row.data.spkRd, //in the future, if RD and RT are not same. then will assigning appropriate value.
+				//"ASMesh": row.data.AsRd,
+				//"ASHub": row.data.AsRd,
+				//"ASSpoke": row.data.AsRdSpk,
+				
 				"rd": row.data.rd,
 				"neighbourAddress": row.data.neighbourAddress,
 				
@@ -4638,12 +5344,17 @@ getStagedInterfacesStore: function() {
 				"localPref": row.data.localPref,
 				"med": row.data.med,
 				"peerAS": row.data.peerAS,
-				"rt": row.data.rt,
-				"rtHub": row.data.rtHub,
-				"rtSpoke": row.data.rtSpoke,
+				//"rt": row.data.rt,
+				//"rtHub": row.data.rtHub,
+				//"rtSpoke": row.data.rtSpoke,
+				
+				"vrfName": row.data.vpnName,
+				"spkVrfName": row.data.spkVrfName,
+				"spkVrfId": row.data.spkVrfId,
+				
 				"oldRT": row.data.oldRT,
-				"rtHub": row.data.rtHub,
-				"rtSpoke": row.data.rtSpoke,
+				//"rtHub": row.data.rtHub,
+				//"rtSpoke": row.data.rtSpoke,
 				"accessRate": row.data.accessRate,
 				"vpnAlias": row.data.vpnAlias,
 				"policyGroup": row.data.policyGroup,
@@ -4676,15 +5387,18 @@ getStagedInterfacesStore: function() {
 				"operation": row.data.recordOPType,
 				"recordOPType": row.data.recordOPType,
 				"vendorType": Jx.ProvConstants.JUNIPER,
-				"endPointType": row.data.endPointType,
 				"topology": row.data.topology,
 				"autonegotiate": row.data.autonegotiate,
 				"adminState": row.data.adminState,
+				"operationalMode": row.data.operationalMode,
+				
 				"nextHOP": row.data.nextHOP,
 				"multiVRF": row.data.multiVRF,
 				"firstUnitForVRF": row.data.firstUnitForVRF,
 				"traficControlProfile": row.data.traficControlProfile,
 				"qosType": row.data.qosType,
+				"oldQosType": row.data.oldQosType,
+				"advanced": multiVRFArray,
 				"oldAdminState": oldAccessDetail[0],
 				"oldAutoNegotiate": oldAccessDetail[1],
 				"oldAccessRate": oldQoSOptionDetail[0],
@@ -4694,7 +5408,12 @@ getStagedInterfacesStore: function() {
 				"oldClasifier": oldQoSOptionDetail[4],
 				"oldAF3": oldQoSOptionDetail[5],
 				"oldAF2": oldQoSOptionDetail[6],
-				"oldAF1": oldQoSOptionDetail[7]
+				"oldAF1": oldQoSOptionDetail[7],
+				"oldClassifier": oldQoSOptionDetail[8],
+				"dataForDisplay" : dataForDisplay,
+				"prefixList": prefix_list,
+				"prefixListBeforeUpdate": prefix_list_beforeModify
+				
 				
 			});
 			}catch(e){
@@ -4729,11 +5448,7 @@ getStagedInterfacesStore: function() {
 	Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please enter the valid Topology");
             return true;
 	}
-	if(vpnAlias == null || vpnAlias == ''){
-	Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please enter the valid VPN Alias");
-            return true;
-	}
-	 if(rd == null || rd == ''){
+	if(rd == null || rd == ''){
 			isValid = true;
 			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the valid RD");
 			return isValid;
@@ -4938,16 +5653,17 @@ validateEndpointDetails:function() {
 
 	var accessType = Ext.getCmp("accessType").getValue();
 	console.log("accessType : "+accessType);
+	var portSpeed = Ext.getCmp("portSpeed").getValue();
 	var connectionType = Ext.getCmp("connectionType").getValue();
 	console.log(" connectionType: "+connectionType);
 
 	var csId = Ext.getCmp("csId").getValue();
 	
-	var rt = Ext.getCmp("rt").getValue();
+	//var rt = Ext.getCmp("rt").getValue();
 	
-	var rtHub = Ext.getCmp("rtHub").getValue();
+	//var rtHub = Ext.getCmp("rtHub").getValue();
 	
-	var rtSpoke = Ext.getCmp("rtSpoke").getValue();
+	//var rtSpoke = Ext.getCmp("rtSpoke").getValue();
 	
 	console.log(" csId: "+csId);
 
@@ -4982,10 +5698,6 @@ validateEndpointDetails:function() {
 	console.log(" peerAS: "+peerAS);
 
 	
-	var endPointType = this.scriptUtils.getFieldByName("endPointType").getValue();
-
-	console.log("endPointType>>> "+ endPointType);
-	
 	
 	var rd = Ext.getCmp("rd").getValue();
 	
@@ -4993,6 +5705,8 @@ validateEndpointDetails:function() {
 	var efService = Ext.getCmp("efService").getValue();
 	var efRate = Ext.getCmp("efRate").getValue();
 	var classifier = Ext.getCmp("classifier").getValue();
+	var vpnSpeed = Ext.getCmp("vpnSpeed").getValue();
+	var qosType = Ext.getCmp("qosType").getValue();
 	console.log(">>*********************************");
 	
 			if(ipAddress == 0)
@@ -5065,14 +5779,6 @@ validateEndpointDetails:function() {
 			isValid = true;
 			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the valid Local Pref");
 			return isValid;
-		}else if(endPointType != null && endPointType == 'Full Mesh' && (rt == null || rt == '')){
-			isValid = true;
-			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the valid RT(Mesh)");
-			return isValid;
-		}else if(endPointType != null && (endPointType == 'Hub' || endPointType == 'Spoke') && (rtHub == null || rtHub == '' || rtSpoke == null || rtSpoke == '')){
-			isValid = true;
-			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the valid RT(Hub/Spoke)");
-			return isValid;
 		}else if(neighbourAddress == null || neighbourAddress == ''){
 			isValid = true;
 			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the valid Neighbour Address");
@@ -5092,6 +5798,10 @@ validateEndpointDetails:function() {
 		}else if(accessRate == null || accessRate == ''){
 			isValid = true;
 			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the valid Access Rate");
+			return isValid;
+		}else if(qosType == 'QoS per VPN' && (vpnSpeed == '' || vpnSpeed == null)){
+			isValid = true;
+			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the valid VPN Speed");
 			return isValid;
 		}else if(efService == true && (efRate == null || efRate == '')){
 			isValid = true;
@@ -5126,16 +5836,16 @@ if(!selection){
 //alert("interface selected: "+selection);
 
 
-var endPointType = this.scriptUtils.getFieldByName("endPointType").getValue();
 var autonegotiate = this.scriptUtils.getFieldByName("autonegotiate").getValue();
 var adminState = this.scriptUtils.getFieldByName("adminState").getValue();
+var operationalMode = this.scriptUtils.getFieldByName("operationalMode").getValue();
+
 var nextHOP = this.scriptUtils.getFieldByName("nextHOP").getValue();
 
 var oldAccessDetail = this.scriptUtils.getFieldByName("oldAccessDetail").getValue();
 
 var oldQoSOptionDetail = this.scriptUtils.getFieldByName("oldQoSOptionDetail").getValue();
 
-console.log("endPointType>>> "+ endPointType);
 
 console.log("device id: "+this.moid);
 	console.log("port id: "+this.port);
@@ -5185,6 +5895,7 @@ console.log("device id: "+this.moid);
 
 	var accessType = this.scriptUtils.getFieldByName("accessType").getValue();
 	console.log("accessType : "+accessType);
+	var portSpeed = this.scriptUtils.getFieldByName("portSpeed").getValue();
 	var connectionType = this.scriptUtils.getFieldByName("connectionType").getValue();
 	console.log(" connectionType: "+connectionType);
 
@@ -5225,6 +5936,11 @@ console.log("device id: "+this.moid);
 
 	var rd = this.scriptUtils.getFieldByName("rd").getValue();
 	console.log("rd : "+rd);
+	var vpnName = this.scriptUtils.getFieldByName("vpnName").getValue(); //Mesh vrf
+	var spkVrfName = this.scriptUtils.getFieldByName("spkVrfName").getValue(); 
+	var spkRd = this.scriptUtils.getFieldByName("spkRd").getValue(); 
+	var spkVrfId = this.scriptUtils.getFieldByName("spkVrfId").getValue();
+
 	var neighbourAddress = this.scriptUtils.getFieldByName("neighbourAddress").getValue();
 	console.log("rneighbourAddressd : "+neighbourAddress);
 	var localPref = this.scriptUtils.getFieldByName("localPref").getValue();
@@ -5287,18 +6003,19 @@ console.log("device id: "+this.moid);
 
 	var topology = this.scriptUtils.getFieldByName("topology").getValue();
 	console.log(" topology: "+topology);
+	
+	var qosType = Ext.getCmp("qosType").getValue();
+	
+	//var AsRd = this.scriptUtils.getFieldByName("AsRd").getValue();
+	//var AsRdSpk = this.scriptUtils.getFieldByName("AsRdSpk").getValue();
 
-	var endPointType = this.scriptUtils.getFieldByName("endPointType").getValue();
 
-	console.log(" endPointType: "+endPointType);
+	//var rt = this.scriptUtils.getFieldByName("rt").getValue();
+	//var rtHub = this.scriptUtils.getFieldByName("rtHub").getValue();
 
-
-	var rt = this.scriptUtils.getFieldByName("rt").getValue();
-	var rtHub = this.scriptUtils.getFieldByName("rtHub").getValue();
-
-	var rtSpoke = this.scriptUtils.getFieldByName("rtSpoke").getValue();
+	//var rtSpoke = this.scriptUtils.getFieldByName("rtSpoke").getValue();
 	var oldRT = this.scriptUtils.getFieldByName("oldRT").getValue();
-	console.log(" rt: "+rt);
+	//console.log(" rt: "+rt);
 
 	console.log("******************");
 
@@ -5306,6 +6023,13 @@ console.log("device id: "+this.moid);
 	console.log("site': " + this.site);
 	console.log("port': " + this.port);
 	console.log("moid  : " + this.moid);
+	
+	var softwareVersion =  Ext.getCmp("softwareVersion").getValue();
+	var nodeType = Ext.getCmp("nodeType").getValue();
+	var siteName = this.site;
+
+	var dataForDisplay = softwareVersion + "|"+ nodeType + "|" + siteName;	
+
 	
 	if(!this.validateAF()){
 		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please enter the valid AF1%AF2%AF3%");
@@ -5320,10 +6044,7 @@ console.log("device id: "+this.moid);
             Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please select the Site and Site Interface in order to add to the staging area!!");
             return true;
         }
-		if(endPointType == null || endPointType==''){
-		 Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please select the one of the endpoint  type and fill respected fields in order to add to the staging area!!");
-            return true;
-		}
+		
 		
 		var doesIpDuplicationExistInStagedInterfacesStore = false;
         var doesPeSubinterfaceExistInStagedInterfacesStore = false;
@@ -5341,13 +6062,13 @@ console.log("device id: "+this.moid);
 					//}
 					
 					// Check for IP address duplication ...
-					//if(this.doesIpDuplicationExist(ipAddress1.getValue(), subnetMask1.getValue(), row.data.ipAddress, row.data.subnetMask)) {
-						//console.log("Row '" + i + "' has duplicate IP!");
-						//doesIpDuplicationExistInStagedInterfacesStore = true;
-						//Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "this IP address is already been used, Please try with another IP!");
-						// We can break out of the for loop as soon as the flag is set to true.
-						//break;
-					//}
+					if(this.doesIpDuplicationExist(ipAddress, subnetMask, row.data.ipAddress, row.data.subnetMask)) {
+						console.log("Row '" + i + "' has duplicate IP!");
+						doesIpDuplicationExistInStagedInterfacesStore = true;
+						Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "this IP address is already been used, Please try with another IP!");
+						
+						break;
+					}
 				}
 			}
 				
@@ -5358,11 +6079,20 @@ console.log("device id: "+this.moid);
           		return;
          };
 	
+	var ipv4PrefixListArr = [];
+	var prefixListGrid = Ext.getCmp("prefixListGrid1").getStore();
+	    var prefixListGrid_RowCount = prefixListGrid.count();
+        		
+			for(var i=0; i < prefixListGrid_RowCount; i++) {
+				if(prefixListGrid.getAt(i).data.prefixList == ''){
+						Ext.MessageBox.alert('Validation Error','PrefixList can not be empty');
+					return;
+				}
+				Ext.Array.push(ipv4PrefixListArr,prefixListGrid.getAt(i).data);
+			}
 		
 	var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
 	endpointPanel.hide();
-	//var endPointType = Ext.getCmp('endPointType');
-	//endPointType.setValue("");
 	
 	stagedInterfacesStore.add({
 		moid: this.moid,
@@ -5375,18 +6105,26 @@ console.log("device id: "+this.moid);
 		ciuName: ciuName,
 		ciuAlias: ciuAlias,
 		accessType: accessType,
+		portSpeed: portSpeed,
 		connectionType: connectionType,
 		csId: csId,
 		pathPreferences: pathPreferences,
 		vlanId: vlanId,
 		ipAddress: ipAddress,
 		subnetMask: subnetMask,
+		ipAddressAndMask: ipAddress+"/"+subnetMask,
 		oldIPV4AddressAndMask: oldIPV4AddressAndMask,
 		loopbackSubnetMask: loopbackSubnetMask,
 		ipMTU: ipMTU,
 		ipv6Peer: ipv6Peer,
 		ipv6Address: ipv6Address,//+"."+ipv6Address1+"."+ipv6Address2+"."+ipv6Address3,
+		vpnName: vpnName,
+		//AsRd: AsRd,
+		//AsRdSpk: AsRdSpk,
 		rd: rd,
+		spkVrfName: spkVrfName,
+		spkRd: spkRd,
+		spkVrfId: spkVrfId,
 		neighbourAddress: neighbourAddress,
 		localPref: localPref,
 		med: med,
@@ -5408,9 +6146,9 @@ console.log("device id: "+this.moid);
 		af3:af3,
 		seId:0,
 		recordOPType: 'ADD',
-		endPointType: endPointType,
 		autonegotiate: autonegotiate,
 		adminState: adminState,
+		operationalMode : operationalMode,
 		nextHOP: nextHOP,
 		mvpn: mvpn,
 		senderSite: senderSite,
@@ -5419,20 +6157,27 @@ console.log("device id: "+this.moid);
 		rpType: rpType,
 		rpAddress: rpAddress,
 		rpGprRange: rpGprRange,
-		//endPointType: endPointType,
 		topology: topology,
-		rt: rt,
-		rtHub: rtHub,
-		rtSpoke: rtSpoke,
+		qosType: qosType,
+		//rt: rt,
+		//rtHub: rtHub,
+		//rtSpoke: rtSpoke,
 		oldRT: oldRT,
 		oldAccessDetail: oldAccessDetail,
-		oldQoSOptionDetail: oldQoSOptionDetail
+		oldQoSOptionDetail: oldQoSOptionDetail,
+		dataForDisplay: dataForDisplay,
+		prefixList: ipv4PrefixListArr
 		
 	}); 	
-	Ext.getCmp("stagedInterfacesGrid").getView().refresh();	
+	Ext.getCmp("stagedInterfacesGrid").getView().refresh();
+	//Ext.getCmp("topologyFieldset").setDisabled(true);
+	Ext.getCmp("rd").setDisabled(true);
 },
 
 handleUpdateStagedInterface:function() {
+
+Ext.getCmp("siteName").show();
+Ext.getCmp("siteNameRO").hide();
 	var isDeployedUpdated = Ext.getCmp("isDeployedUpdated").getValue();
 	console.log("handleUpdateStagedInterface");
 	var endPointServiceType = Ext.getCmp("endPointServiceType").getValue();
@@ -5452,7 +6197,13 @@ handleUpdateStagedInterface:function() {
 			return;
 	 };
 
+	 if(!this.validateAF()){
+		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please enter the valid AF1%AF2%AF3%");
+	return;
+	}
+	
 	var accessType = Ext.getCmp("accessType").getValue();
+	var portSpeed = Ext.getCmp("portSpeed").getValue();
 	var multiVRF = Ext.getCmp("multiVRF").getValue();
 	var firstUnitForVRF = Ext.getCmp("firstUnitForVRF").getValue();
 	var traficControlProfile = Ext.getCmp("traficControlProfile").getValue();
@@ -5489,13 +6240,20 @@ handleUpdateStagedInterface:function() {
 	//var ipv6Address3 =Ext.getCmp("ipv6Address3").getValue();
 
 	var rd = Ext.getCmp("rd").getValue();
+	var vpnName = Ext.getCmp("vpnName").getValue(); 
+	var spkVrfName = Ext.getCmp("spkVrfName").getValue(); 
+	var spkRd = Ext.getCmp("spkRd").getValue(); 
+	var spkVrfId = Ext.getCmp("spkVrfId").getValue();
+	//var AsRd = Ext.getCmp("AsRd").getValue();
+	//var AsRdSpk = Ext.getCmp("AsRdSpk").getValue();
+	
 	var neighbourAddress = Ext.getCmp("neighbourAddress").getValue();
 	var localPref = Ext.getCmp("localPref").getValue();
 	var med = Ext.getCmp("med").getValue();
 	var peerAS = Ext.getCmp("peerAS").getValue();
-	var rt = Ext.getCmp("rt").getValue();
-	var rtHub = Ext.getCmp("rtHub").getValue();
-	var rtSpoke = Ext.getCmp("rtSpoke").getValue();
+	//var rt = Ext.getCmp("rt").getValue();
+	//var rtHub = Ext.getCmp("rtHub").getValue();
+	//var rtSpoke = Ext.getCmp("rtSpoke").getValue();
 	var oldRT = Ext.getCmp("oldRT").getValue();	
 		console.log("peerAS': " +peerAS);
 	var accessRate = Ext.getCmp("accessRate").getValue();
@@ -5528,6 +6286,8 @@ handleUpdateStagedInterface:function() {
 	var ssmIpMask =Ext.getCmp("ssmIpMask").getValue();
 	var autonegotiate = this.scriptUtils.getFieldByName("autonegotiate").getValue();
 	var adminState = this.scriptUtils.getFieldByName("adminState").getValue();
+	var operationalMode = this.scriptUtils.getFieldByName("operationalMode").getValue();
+	
 	var nextHOP = this.scriptUtils.getFieldByName("nextHOP").getValue();
 	
 	 if(ssmIpMask == null){
@@ -5563,39 +6323,57 @@ handleUpdateStagedInterface:function() {
 	
 	
 	console.log(" isDeployedUpdated " +isDeployedUpdated);
+	var ipv4PrefixListArr = [];
+	var prefixListGrid = Ext.getCmp("prefixListGrid1").getStore();
+	var prefixListGrid_RowCount = prefixListGrid.count();
+        		
+	for(var i=0; i < prefixListGrid_RowCount; i++) {
+		if(prefixListGrid.getAt(i).data.prefixList == ''){
+				Ext.MessageBox.alert('Validation Error','PrefixList can not be empty');
+			return;
+		}
+		Ext.Array.push(ipv4PrefixListArr,prefixListGrid.getAt(i).data);
+	}
+			
 	
 	var row;
 	var rowUpdate;
-	var cciInterfacesDeployedGrid = Ext.getCmp("cciInterfacesDeployedGrid").getStore();
+	var deployedInterfacesGrid = Ext.getCmp("deployedInterfacesGrid").getStore();
 	var stagedInterfacesStore = Ext.getCmp("stagedInterfacesGrid").getStore();
 				
 	if(isDeployedUpdated == 'true'){
 			console.log("deployed");
 			
 			try{
-			row = cciInterfacesDeployedGrid.getAt(index);
+			row = deployedInterfacesGrid.getAt(index);
 			
 			console.log("1*********** ** "+index);
 			
-			cciInterfacesDeployedGrid.getAt(index).data.recordOPType="MODIFY";
-			cciInterfacesDeployedGrid.getAt(index).data.vlanId=vlanId;
+			deployedInterfacesGrid.getAt(index).data.recordOPType="MODIFY";
+			deployedInterfacesGrid.getAt(index).data.vlanId=vlanId;
 			
 			stagedInterfacesStore.add(row);
 			console.log("3************ ** ");
 			var stageCount = stagedInterfacesStore.count();
 			console.log("4************ ** "+stageCount);
+			stagedInterfacesStore.getAt(stageCount-1).data.prefixList=ipv4PrefixListArr;
+			stagedInterfacesStore.getAt(stageCount-1).data.prefixListBeforeUpdate=row.data.prefixListBeforeUpdate;
+			stagedInterfacesStore.getAt(stageCount-1).data.ipAddressAndMask=row.data.ipAddress+"/"+row.data.subnetMask;
+			stagedInterfacesStore.getAt(stageCount-1).data.oldQoSType=row.data.oldQosType;
 			stagedInterfacesStore.getAt(stageCount-1).data.recordOPType="MODIFY";
 			console.log("oldVlanId ** "+oldVlanId);
+			stagedInterfacesStore.getAt(stageCount-1).data.ipMTU=ipMTU;
 			stagedInterfacesStore.getAt(stageCount-1).data.csId=csId;
 			stagedInterfacesStore.getAt(stageCount-1).data.ciuLoopback=ciuLoopback;
 			stagedInterfacesStore.getAt(stageCount-1).data.oldVlanId=oldVlanId;
 			stagedInterfacesStore.getAt(stageCount-1).data.oldRT=oldRT;
 			stagedInterfacesStore.getAt(stageCount-1).data.autonegotiate=autonegotiate;
 			stagedInterfacesStore.getAt(stageCount-1).data.adminState=adminState;
+			stagedInterfacesStore.getAt(stageCount-1).data.operationalMode = operationalMode;
 			stagedInterfacesStore.getAt(stageCount-1).data.nextHOP=nextHOP;
-			stagedInterfacesStore.getAt(stageCount-1).data.rt=rt;
-			stagedInterfacesStore.getAt(stageCount-1).data.rtHub=rtHub;
-			stagedInterfacesStore.getAt(stageCount-1).data.rtSpoke=rtSpoke;
+			//stagedInterfacesStore.getAt(stageCount-1).data.rt=rt;
+			//stagedInterfacesStore.getAt(stageCount-1).data.rtHub=rtHub;
+			//stagedInterfacesStore.getAt(stageCount-1).data.rtSpoke=rtSpoke;
 			stagedInterfacesStore.getAt(stageCount-1).data.oldCiuLoopback=oldCiuLoopback;
 			stagedInterfacesStore.getAt(stageCount-1).data.oldNeighbourAddress=oldNeighbourAddress;
 			
@@ -5627,6 +6405,11 @@ handleUpdateStagedInterface:function() {
 			stagedInterfacesStore.getAt(stageCount-1).data.isAF3Selected=isAF3Selected;
 			stagedInterfacesStore.getAt(stageCount-1).data.endPointServiceType=endPointServiceType;
 			stagedInterfacesStore.getAt(stageCount-1).data.oldEndPointServiceType=oldEndPointServiceType;
+			stagedInterfacesStore.getAt(stageCount-1).data.portSpeed=portSpeed;
+			stagedInterfacesStore.getAt(stageCount-1).data.qosType=qosType;
+			stagedInterfacesStore.getAt(stageCount-1).data.efService=efService;
+			
+			
 			}catch(e){
 				console.log("error on addding** "+e);
 			}
@@ -5638,6 +6421,20 @@ handleUpdateStagedInterface:function() {
 			Ext.getCmp('topology').setDisabled(true)
 			Ext.getCmp("stagedInterfacesGrid").getView().refresh();	
 			Ext.getCmp("isDeployedUpdated").setValue("false");
+			
+			/*Ext.getCmp('csId').setDisabled(false);
+			Ext.getCmp('localPref').setDisabled(false);
+			Ext.getCmp('med').setDisabled(false);
+			Ext.getCmp('ciuName').setDisabled(false);
+			Ext.getCmp('ciuAlias').setDisabled(false);
+			Ext.getCmp('af1').setDisabled(false);
+			Ext.getCmp('af2').setDisabled(false);
+			Ext.getCmp('af3').setDisabled(false);
+			Ext.getCmp('qosType').setDisabled(false);
+			Ext.getCmp('isAF1Selected').setDisabled(false);
+			Ext.getCmp('isAF2Selected').setDisabled(false);
+			Ext.getCmp('isAF3Selected').setDisabled(false);
+			Ext.getCmp('isAllAFSelected').setDisabled(false);*/
 			//row=rowUpdate;
 			//row.data.recordOPType='ADD';
 			//console.log(" row " +row);
@@ -5664,7 +6461,6 @@ handleUpdateStagedInterface:function() {
 	
 	var interfacegrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
 	interfacegrid.setDisabled(false);
-	var endpoint = Ext.getCmp('endPointType').getValue();
 	
 	
 	var siteName = Ext.getCmp('siteName').setDisabled(false);
@@ -5672,12 +6468,7 @@ handleUpdateStagedInterface:function() {
 	Ext.getCmp('subnetMask').setDisabled(false);
 	Ext.getCmp('vlanId').setDisabled(false);
 	Ext.getCmp('neighbourAddress').setDisabled(false);
-	if(endpoint == 'Full Mesh')
-		Ext.getCmp('rt').setDisabled(false);
-	else{
-		Ext.getCmp('rtHub').setDisabled(false);
-		Ext.getCmp('rtSpoke').setDisabled(false);
-	}
+	
 	Ext.getCmp('ciuLoopback').setDisabled(false);
 	Ext.getCmp('loopbackSubnetMask').setDisabled(false);
 															
@@ -5686,9 +6477,9 @@ handleUpdateStagedInterface:function() {
 		console.log("***** index * "+index);
 		//try{
 		
-		cciInterfacesDeployedGrid.removeAt(index);
+		deployedInterfacesGrid.removeAt(index);
 		
-	Ext.getCmp("cciInterfacesDeployedGrid").getView().refresh();	
+	Ext.getCmp("deployedInterfacesGrid").getView().refresh();	
 	console.log("vlanId ******* : "+vlanId);
 
 }
@@ -5700,17 +6491,23 @@ if(isDeployedUpdated == 'false'){
 		row.data.ciuName= ciuName;
 		row.data.ciuAlias= ciuAlias;
 		row.data.accessType= accessType;
+		row.data.portSpeed= portSpeed;
 		row.data.connectionType= connectionType;
 		row.data.csId= csId,
 		row.data.pathPreferences= pathPreferences,
 		row.data.vlanId= vlanId;
 		row.data.ipAddress= ipAddress;
 		row.data.subnetMask= subnetMask;
+		row.data.ipAddressAndMask= ipAddress+"/"+subnetMask;
 		row.data.oldIPV4AddressAndMask= oldIPV4AddressAndMask;
 		row.data.ipMTU= ipMTU;
 		row.data.ipv6Peer= ipv6Peer;
 		row.data.ipv6Address= ipv6Address;//+"."+ipv6Address1+"."+ipv6Address2+"."+ipv6Address3;;
 		row.data.rd= rd;
+		row.data.spkVrfName = spkVrfName,
+		row.data.vpnName = vpnName,
+		row.data.spkRd = spkRd,
+		row.data.spkVrfId = spkVrfId,
 		row.data.neighbourAddress= neighbourAddress;
 		row.data.oldNeighbourAddress= oldNeighbourAddress;
 		//row.data.neighbourSubnetMask= neighbourSubnetMask;
@@ -5749,15 +6546,18 @@ if(isDeployedUpdated == 'false'){
 		row.data.rpType=rpType;
 		row.data.rpAddress=rpAddress;
 		row.data.rpGprRange=rpGprRange;
-		//row.data.endPointType= endPointType;
-		//row.data.topology= topology;
-		row.data.rt=rt;
-		row.data.rtHub=rtHub;
-		row.data.rtSpoke=rtSpoke;
+		//row.data.rt=rt;
+		//row.data.rtHub=rtHub;
+		//row.data.rtSpoke=rtSpoke;
+		//row.data.AsRd=AsRd;
+		//row.data.AsRdSpk=AsRdSpk;
+		
 		row.data.oldRT=oldRT;
 		row.data.autonegotiate=autonegotiate;
 		row.data.adminState=adminState;
+		row.data.operationalMode =operationalMode;
 		row.data.nextHOP=nextHOP;
+		row.data.prefixList= ipv4PrefixListArr;
 		
 }
 	
@@ -5768,7 +6568,8 @@ if(isDeployedUpdated == 'false'){
 	
 },
 handleDeleteStagedInterface:function() {
-
+Ext.getCmp("siteName").show();
+Ext.getCmp("siteNameRO").hide();
 var oldVlanId = Ext.getCmp("oldVlanId").getValue();
 	console.log(" oldVlanId: "+oldVlanId);
 	
@@ -5784,6 +6585,7 @@ console.log("`");
 	var ciuName = Ext.getCmp("ciuName").getValue();
 	var ciuAlias = Ext.getCmp("ciuAlias").getValue();
 	var accessType = Ext.getCmp("accessType").getValue();
+	var portSpeed = Ext.getCmp("portSpeed").getValue();
 	var connectionType = Ext.getCmp("connectionType").getValue();
 	
 	var csId = this.scriptUtils.getFieldByName("csId").getValue();
@@ -5862,8 +6664,8 @@ console.log(" pathPreferences: "+pathPreferences);
 	
 	if(isDeployedUpdated == 'true'){ 
 			console.log("deployed");
-			var cciInterfacesDeployedGrid = Ext.getCmp("cciInterfacesDeployedGrid").getStore();
-			row = cciInterfacesDeployedGrid.getAt(index);
+			var deployedInterfacesGrid = Ext.getCmp("deployedInterfacesGrid").getStore();
+			row = deployedInterfacesGrid.getAt(index);
 			
 			
 		
@@ -5876,7 +6678,7 @@ console.log(" pathPreferences: "+pathPreferences);
 	row.data.oldNeighbourAddress=oldNeighbourAddress;
 	
 	stagedInterfacesStore.add(row);
-	cciInterfacesDeployedGrid.removeAt(index);
+	deployedInterfacesGrid.removeAt(index);
 	
 		
 	var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
@@ -5897,9 +6699,6 @@ console.log(" pathPreferences: "+pathPreferences);
 	var interfacegrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
 	interfacegrid.setDisabled(false);
 	
-	
-	var endpoint = Ext.getCmp('endPointType').getValue();
-	
 	var siteName = Ext.getCmp('siteName').setDisabled(false);
 	var topology = Ext.getCmp('topology').setDisabled(false);
 	
@@ -5907,19 +6706,14 @@ console.log(" pathPreferences: "+pathPreferences);
 	Ext.getCmp('subnetMask').setDisabled(false);
 	Ext.getCmp('vlanId').setDisabled(false);
 	Ext.getCmp('neighbourAddress').setDisabled(false);
-	if(endpoint == 'Full Mesh')
-		Ext.getCmp('rt').setDisabled(false);
-	else{
-		Ext.getCmp('rtHub').setDisabled(false);
-		Ext.getCmp('rtSpoke').setDisabled(false);
-	}
+
 	Ext.getCmp('ciuLoopback').setDisabled(false);
 	Ext.getCmp('loopbackSubnetMask').setDisabled(false);
 															
 	//me.setFieldDisabled('siteInterface',true);
 															
 	Ext.getCmp("stagedInterfacesGrid").getView().refresh();	
-	Ext.getCmp("cciInterfacesDeployedGrid").getView().refresh();	
+	Ext.getCmp("deployedInterfacesGrid").getView().refresh();	
 	//Ext.getCmp('topology').setValue("");
 },
 handleClearAddSiteInterfacePanelButton:function() {
@@ -5928,6 +6722,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 		var ciuLoopback =Ext.getCmp("ciuName").reset();
 		var ciuLoopback =Ext.getCmp("ciuAlias").reset();
 		var accessType =Ext.getCmp("accessType").reset();
+		Ext.getCmp("portSpeed").reset();
 		var connectionType =Ext.getCmp("connectionType").reset();
 		var vlanId =Ext.getCmp("vlanId").reset();
 		var ipAddress =Ext.getCmp("ipAddress").reset();
@@ -5953,6 +6748,21 @@ handleClearAddSiteInterfacePanelButton:function() {
 		
 		var records = Ext.getCmp("stagedInterfacesGrid").selModel.getSelection();
 		console.log("opt type: "+records.recordOPType);
+		
+		
+		var deployedInterface = Ext.getCmp("stagedInterfacesGrid").selModel.getSelection()[0].data.deployedInterface;
+		console.log("deployedInterface > >  : "+deployedInterface);
+		console.log("deployedInterface 1> >  : "+deployedInterface == 'true');
+		console.log("deployedInterface 2> >  : "+deployedInterface == true);
+		if(deployedInterface == 'true'){
+		console.log("deployedInterface 21> >  : "+deployedInterface);
+		var row = Ext.getCmp("stagedInterfacesGrid").selModel.getSelection()[0].data;
+		console.log("ipAddressAndMask > > : "+row.ipAddressAndMask)
+		
+			Ext.getCmp("deployedInterfacesGrid").getStore().add(row);
+			Ext.getCmp("deployedInterfacesGrid").getStore().getAt(0).data.ipAddressAndMask = row.ipAddressAndMask;
+			 Ext.getCmp("deployedInterfacesGrid").getView().refresh();
+		}
 		Ext.getCmp("stagedInterfacesGrid").getStore().remove(records);
 
 	    Ext.getCmp("stagedInterfacesGrid").getView().refresh();
@@ -6020,7 +6830,13 @@ handleClearAddSiteInterfacePanelButton:function() {
     var fourthOctet = parseInt(ipAddress3);
     var subnetSize;
     
-    if(subnetMask == "30") {
+    if(subnetMask == "32") {
+		subnetSize = 1;
+	}
+	if(subnetMask == "31") {
+		subnetSize = 2;
+	}
+	if(subnetMask == "30") {
         subnetSize = 4;
     }
     else if(subnetMask == "29") {
@@ -6067,6 +6883,9 @@ getNetworkAddress: function(ipAddress, subnetMask_DecimalNotation) {
         
         var subnetMask_DottedDecimalNotation;
         
+		if(subnetMask_DecimalNotation == "31") {
+            subnetMask_DottedDecimalNotation = "255.255.255.254";
+        }
         if(subnetMask_DecimalNotation == "30") {
             subnetMask_DottedDecimalNotation = "255.255.255.252";
         }
@@ -6143,6 +6962,11 @@ getNetworkAddress: function(ipAddress, subnetMask_DecimalNotation) {
         var networkAddress_SecondOctet = parseInt(tempArray[1]);
         var networkAddress_ThirdOctet = parseInt(tempArray[2]);
 		 var networkAddress_FouthOctet = parseInt(tempArray[3]);
+		 
+		 if(subnetMask_DecimalNotation == "31") {
+           broadcastAddress_FourthOctet = networkAddress_FouthOctet + 2;
+        }
+		
         if(subnetMask_DecimalNotation == "30") {
             broadcastAddress_FourthOctet = networkAddress_FouthOctet + 3;
         }
@@ -6203,49 +7027,253 @@ getNetworkAddress: function(ipAddress, subnetMask_DecimalNotation) {
 			console.log("Value of 'osVersion': " + osVersion);
 		});
 	},
-getInterfaceDescription: function(interfaceName) {
-	console.log("getting interface description*****************");
-	var vendor = 'Juniper';
-    var inventoryType = 'device';
-	var device_IntferfaceDesc_XPath = "/device/configuration/interfaces/interface[name='" + interfaceName + "']";
-	var formData = this.scriptUtils.getFormValues(this);
-	var siteName = Ext.getCmp('siteName').getValue();
-	this.getNodeList(siteName, vendor, inventoryType, device_IntferfaceDesc_XPath, function(results){ 
-		
-		
-		try{
-			var interfaceDescription = results["interface"].description;
+	getInterfaceDescription: function(interfaceName, siteName) {
+		console.log("getting interface description*****************");
+		console.log("getting interface description siteName*****************"+siteName);
+		console.log("getting interface description*******interfaceName********** "+interfaceName);
+		var selectedPort=  Ext.getCmp("siteInterfaceGrid").getSelectionModel().getSelection()[0];
+		console.log("selectedPort********** "+selectedPort);
+		if(selectedPort != undefined){
+			this.getMultiVRFDetails(interfaceName);
+		}
+		console.log("selectedPort1********** "+selectedPort);
+		var vendor = 'Juniper';
+		var inventoryType = 'device';
+		var device_IntferfaceDesc_XPath = "/device/configuration/interfaces/interface[name='" + interfaceName + "']";
+		var formData = this.scriptUtils.getFormValues(this);
+		if(siteName == null || '')
+			siteName = Ext.getCmp('siteName').getValue();
 			
-			var hierarchicalScheduler = results["interface"]["hierarchical-scheduler"];
-			var flexibleVlanTagging = results["interface"]["flexible-vlan-tagging"];
-			var encapsulation = results["interface"].encapsulation;
+			console.log("siteNamesiteName********** "+siteName);
+		this.getNodeList(siteName, vendor, inventoryType, device_IntferfaceDesc_XPath, function(results){ 
 			
-			console.log("hierarchicalScheduler: "+ hierarchicalScheduler);
-			console.log("flexibleVlanTagging: "+ flexibleVlanTagging);
-			console.log("encapsulation: "+ encapsulation);
-			if(hierarchicalScheduler != undefined && flexibleVlanTagging!= undefined && encapsulation != undefined){
-				console.log("valid");
-				this.isPortValid = true;
-			}else{
-				console.log("invalid");
-				this.isPortValid = false;
+			
+			try{
+				var interfaceDescription = results["interface"].description;
+				
+				//var unit = results["interface"]["unit"].length;
+			
+			console.log("no of unit "+results["interface"]["unit"].length)
+			
+			if(results["interface"]["unit"] != undefined && results["interface"]["unit"].length == undefined){
+				Ext.getCmp("qosType").setDisabled(false);
+				Ext.getCmp("classifier").setDisabled(false);	
 			}
-			console.log("is port valid: : "+ this.isPortValid);
-			
-			Ext.getCmp("lblInterfaceDescription").setValue(interfaceDescription);
-			console.log("Value of 'interfaceDescription': " + interfaceDescription);
-			console.log("Value of 'interfaceDescription  comment': " + results["interface"]["description"]["#text"]);
-			if(results["interface"]["description"]["#text"] != undefined){
-				Ext.getCmp("lblInterfaceDescription").setValue(results["interface"]["description"]["#text"])
+				
+				var hierarchicalScheduler = results["interface"]["hierarchical-scheduler"];
+				var flexibleVlanTagging = results["interface"]["flexible-vlan-tagging"];
+				var encapsulation = results["interface"].encapsulation;
+				
+				console.log("hierarchicalScheduler: "+ hierarchicalScheduler);
+				console.log("flexibleVlanTagging: "+ flexibleVlanTagging);
+				console.log("encapsulation: "+ encapsulation);
+				if(hierarchicalScheduler != undefined && flexibleVlanTagging!= undefined && encapsulation != undefined){
+					console.log("valid");
+					this.isPortValid = true;
+				}else{
+					console.log("invalid");
+					this.isPortValid = false;
+				}
+				console.log("is port valid: : "+ this.isPortValid);
+				
+				Ext.getCmp("lblInterfaceDescription").setValue(interfaceDescription);
+				console.log("Value of 'interfaceDescription': " + interfaceDescription);
+				console.log("Value of 'interfaceDescription  comment': " + results["interface"]["description"]["#text"]);
+				if(results["interface"]["description"]["#text"] != undefined){
+					Ext.getCmp("lblInterfaceDescription").setValue(results["interface"]["description"]["#text"])
+				}
+			}
+			catch(e){
+				console.log("error:   "+e);
+				Ext.getCmp("lblInterfaceDescription").setValue("");
 			}
 		}
-		catch(e){
-			console.log("error:   "+e);
-			Ext.getCmp("lblInterfaceDescription").setValue("");
+		);
+	},
+	getUnitDescription: function(interfaceName, unit, siteName) {
+	console.log("unit desc********* " +interfaceName);
+	console.log("unit desc****unit***** "+unit);
+	console.log("unit desc****siteName***** "+siteName);
+		var vendor = 'Juniper';
+		var inventoryType = 'device';
+		//var device_IntferfaceDesc_XPath = "/device/configuration/interfaces/interface[name='" + interfaceName + "']/unit[name='" + unit + "']";
+		var device_IntferfaceDesc_XPath = "/device/configuration/interfaces/interface[name='" + interfaceName + "']/unit";
+		var formData = this.scriptUtils.getFormValues(this);
+		//var siteName = Ext.getCmp('siteName').getValue();
+		this.getNodeList(siteName, vendor, inventoryType, device_IntferfaceDesc_XPath, function(results){ 
+			
+			
+			try{
+				var unitDescription = results["unit"].description;
+				console.log("unit length: "+ results["unit"].length);
+				
+				if(results["unit"].length ==undefined){
+					Ext.getCmp("qosType").setDisabled(false);
+					Ext.getCmp("classifier").setDisabled(false);
+				}
+				console.log("unit length"+unitDescription);
+				
+				//Ext.getCmp("lblIUnitDescription").setValue(unitDescription);
+				
+			}
+			catch(e){
+				console.log("error:>   "+e);
+				Ext.getCmp("lblIUnitDescription").setValue("");
+			}
 		}
-	}
-	);
-},
+		);
+	},
+	getMultiVRFDetails:function(id) {
+		var interfaceList='';
+		//serviceui/resteasy/cpp-service/advance-details/7634997?portName=ge-0/2/3&customerName=customer1
+		var selectedPort=  Ext.getCmp("siteInterfaceGrid").getSelectionModel().getSelection()[0].data.portName;
+		var deviceId = Ext.getCmp("siteName").getValue();
+		var ossCustomerId = Ext.getCmp("customerId").getValue();
+		Ext.Ajax.request({
+			method:'GET',
+			url:'../serviceui/resteasy/cpp-service/advance-details/'+deviceId+'?Interface='+selectedPort+'&ossCustomerId='+ossCustomerId,
+			success:function(r) {				
+				var result = Ext.decode(r.responseText);
+				try{
+				if(result.advanced != undefined || result.advanced != ''){
+				console.log("ciu name >> ..   :"+result.advanced[0].ciuName);
+				if(result.advanced[0].qosType.trim() == "QoS per Access"){
+						var af1 = result.advanced[0].af1;
+						var af2 = result.advanced[0].af2;
+						var af3 = result.advanced[0].af3;
+						var ciuName = result.advanced[0].ciuName;
+						console.log("ciuName<< "+ciuName);
+						var ciuAlias = result.advanced[0].ciuAlias;
+						var ciuLoopback = result.advanced[0].ciuLoopback;
+						
+						var customerId = result.advanced[0].ossCustomerId;
+						var accessRate = result.advanced[0].accessRate;
+						console.log("accessRAte<< "+accessRate);
+						
+						var efRate = result.advanced[0].efRate;
+						
+						var efService = result.advanced[0].efService;
+						var isAF1Selected = result.advanced[0].isAF1Selected;
+						var isAF2Selected = result.advanced[0].isAF2Selected;
+						var isAF3Selected = result.advanced[0].isAF3Selected;
+						var isAllAFSelected = result.advanced[0].isAllAFSelected;
+						var qosType = result.advanced[0].qosType;
+						var unit = result.advanced[0].vlanId;
+						
+						Ext.getCmp("endPointServiceType").setValue("TML3A");
+						Ext.getCmp('endPointServiceType').setDisabled(true);
+						Ext.getCmp("af1").setValue(af1);
+						Ext.getCmp('af1').setDisabled(true);
+						Ext.getCmp("af2").setValue(af2);
+						Ext.getCmp('af2').setDisabled(true);
+						Ext.getCmp("af3").setValue(af3);
+						Ext.getCmp('af3').setDisabled(true);
+						//Ext.getCmp('classifier').setDisabled(true);
+						
+						if(efRate != 0){
+							Ext.getCmp("efRate").setValue(efRate);
+							Ext.getCmp('efRate').setDisabled(true);
+						}
+						Ext.getCmp("efService").setValue(efService);
+						Ext.getCmp('efService').setDisabled(true);
+						Ext.getCmp("isAF1Selected").setValue(isAF1Selected);
+						Ext.getCmp("isAF2Selected").setValue(isAF2Selected);
+						Ext.getCmp("isAF3Selected").setValue(isAF3Selected);
+						Ext.getCmp("isAllAFSelected").setValue(isAllAFSelected);
+						Ext.getCmp("qosType").setValue(qosType);
+						Ext.getCmp('qosType').setDisabled(true);
+						console.log("accessRAte 1<< "+accessRate);
+						if(accessRate != null){
+							Ext.getCmp("accessRate").setValue(accessRate);
+							Ext.getCmp('accessRate').setDisabled(true);
+						}
+						console.log("accessRAte 1<< "+accessRate);
+						Ext.getCmp("isAF1Selected").setDisabled(true);
+						Ext.getCmp("isAF2Selected").setDisabled(true);
+						Ext.getCmp("isAF3Selected").setDisabled(true);
+						Ext.getCmp("isAllAFSelected").setDisabled(true);
+						
+						Ext.getCmp("ciuName").setValue(ciuName);
+						Ext.getCmp('ciuName').setDisabled(true);
+						Ext.getCmp("ciuAlias").setValue(ciuAlias);
+						Ext.getCmp('ciuAlias').setDisabled(true);
+						Ext.getCmp("ciuLoopback").setValue(ciuLoopback);
+						Ext.getCmp('ciuLoopback').setDisabled(true);
+						Ext.getCmp("multiVRF").setValue(true);
+						console.log("accessRAte4<< "+accessRate);
+					}
+          	}else{
+			console.log("accessRAte else<< ");
+					Ext.getCmp("endPointServiceType").setValue("TML3");
+					Ext.getCmp('endPointServiceType').setDisabled(false);
+					Ext.getCmp("af1").setValue("");
+					Ext.getCmp('af1').setDisabled(false);
+					Ext.getCmp("af2").setValue("");
+					Ext.getCmp('af2').setDisabled(false);
+					Ext.getCmp("af3").setValue("");
+					Ext.getCmp('af3').setDisabled(false);
+					Ext.getCmp("isAF1Selected").setValue(false);
+					Ext.getCmp("isAF2Selected").setValue(false);
+					Ext.getCmp("isAF3Selected").setValue(false);
+					Ext.getCmp("ciuName").setValue("");
+					Ext.getCmp('ciuName').setDisabled(false);
+					Ext.getCmp("efRate").setValue("");
+					Ext.getCmp("efService").setValue(false);
+					Ext.getCmp('efRate').setDisabled(false);
+					Ext.getCmp("efService").setValue("");
+					Ext.getCmp('efService').setDisabled(false);
+					Ext.getCmp("ciuAlias").setValue("");
+					Ext.getCmp('ciuAlias').setDisabled(false);
+					Ext.getCmp("ciuLoopback").setValue("");
+					Ext.getCmp('ciuLoopback').setDisabled(false);
+					Ext.getCmp("accessRate").setValue("");
+					Ext.getCmp('accessRate').setDisabled(false);
+					Ext.getCmp("qosType").setValue("");
+					Ext.getCmp('qosType').setDisabled(false)
+					Ext.getCmp("isAF1Selected").setDisabled(false);
+					Ext.getCmp("isAF2Selected").setDisabled(false);
+					Ext.getCmp("isAF3Selected").setDisabled(false);
+					Ext.getCmp("isAllAFSelected").setDisabled(false);
+					Ext.getCmp("multiVRF").setValue(false);
+				}
+				}catch(e){
+				console.log("error<<<<<<<<<<<<<<<<<< >>>>>> "+e);
+					Ext.getCmp("endPointServiceType").setValue("TML3");
+					Ext.getCmp('endPointServiceType').setDisabled(false);
+					Ext.getCmp("af1").setValue("");
+					Ext.getCmp('af1').setDisabled(false);
+					Ext.getCmp("af2").setValue("");
+					Ext.getCmp('af2').setDisabled(false);
+					Ext.getCmp("af3").setValue("");
+					Ext.getCmp('af3').setDisabled(false);
+					Ext.getCmp("isAF1Selected").setValue(false);
+					Ext.getCmp("isAF2Selected").setValue(false);
+					Ext.getCmp("isAF3Selected").setValue(false);
+					Ext.getCmp("ciuName").setValue("");
+					Ext.getCmp('ciuName').setDisabled(false);
+					Ext.getCmp("efRate").setValue("");
+					Ext.getCmp("efService").setValue(false);
+					Ext.getCmp('efRate').setDisabled(false);
+					Ext.getCmp("efService").setValue("");
+					Ext.getCmp('efService').setDisabled(false);
+					Ext.getCmp("ciuAlias").setValue("");
+					Ext.getCmp('ciuAlias').setDisabled(false);
+					Ext.getCmp("ciuLoopback").setValue("");
+					Ext.getCmp('ciuLoopback').setDisabled(false);
+					Ext.getCmp("accessRate").setValue("");
+					Ext.getCmp('accessRate').setDisabled(false);
+					Ext.getCmp("qosType").setValue("");
+					Ext.getCmp('qosType').setDisabled(false);
+					Ext.getCmp("isAF1Selected").setDisabled(false);
+					Ext.getCmp("isAF2Selected").setDisabled(false);
+					Ext.getCmp("isAF3Selected").setDisabled(false);
+					Ext.getCmp("isAllAFSelected").setDisabled(false);
+					Ext.getCmp("multiVRF").setValue(false);
+				}
+				
+			}
+		});
+	},
 
 	/**
 	 * This function used to return the inventory in Stringified JSON format Based on device ID,
@@ -6350,5 +7378,322 @@ getInterfaceDescription: function(interfaceName) {
 	console.log("isValid > "+isValid);	
 	return isValid;
 	
-    }
+    },
+	getPortSpeed:function() {
+        var portSpeed = Ext.create('Ext.data.Store',{
+            storeId: 'portSpeed',
+            fields: [
+                {name: 'valueText'},
+                {name: 'displayText'}
+            ], 
+            data: [
+                {valueText: '1G', displayText: '1G'},
+                {valueText: '100M', displayText: '100M'},
+				{valueText: '10M', displayText: '10M'}
+            ]
+        });
+
+        return portSpeed;
+    },
+	getPortSpeedForXEPort:function() {
+        var portSpeed = Ext.create('Ext.data.Store',{
+            storeId: 'portSpeed',
+            fields: [
+                {name: 'valueText'},
+                {name: 'displayText'}
+            ], 
+            data: [
+                
+                {valueText: '10g', displayText: '10G'}
+            ]
+        });
+
+        return portSpeed;
+    },
+	openPrefixListWindow:function() {//grid, rowIndex, colIndex
+	var prefixListWindow = Ext.create('Ext.window.Window', {
+			height:220,
+			width:360,
+			modal:true,
+			autoScroll:true,
+			name:'prefixListWindow',
+			title:'Performance Test Prefixes',
+			constrain:true,
+			//constrainTo:mainWin.getEl(),
+			items:[{
+				
+					xtype: 'fieldset',
+					height: 180,
+					width: 350,
+					layout: 'column',
+					//title: 'IPv4 Prefix List',
+					id: 'prefixListFieldSet',
+					itemId: 'prefixListFieldSet',
+					//hidden: true,
+					style: this.FIELDSET_BACKGROUND_COLOR,
+				   items: [
+						{
+						  
+									xtype: 'gridpanel',
+									height: 170,
+									margin: '0 0 0 0',
+									id: 'prefixListGrid',
+									//layout: 'fit',
+									autoScroll: true,
+									forceFit: true,
+									width: 338,
+									title: '',
+									columnLines: true,
+									hideHeaders: false,
+									forceFit: true,
+									store: this.getPrefixListStore(),
+									style: this.FIELDSET_BACKGROUND_COLOR,
+									
+									columns: [
+										{
+											xtype: 'rownumberer',
+											width: 25,
+											sortable: false,
+											locked: true,
+											align: 'center'
+										},
+										{
+											xtype: 'gridcolumn',
+											maxWidth: 310,
+											width: 310,
+											align: 'center',
+											sortable: true,
+											dataIndex: 'prefixList',
+											text: 'Prefixes/Mask',
+											editable: true,
+											editor: {
+												xtype: 'textfield',
+												name:'prefixList',
+												id:'prefixList'
+										
+										}
+										}
+									],
+									
+										dockedItems: [{
+											xtype: 'toolbar',
+											dock: 'bottom',
+											style: this.FIELDSET_BACKGROUND_COLOR,
+											 layout: {
+												type: 'hbox',
+												align: 'middle',
+												pack: 'center'
+											},
+											items: [
+												{
+													xtype: 'button',
+													text: 'Add',
+													width: 60,
+													margin: 5,
+													//style: this.FIELDSET_BACKGROUND_COLOR,
+													style: 'background-color:#476583;color:#FFFFFF',
+													handler: function(button, event) {
+													console.log("add");
+													try{
+														//me.handleAddPrefixList();
+														var prefixListPanelStore = Ext.getCmp("prefixListGrid").getStore();
+	
+														prefixListPanelStore.add({
+															prefixList: ""
+															
+														});
+														}catch(e){
+															console.log("error "+e);
+														}
+													}
+												},  {
+													xtype: 'button',
+													text: 'Delete',
+													//style: this.FIELDSET_BACKGROUND_COLOR,
+													style: 'background-color:#476583;color:white',
+													width: 60,
+													handler: function(button, event) {
+														var records = Ext.getCmp("prefixListGrid").selModel.getSelection();
+														Ext.getCmp("prefixListGrid").getStore().remove(records);
+														Ext.getCmp("prefixListGrid").getView().refresh();
+													}
+								
+												},
+												
+												{
+												xtype: 'button',
+												text: 'Save',
+												width: 60,
+												margin: 5,
+												//style: this.FIELDSET_BACKGROUND_COLOR,
+												style: 'background-color:#476583;color:#FFFFFF',
+												handler: function(button, event) {
+												var ipv4PrefixListArr = {};
+												//ipv4PrefixListArr
+												var prefixListGrid = Ext.getCmp("prefixListGrid").getStore();
+												var prefixListGrid_RowCount = prefixListGrid.count();
+												var mainWin = Ext.ComponentQuery.query('window[name=l3vpnModify]')[0];
+												var staticRPGrid = mainWin.getCompByName('gridpanel','prefixListGrid1');
+												//staticRPGrid.loadData([],false);
+												staticRPGrid.getStore().removeAll();
+												try	{		
+												//console.log("prefixListGrid_RowCount : "+prefixListGrid_RowCount);												
+													for(var i=0; i < prefixListGrid_RowCount; i++) {
+													
+														if(prefixListGrid.getAt(i).data.prefixList == ''){
+																Ext.MessageBox.alert('Validation Error','PrefixList can not be empty');
+															return;
+														}
+														
+														staticRPGrid.getStore().add(prefixListGrid.getAt(i).data);
+														
+													}
+													//console.log("777: "+staticRPGrid.getStore().count());
+													}
+													catch(e){
+														console.log("eee> > "+e);
+													}
+			
+													this.up('window').close();
+													//me.handleAddPrefixList();
+												}
+											}
+							
+											]
+										}]
+										,
+									
+									plugins: [
+										Ext.create('Ext.grid.plugin.RowEditing', {
+											clicksToEdit: 1,
+											 autoCancel: true,
+											 //autoCancel: false
+											//triggerEvent: 'cellclick',
+											listeners:{
+						'edit' : function( editor, e, eOpts ){
+											try{
+												var ip = Ext.getCmp("prefixList").getValue();
+												console.log("ip >> "+ip);
+													var subnetMask = ip.substring(ip.lastIndexOf('/')+1,ip.length);
+													var ip1 = ip.split(".")[0];
+													var ip2 = ip.split(".")[1];
+													var ip3 = ip.split(".")[2];
+													var ip4 = ip.split(".")[3];
+													var ip4Address = ip4.split("/")[0];
+													var Mask = ip4.split("/")[1];
+													
+													console.log("ip1 : "+ip1);
+													console.log("ip2 : "+ip2);
+													console.log("ip3 : "+ip3);
+													console.log("ip4Address : "+ip4Address);
+													console.log("Mask : "+Mask);
+													console.log("subnetMask > "+subnetMask);
+													
+													if(ip !='' && ip != null && ip.split(".").length == 4 && (parseInt(ip1) > 0 && parseInt(ip1) < 256 && !isNaN(ip1) && parseInt(ip2) >= 0 && parseInt(ip2) < 256 && !isNaN(ip2) && parseInt(ip3) >= 0 && parseInt(ip3) < 256 && !isNaN(ip3) &&  ip4.contains("/") && parseInt(ip4Address) >= 0 && parseInt(ip4Address) < 256 && !isNaN(ip4Address) && !isNaN(subnetMask) && parseInt(subnetMask) > 0 && parseInt(subnetMask) < 33 )  ){
+
+														//return  true;
+													} else {
+														//Ext.getCmp('destPrefixVal').focus(true,10);
+														 Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Error: valid value is xxx.xxx.xxx.xxx/xx");
+														//Ext.getCmp('destPrefixVal').focus(true, 200);
+														//return;
+													}
+													}catch(e){
+													console.log("eeee> "+e);
+														Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Error: valid value is xxx.xxx.xxx.xxx/xx");
+													}				
+										}					
+									}
+										})
+									
+								
+							]
+							
+				}
+				 ]
+				}
+			],
+			listeners:{
+				'afterrender':function(comp,e){
+					//var selRecord = grid.getStore().getAt(rowIndex);
+					//var key = selRecord.get('deviceName')+":"+selRecord.get('Interface');
+					//var key = selRecord.get('key');
+					
+					console.log("loading**");
+					var mainWin = Ext.ComponentQuery.query('window[name=l3vpnModify]')[0];
+					var prefixListGrid = Ext.getCmp("prefixListGrid").getStore();
+					console.log("prefixListGrid > > "+prefixListGrid.count());
+					prefixListGrid.removeAll();
+					console.log("prefixListGrid > > > "+prefixListGrid.count());
+					//Ext.ComponentQuery.query('gridpanel[name=prefixListGrid]')[0].store.removeAll();
+					//Ext.getCmp("prefixListGrid").store.removeAll();
+					var staticRPGrid = mainWin.getCompByName('gridpanel','prefixListGrid1');
+					console.log("staticRPGrid.getStore().count() > > > "+staticRPGrid.getStore().count());
+					
+					for(var i=0; i < staticRPGrid.getStore().count(); i++) {
+						prefixListGrid.add(staticRPGrid.getStore().getAt(i).data);
+					}
+				}
+			}
+				
+			
+		});
+		return prefixListWindow;
+		},
+handleAddPrefixList:function() {
+console.log("prefixListPanelStore");
+	var prefixListPanelStore = Ext.getCmp("prefixListGrid").getStore();
+	
+	prefixListPanelStore.add({
+		prefixList: ""
+		
+	}); 	
+	},
+	getPrefixListStore: function() {
+        var staticGridStore = Ext.create('Ext.data.Store',{
+            storeId: 'prefixListGridStore',
+            fields: [
+                {name: 'prefixList'}           
+            ],
+            data: [
+              
+            ]
+        });
+        
+        return staticGridStore;
+    },
+	onRowEditingForIPv4Prefix: function(editor, e, eOpts) {
+	var ip = Ext.getCmp("prefixList").getValue();
+  this.validateIPAddressAndMask(ip);
+},
+validateIPAddressAndMask: function(ip) {
+	try{
+	var subnetMask = ip.substring(ip.lastIndexOf('/')+1,ip.length);
+	var ip1 = ip.split(".")[0];
+	var ip2 = ip.split(".")[1];
+	var ip3 = ip.split(".")[2];
+	var ip4 = ip.split(".")[3];
+	var ip4Address = ip4.split("/")[0];
+	var Mask = ip4.split("/")[1];
+	
+	console.log("ip1 : "+ip1);
+	console.log("ip2 : "+ip2);
+	console.log("ip3 : "+ip3);
+	console.log("ip4Address : "+ip4Address);
+	console.log("Mask : "+Mask);
+	console.log("subnetMask > "+subnetMask);
+	
+	if(ip !='' && ip != null && ip.split(".").length == 4 && (parseInt(ip1) > 0 && parseInt(ip1) < 256 && !isNaN(ip1) && parseInt(ip2) >= 0 && parseInt(ip2) < 256 && !isNaN(ip2) && parseInt(ip3) >= 0 && parseInt(ip3) < 256 && !isNaN(ip3) &&  ip4.contains("/") && parseInt(ip4Address) >= 0 && parseInt(ip4Address) < 256 && !isNaN(ip4Address) && !isNaN(subnetMask) && parseInt(subnetMask) > 0 && parseInt(subnetMask) < 33 )  ){
+
+		//return  true;
+	} else {
+		//Ext.getCmp('destPrefixVal').focus(true,10);
+		 Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Error: valid value is xxx.xxx.xxx.xxx/xx");
+		//Ext.getCmp('destPrefixVal').focus(true, 200);
+		//return;
+	}
+	}catch(e){
+		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Error: valid value is xxx.xxx.xxx.xxx/xx");
+	}
+	}
 });
