@@ -90,7 +90,7 @@
         <neighbourAddress3 null="true"/>
         <operation>ADD</operation>
         <outerEncap>789</outerEncap>
-        <pathPreferences>Primary</pathPreferences>
+        <pathPreferences>PRI</pathPreferences>
         <pedeviceId>11337875</pedeviceId>
         <peerAS null="true"/>
         <recordOPType>ADD</recordOPType>
@@ -137,10 +137,22 @@
 	   <xsl:variable name="SERVICE_ID" select="/*/ServiceCommonAttributes/e/serviceOrderId"/>
       <xsl:variable name="vpnName" select="/*/ServiceCommonAttributes/e/vpnName"/>
       <xsl:variable name="qosType" select="/*/ServiceCommonAttributes/e/qosType"/>
+      <xsl:variable name="schedulerMapForMultiVRF" select="/*/ServiceCommonAttributes/e/schedulerMapForMultiVRF"/>
+      
+      <xsl:variable name="isAF1Selected" select="/*/ServiceCommonAttributes/e/isAF1Selected"/>
+      <xsl:variable name="isAF2Selected" select="/*/ServiceCommonAttributes/e/isAF2Selected"/>
+      <xsl:variable name="isAF3Selected" select="/*/ServiceCommonAttributes/e/isAF3Selected"/>
+      <xsl:variable name="isAllAFSelected" select="/*/ServiceCommonAttributes/e/isAllAFSelected"/>
+      
+      <xsl:variable name="af1" select="/*/ServiceCommonAttributes/e/af1"/>
+      <xsl:variable name="af2" select="/*/ServiceCommonAttributes/e/af2"/>
+      <xsl:variable name="af3" select="/*/ServiceCommonAttributes/e/af3"/>
+      
       <xsl:variable name="application" select="/*/ServiceCommonAttributes/e/application"/>
       <xsl:variable name="flowSampling" select="/*/ServiceCommonAttributes/e/flowSampling"/>
-      <xsl:variable name="operationalMode" select="/*/ServiceCommonAttributes/e/operationalMode"/>
+      <xsl:variable name="operationalMode1" select="/*/ServiceCommonAttributes/e/operationalMode"/>
       <xsl:variable name="architecture" select="/*/ServiceCommonAttributes/e/architecture"/>
+      <xsl:variable name="qosType" select="/*/ServiceCommonAttributes/e/qosType"/>
       <xsl:variable name="redistConnRoutes" select="/*/ServiceCommonAttributes/e/redistConnRoutes"/>
       <xsl:variable name="opType" select="/ns2:ServiceRequest/OpType"/>
       <xsl:variable name="pathId" select="/*/ServiceCommonAttributes/e/pathId"/>
@@ -213,12 +225,26 @@
                   <xsl:variable name="endPointServiceType" select="endPointServiceType"/>
                   
                   <xsl:variable name="routingProtocol" select="routingProtocol"/>
-                  
+                  <xsl:variable name="operationalMode" select="operationalMode"/>
+                  <xsl:variable name="traficControlProfile" select="traficControlProfile"/>
 				      <xsl:variable name="addressPool" select="addressPool"/>
+                  
+                  <xsl:variable name="staticCustExport" select="staticCustExport"/>
+                  <xsl:variable name="staticTelusNoExport" select="staticTelusNoExport"/>
+                  <xsl:variable name="bgpPrefixListCustExport" select="bgpPrefixListCustExport"/>
+                  <xsl:variable name="bgpPrefixListTelusNoExport" select="bgpPrefixListTelusNoExport"/>
+                  <xsl:variable name="staticExport" select="staticExport"/>
+                  <xsl:variable name="staticNoExport" select="staticNoExport"/>
+                  <xsl:variable name="bgpExport" select="bgpExport"/>
+                  <xsl:variable name="bgpNoExport" select="bgpNoExport"/>
+                  <xsl:variable name="nextHopCustExport" select="nextHopVal"/>
+                  <xsl:variable name="nextHopTelusNoExport" select="nextHopTelusSupplier"/>
+                  
+                  
                   <xsl:variable name="egressRate" select="egressRate"/> <!--'100m'  egressRate -->
                   
                   <xsl:variable name="rate">
-                     <xsl:value-of select="concat($egressRate, 'k')"/> 
+                     <xsl:value-of select="$egressRate"/> 
                   </xsl:variable>
                   <xsl:variable name="ip4NetworkAddress" select="ip4NetworkAddress"/>
                   
@@ -227,22 +253,46 @@
                   </xsl:variable>
                   
                   <xsl:variable name="interfaceUnitVlanRE">
-                     <xsl:choose>
+                     <xsl:value-of select="$VLAN_ID"/>
+                     <!--<xsl:choose>
                         <xsl:when test="$endPointServiceType = 'CI'">
                            <xsl:value-of select="'0'"/>
                         </xsl:when>
                         <xsl:when test="$endPointServiceType = 'BI' and $pathPreferences='Primary'">
                            <xsl:value-of select="'1500'"/>
                         </xsl:when>
-                        <xsl:when test="$endPointServiceType = 'BI' and $pathPreferences='Secondary'">
+                        <xsl:when test="$endPointServiceType = 'BI' and $pathPreferences='SEC'">
                            <xsl:value-of select="'1501'"/>
                         </xsl:when>
                         <xsl:otherwise>
                           
                         </xsl:otherwise>
                      </xsl:choose>
+                     -->
                   </xsl:variable>
-				      
+                  
+                  <xsl:variable name="pathPreferences">
+                     <xsl:choose>
+                        <xsl:when test="$pathPreferences = 'Primary'">
+                           <xsl:value-of select="'PRI'"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                           <xsl:value-of select="'SEC'"/>
+                        </xsl:otherwise>
+                     </xsl:choose>
+                  </xsl:variable>
+                  
+                  <xsl:variable name="protocol">
+                     <xsl:choose>
+                        <xsl:when test="$isIPv6Selected = 'true'">
+                           <xsl:value-of select="'MV6'"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                           <xsl:value-of select="'MV4'"/>
+                        </xsl:otherwise>
+                     </xsl:choose>
+                  </xsl:variable>
+                  
                   <xsl:variable name="accessOptionConnectionType">
                      <xsl:choose>
                         <xsl:when test="$connectionType = 'RE Direct'">
@@ -257,6 +307,12 @@
                         </xsl:otherwise>
                      </xsl:choose>
                   </xsl:variable>
+                  
+                  <xsl:variable name="isGEPort">
+                     <xsl:value-of select="starts-with($port,'ge')"/>
+                  </xsl:variable>
+                  <xsl:variable name="adminState" select="adminState"/>
+                  <xsl:variable name="portSpeed" select="portSpeed"/>
                   
                   <xsl:variable name="PEER_AS_RD">
                      <xsl:value-of select="concat($peerAS, ':', $RD_ID)"/>
@@ -275,6 +331,10 @@
                   <xsl:variable name="efRateUpperCase">
                      <xsl:value-of select="translate($efRate, $smallcase, $uppercase)" />
                   </xsl:variable>
+                  
+                  <xsl:variable name="egressRateUpperCase">
+                     <xsl:value-of select="translate($egressRate, $smallcase, $uppercase)" />
+                  </xsl:variable>
                 
                   <xsl:variable name="interfaceName">
                      <xsl:value-of select="concat($port, '.', $VLAN_ID)" />
@@ -288,10 +348,15 @@
                      <xsl:value-of select="'V0M'" />
                   </xsl:variable>
                                   
-                  <xsl:variable name="interfaceUnitDescription">
-                     <xsl:value-of select="concat($csId,  '.', $ciuName, '.', $egressRate)" />
+                  <xsl:variable name="portDescription">
+                     <xsl:value-of select="concat($csId,  '.', $ciuName, '.', $egressRateUpperCase)" />
                   </xsl:variable>
-                   <xsl:variable name="customerDefaultImportPolicy">
+                  
+                  <xsl:variable name="interfaceUnitDescription">
+                     <xsl:value-of select="concat($csId, '.', $ciuName, '.' , $accessType, '.', $egressRateUpperCase, '.', $endPointServiceType, '.',  $protocol, '.', $pathPreferences,  '.', $architecture, '.', $accessOptionConnectionType,  '.', $ciuAlias)" />
+                  </xsl:variable>
+                  
+                   <xsl:variable name="customerV4ImportPolicy">
                      <xsl:choose>
                         <xsl:when test="$endPointServiceType = 'BI'">
                            <xsl:value-of select="'CUSTOMER-IN-BI-V4-V6'" />
@@ -305,12 +370,12 @@
                   </xsl:variable>
                   
                   <!-- IMPORT POLICIES for any IPv4-ONLY Customers -->
-                  <xsl:variable name="importPolicyForIPv4">
+                  <xsl:variable name="CUSTIN-V4">
                      <xsl:choose>
                         <xsl:when test="$pathPreferences = 'Primary'">
                            <xsl:value-of select="concat('CUSTIN-V4',  '_',  $ciuName, '_', 'PRI')" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('CUSTIN-V4',  '_',  $ciuName, '_', 'SEC')" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -328,12 +393,12 @@
                   </xsl:variable>
                   
                   <!--IMPORT POLICIES for ANY IPv6-enabled Customers -->
-                  <xsl:variable name="importPolicyForIPv6">
+                  <xsl:variable name="CUSTIN-V4V6">
                      <xsl:choose>
                         <xsl:when test="$pathPreferences = 'Primary'">
                            <xsl:value-of select="concat('CUSTIN-V4V6',  '_',  $ciuName, '_', 'PRI')" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('CUSTIN-V4V6',  '_',  $ciuName, '_', 'SEC')" />
                         </xsl:when>
                        <xsl:otherwise>
@@ -342,12 +407,13 @@
                      </xsl:choose>
                   </xsl:variable>
                   
-                  <xsl:variable name="defaultOnlyForIPV6">
+                  <!--EXPORT POLICIES for DEFAULT ONLY for IPv6-enabled Customers-->
+                  <xsl:variable name="DEFAULTONLYV6">
                      <xsl:choose>
                         <xsl:when test="$pathPreferences = 'Primary'">
                            <xsl:value-of select="concat('DEFAULTONLYV6',  '_',  $ciuName, '_', 'P')" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('DEFAULTONLYV6',  '_',  $ciuName, '_', 'S')" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -356,13 +422,13 @@
                      </xsl:choose>
                      
                   </xsl:variable>
-                  
-                  <xsl:variable name="FullOnlyForIPV6">
+                  <!--EXPORT POLICIES for FULL ROUTES for IPv6-enabled Customers-->
+                  <xsl:variable name="CUSTFULLOUTV6">
                      <xsl:choose>
-                        <xsl:when test="$pathPreferences = 'Primary'">
+                        <xsl:when test="$pathPreferences = 'PRI'">
                            <xsl:value-of select="concat('CUSTFULLOUTV6',  '_',  $ciuName, '_', 'P')" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('CUSTFULLOUTV6',  '_',  $ciuName, '_', 'S')" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -380,12 +446,12 @@
                      <xsl:value-of select="'CUST-FULL-OUT-V4-V6'" />
                   </xsl:variable>
                   
-                  <xsl:variable name="ipv4CustomerPrifixName">
+                  <xsl:variable name="STATIC-V4-E">
                     <xsl:choose>
-                        <xsl:when test="$pathPreferences = 'Primary'">
+                        <xsl:when test="$pathPreferences = 'PRI'">
                            <xsl:value-of select="concat('STATIC-V4-E-LP350',  '-',  $deviceName)" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('STATIC-V4-E-LP340',  '-',  $deviceName)" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -394,12 +460,12 @@
                      </xsl:choose>
                    </xsl:variable>
                   
-                  <xsl:variable name="ipv4TelusPrifixName">
+                  <xsl:variable name="STATIC-V4-NE">
                      <xsl:choose>
-                        <xsl:when test="$pathPreferences = 'Primary'">
+                        <xsl:when test="$pathPreferences = 'PRI'">
                            <xsl:value-of select="concat('STATIC-V4-NE-LP350',  '-',  $deviceName)" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('STATIC-V4-NE-LP340',  '-',  $deviceName)" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -410,12 +476,12 @@
                      
                   </xsl:variable>
                   
-                  <xsl:variable name="ipv6CustomerPrifixName">
+                  <xsl:variable name="STATIC-V6-E">
                      <xsl:choose>
-                        <xsl:when test="$pathPreferences = 'Primary'">
+                        <xsl:when test="$pathPreferences = 'PRI'">
                            <xsl:value-of select="concat('STATIC-V6-E-LP350',  '-',  $deviceName)" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('STATIC-V6-E-LP340',  '-',  $deviceName)" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -426,12 +492,12 @@
                      
                   </xsl:variable>
                   
-                  <xsl:variable name="ipv6TelusPrifixName">
+                  <xsl:variable name="STATIC-V6-NE">
                      <xsl:choose>
-                        <xsl:when test="$pathPreferences = 'Primary'">
+                        <xsl:when test="$pathPreferences = 'PRI'">
                            <xsl:value-of select="concat('STATIC-V6-NE-LP350',  '-',  $deviceName)" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('STATIC-V6-NE-LP340',  '-',  $deviceName)" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -441,12 +507,12 @@
                      
                   </xsl:variable>
                   
-                  <xsl:variable name="ipv4DirectPrefixName">
+                  <xsl:variable name="DIRECT-BGP-V4">
                      <xsl:choose>
-                        <xsl:when test="$pathPreferences = 'Primary'">
+                        <xsl:when test="$pathPreferences = 'PRI'">
                            <xsl:value-of select="concat('DIRECT-BGP-V4-LP350',  '-',  $deviceName)" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('DIRECT-BGP-V4-LP340',  '-',  $deviceName)" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -457,16 +523,16 @@
                      
                   </xsl:variable>
                   
-                  <xsl:variable name="ipV4PrefixName">
+                  <xsl:variable name="PREFIX-IPV4">
                      <xsl:value-of select="concat('PREFIX-IPV4',  '_',  $ciuName)" />
                   </xsl:variable>
                   
-                  <xsl:variable name="ipv6DirectPrefixName">
+                  <xsl:variable name="DIRECT-BGP-V6">
                      <xsl:choose>
-                        <xsl:when test="$pathPreferences = 'Primary'">
+                        <xsl:when test="$pathPreferences = 'PRI'">
                            <xsl:value-of select="concat('DIRECT-BGP-V6-LP350',  '-',  $deviceName)" />
                         </xsl:when>
-                        <xsl:when test="$pathPreferences = 'Secondary'">
+                        <xsl:when test="$pathPreferences = 'SEC'">
                            <xsl:value-of select="concat('DIRECT-BGP-V6-LP340',  '-',  $deviceName)" />
                         </xsl:when>
                         <xsl:otherwise>
@@ -477,7 +543,7 @@
                      
                   </xsl:variable>
                   
-                  <xsl:variable name="ipV6PrefixName">
+                  <xsl:variable name="PREFIX-IPV6">
                      <xsl:value-of select="concat('PREFIX-IPV6',  '_',  $ciuName)" />
                   </xsl:variable>
                  
@@ -526,19 +592,63 @@
 					       </class-of-service>
 					       <interfaces>
                            <xsl:if test="$accessOptionConnectionType = 'REDI'">
-                            <interface>
+                              <interface>
                                  <name>
                                     <xsl:value-of select="$port"/>
                                  </name>
+                                 <!-- if BIGS detected, dont override -->
+                                 <xsl:if test="$qosType != 'QoS per Access' and qosType != 'QoS per VPN'">
+                                    <description>
+                                       <xsl:value-of select="$portDescription"/>
+                                    </description>
+                                 </xsl:if>
+                                 <xsl:if test="$isGEPort = 'true'">
+                                    <speed>
+                                       <xsl:value-of select="$portSpeed"/> 
+                                    </speed>
+                                 </xsl:if>
+                                 <xsl:if test="$adminState = 'Down'">
+                                    <disable/> 
+                                 </xsl:if>
+                                 <xsl:if test="$adminState = 'Up'">
+                                    <disable operation="delete">
+                                    </disable> 
+                                 </xsl:if>
+                                
                                  <unit>
                                     <name>
-                                       <xsl:value-of select="$OLD_VLAN_ID"/>
+                                       <xsl:value-of select="$interfaceUnitVlanRE"/>
                                     </name>
-                                   
-                                     <vlan-id>
-                                        <xsl:value-of select="$OLD_VLAN_ID"/>
-                                      </vlan-id>
                                     
+                                    <description>
+                                       <xsl:value-of select="$interfaceUnitDescription"/>
+                                    </description>
+                                    
+                                    <xsl:if test="$endPointServiceType = 'BI'">
+                                       <vlan-id>
+                                          <xsl:value-of select="$interfaceUnitVlanRE"/>
+                                       </vlan-id>
+                                    </xsl:if>
+                                    <family>
+                                       <inet>
+                                          <filter>
+                                             <input-list>
+                                                <filter-name>500</filter-name>
+                                             </input-list>
+                                             <input-list>
+                                                <filter-name>INTERNET_CLASSIFIER</filter-name>
+                                             </input-list>
+                                             <output>
+                                                <filter-name>OUT_TO_BI</filter-name><!--ONLY for TELUS MANAGE BI-->
+                                             </output>
+                                          </filter>
+                                          <address>
+                                           <name>
+                                              <xsl:value-of select="$IPv4AddressMask"/>
+                                           </name>
+                                          </address>
+                                       </inet>
+                                    </family>
                                  </unit>
                               </interface>
                            </xsl:if>
@@ -547,11 +657,23 @@
                                 <name>
                                    <xsl:value-of select="$port"/>
                                 </name>
-                                <description>
-                                   <xsl:value-of select="$interfaceUnitDescription"/>
-                                </description>
-                                <flexible-vlan-tagging>
-                                </flexible-vlan-tagging>
+     						          <xsl:if test="$qosType != 'QoS per Access' and qosType != 'QoS per VPN'">
+     						             <description>
+     						                <xsl:value-of select="$portDescription"/>
+     						             </description>
+     						          </xsl:if>
+     						          <xsl:if test="$isGEPort = 'true'">
+     						             <speed>
+     						                <xsl:value-of select="$portSpeed"/> 
+     						             </speed>
+     						          </xsl:if>
+     						          <xsl:if test="$adminState = 'Down'">
+     						             <disable/> 
+     						          </xsl:if>
+     						          <xsl:if test="$adminState = 'Up'">
+     						             <disable operation="delete">
+     						             </disable> 
+     						          </xsl:if>
                                 <unit>
                                    <name>
                                       <xsl:value-of select="$VLAN_ID"/>
@@ -563,9 +685,12 @@
                                    <family>
                                       <inet>
                                          <filter>
-                                            <input>
-                                               <filter-name>MARK_INTERNET_PRIORITY_LOW</filter-name>
-                                            </input>
+                                            <input-list>
+                                               <filter-name>500</filter-name>
+                                            </input-list>
+                                            <input-list>
+                                               <filter-name>INTERNET_CLASSIFIER</filter-name>
+                                            </input-list>
                                             <output>
                                                <filter-name>OUT_TO_BI</filter-name><!--ONLY for TELUS MANAGE BI-->
                                             </output>
@@ -581,31 +706,39 @@
                               </interface>
                            </xsl:if>
                         </interfaces>
+					       
                        <class-of-service>
-                          
-                         <scheduler-maps>
-                              <name>BICI-SCHED</name>
-                              <forwarding-class>
-                                 <name>FC_PROTOCOL_SIGNALING</name>
-                                 <scheduler>RP</scheduler>
-                              </forwarding-class>
-                              <forwarding-class>
-                                 <name>FC_BEST_EFFORT_DATA_GREEN</name>
-                                 <scheduler>BE</scheduler>
-                              </forwarding-class>
-                           </scheduler-maps>
-                           
-                           <traffic-control-profiles>
-                              <name>
-                                 <xsl:value-of select="concat('BI',  '_',  $rate)" /> <!-- BI_<rate>-->
-                              </name>
-                              <scheduler-map>BICI-SCHED</scheduler-map>
-                              <shaping-rate>
-                                 <rate>
-                                    <xsl:value-of select="$rate" /> <!--<100m>-->
-                                 </rate>
-                              </shaping-rate>
-                           </traffic-control-profiles>
+                          <traffic-control-profiles>
+                             
+                             <xsl:choose>
+                                <!-- if multivrf, use the same scheduler with the _BE -->
+                                <xsl:when test="$qosType = 'QoS per Access'">
+                                   <name replace="replace">
+                                      <xsl:value-of select="concat($traficControlProfile,  '_BE')" /> 
+                                   </name>
+                                   <scheduler-map>
+                                      <xsl:value-of select="concat($schedulerMapForMultiVRF,  '_',  'BE')" /> 
+                                   </scheduler-map>
+                                   <shaping-rate>
+                                      <rate replace="replace">
+                                         <xsl:value-of select="$rate" /> <!--<100m>-->
+                                      </rate>
+                                   </shaping-rate>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                   <name replace="replace">
+                                      <xsl:value-of select="concat('BI',  '_',  $rate)" /> 
+                                   </name>
+                                   <scheduler-map>BICI-SCHED</scheduler-map>
+                                   <shaping-rate>
+                                      <rate replace="replace">
+                                         <xsl:value-of select="$rate" /> <!--<100m>-->
+                                      </rate>
+                                   </shaping-rate>
+                                </xsl:otherwise>
+                             </xsl:choose>
+                             
+                          </traffic-control-profiles>
                            
                            <!--# depend on the connection type, if CPE directly connect to RE, 
                           	# the interface type will be ge- or xe-; if CPE connect through DE or
@@ -618,20 +751,34 @@
                                  </name>
                                  <unit>
                                     <name>
-                                       <xsl:if test="$accessOptionConnectionType = 'REDI'">
-                                          <xsl:value-of select="$interfaceUnitVlanRE"/>
-                                       </xsl:if>
-                                       <xsl:if test="$accessOptionConnectionType = 'REDU'">
-                                          <xsl:value-of select="$VLAN_ID"/>
-                                       </xsl:if>
+                                         <xsl:value-of select="$VLAN_ID"/>
                                     </name>
                                     <output-traffic-control-profile>
-                                       <profile-name>
-                                          <xsl:value-of select="concat('BI',  '_',  $rate)" /> <!-- BI_<rate>-->
+                                       <profile-name replace="replace">
+                                          <xsl:choose>
+                                             <xsl:when test="$qosType = 'QoS per Access'">
+                                                <xsl:value-of select="concat($traficControlProfile,  '_BE')" /> 
+                                             </xsl:when>
+                                             <xsl:otherwise>
+                                                <xsl:value-of select="concat('BI',  '_',  $rate)" /> 
+                                             </xsl:otherwise>
+                                          </xsl:choose>
                                        </profile-name>
                                     </output-traffic-control-profile>
                                  </unit>
                               </interface>
+                              <xsl:if test="$qosType = 'QoS per Access'">
+                                 <interface-set>
+                                    <name>
+                                       <xsl:value-of select="$ciuName"/>
+                                    </name>
+                                    <output-traffic-control-profile>
+                                       <profile-name replace="replace">
+                                          <xsl:value-of select="concat($traficControlProfile,  '_BE')" /> 
+                                       </profile-name>
+                                    </output-traffic-control-profile>
+                                 </interface-set>
+                              </xsl:if>
                            </interfaces>					
                         </class-of-service>
                        
@@ -639,40 +786,37 @@
 						  <!-- For IPv4 ONLY.  Add the static routes for the CIU.  Repeat this for every subnet that is entered.  -->
 							<xsl:if test="$routingProtocol = 'Static' ">
       						<routing-options>
-      							<static>
-      							   <xsl:for-each select="staticRoutes/e">
-      							      <xsl:variable name="route" select="destinationPrefix" />
-      							      <xsl:variable name="nextHop" select="nextHop" />
-          								<route>
-          								   <name>
-          								      <xsl:value-of select="$route" />
-          								   </name>
-          									<next-hop>
-          									   <xsl:value-of select="$nextHop" />
-          									</next-hop>
-          								</route>
-      							   </xsl:for-each>
-      							</static>
+      						   <static>
+      						      <xsl:for-each select="staticRoutes/staticRoutes/e">
+      						         <xsl:variable name="route" select="destinationPrefix" />
+      						         <route>
+      						            <name>
+      						               <xsl:value-of select="$route" />
+      						            </name>
+      						            <next-hop>
+      						               <xsl:value-of select="$nextHopCustExport" />
+      						            </next-hop>
+      						         </route>
+      						      </xsl:for-each>
+      						   </static>
+      						   <static>
+      						      <xsl:for-each select="StaticRoutesNoExport/staticRoutesTelusNoExport/e">
+      						         <xsl:variable name="route" select="destinationPrefix" />
+      						         <route>
+      						            <name>
+      						               <xsl:value-of select="$route" />
+      						            </name>
+      						            <next-hop>
+      						               <xsl:value-of select="$nextHopCustExport" />
+      						            </next-hop>
+      						         </route>
+      						      </xsl:for-each>
+      						   </static>
       						</routing-options>
                         
                     <!-- For IPv6 enable - Add the static routes for the CIU.  Repeat this for every subnet that is entered.  -->
                         <xsl:if test="$isIPv6Selected = 'true'">
                            <routing-options>
-                              <!--<static>
-                                 <xsl:for-each select="staticRoutesForIPv6/e">
-                                    <xsl:variable name="route" select="destinationPrefix" />
-                                    <xsl:variable name="nextHop" select="nextHop" />
-                                 <route>
-                                    <name>
-                                       <xsl:value-of select="concat($route,'/','32')" />{IPv6 subnet}/{prefix length}
-                                    </name>
-                                    <next-hop>
-                                       <xsl:value-of select="$nextHop" />{Peer IPv6 address}
-                                    </next-hop>
-                                 </route>
-                                 </xsl:for-each>
-                              </static>-->
-                              
                               <rib>
                                  <name>inet6.0</name>
                                  <static>
@@ -698,77 +842,80 @@
 					    
                         <policy-options>
                            <xsl:if test="$routingProtocol = 'Static' ">
-                              <xsl:if test="$addressPool = 'Customer'"><!-- TODO: check... -->	
-      							     <prefix-list>
-      									<name>
-      									   <xsl:value-of select="$ipv4CustomerPrifixName" /><!--STATIC-V4-E-LP350-{RE-device-name}-->
-      									</name>
-      							        <xsl:for-each select="oldStaticRoutes/e">
-      							           <prefix-list-item  operation="delete">
-      							              <xsl:variable name="route" select="destinationPrefix" />
-      							              <xsl:variable name="nextHop" select="nextHop" />
-      							              <name> 
-      							                 <xsl:value-of select="$route" />
-      							              </name>
-      							           </prefix-list-item>
-      							        </xsl:for-each>
-      							        
-      							        <xsl:for-each select="staticRoutes/e">
-      							           <prefix-list-item>
-      							              <xsl:variable name="route" select="destinationPrefix" />
-      							              <xsl:variable name="nextHop" select="nextHop" />
-      							              <name>  
-      							                 <xsl:value-of select="$route" />
-      							              </name>
-      							           </prefix-list-item>
-      							        </xsl:for-each>
-      							        
-      								    </prefix-list>
-   					          </xsl:if>
+                              <xsl:if test="$staticCustExport > '0'">
+                                 <prefix-list>
+                                    <name>
+                                       <xsl:value-of select="$STATIC-V4-E" />
+                                    </name>
+                                    <xsl:for-each select="oldStaticRoutes/oldStaticRoutes/e">
+                                    <prefix-list-item  operation="delete">
+                                       <xsl:variable name="route" select="destinationPrefix" />
+                                       <name> 
+                                          <xsl:value-of select="$route" />
+                                       </name>
+                                    </prefix-list-item>
+                                 </xsl:for-each>
+                                 </prefix-list>
+                                 <xsl:if test="$staticExport = 'true'">
+                                    <prefix-list>
+                                       <name>
+                                          <xsl:value-of select="$STATIC-V4-E" />
+                                       </name>
+                                       <xsl:for-each select="staticRoutes/staticRoutes/e">
+                                          <prefix-list-item>
+                                             <xsl:variable name="route" select="destinationPrefix" />
+                                             
+                                             <name> 
+                                                <xsl:value-of select="$route" />
+                                             </name>
+                                          </prefix-list-item>
+                                       </xsl:for-each>
+                                    </prefix-list>
+                                 </xsl:if>
+                              </xsl:if>
 						
 							<!-- For IPv4 ONLY.  Add each subnet to this prefix-list when Address Pool is TELUS Provided  -->
-                           <xsl:if test="$addressPool = 'TELUS'"> <!-- TODO: check... -->	
-     							     <prefix-list>
-     									<name>
-     									   <xsl:value-of select="$ipv4TelusPrifixName" /><!--STATIC-V4-NE-LP350-{RE-device-name}-->
-     									</name>
-     							        
-     							        
-     							           <xsl:for-each select="OldstaticRoutes/e">
-     							              <prefix-list-item operation="delete">
-     							              <xsl:variable name="route" select="destinationPrefix" />
-     							              <xsl:variable name="nextHop" select="nextHop" />
-     							              <name> 
-     							                 <xsl:value-of select="$route" />
-     							              </name>
-     							              </prefix-list-item>
-     							           </xsl:for-each>
-     							        
-     							        
-     									
-     									   <!--<xsl:value-of select="$ip4NetworkAddressAndMask" />-->
-     									   <xsl:for-each select="staticRoutes/e">
-     									      <prefix-list-item>
-     									      <xsl:variable name="route" select="destinationPrefix" />
-     									      <xsl:variable name="nextHop" select="nextHop" />
-     									      <name> 
-     									         <xsl:value-of select="$route" />
-     									      </name>
-     									      </prefix-list-item>
-     									    </xsl:for-each>
-     										
-     								    </prefix-list>
-     						       </xsl:if>
+                              <xsl:if test="$staticTelusNoExport > '0'">
+                                 <prefix-list>
+                                    <name>
+                                       <xsl:value-of select="$STATIC-V4-E" />
+                                    </name>
+                                    <xsl:for-each select="CurrentStaticRoutesNoExport/CurrentStaticRoutesNoExport/e">
+                                       <prefix-list-item  operation="delete">
+                                          <xsl:variable name="route" select="destinationPrefix" />
+                                          <name> 
+                                             <xsl:value-of select="$route" />
+                                          </name>
+                                       </prefix-list-item>
+                                    </xsl:for-each>
+                                 </prefix-list>
+                                 <xsl:if test="$staticNoExport = 'true'">
+                                 <prefix-list>
+                                    <name>
+                                       <xsl:value-of select="$STATIC-V4-NE" /><!--STATIC-V4-NE-LP350-{RE-device-name}-->
+                                    </name>
+                                    <xsl:for-each select="StaticRoutesNoExport/staticRoutesTelusNoExport/e">
+                                       <prefix-list-item>
+                                          <xsl:variable name="route" select="destinationPrefix" />
+                                          <name> 
+                                             <xsl:value-of select="$route" />
+                                          </name>
+                                       </prefix-list-item>
+                                    </xsl:for-each>
+                                 </prefix-list>
+                                 </xsl:if>
+                              </xsl:if>
+                              
                               
 					   <!-- For IPv6 enable - Add each subnet to this prefix-list when Address Pool is Customer Provided .-->
 					    
-    						  <xsl:if test="$isIPv6Selected = 'true' and $addressPool='Customer'"><!-- TODO: check... -->			
+    						  <xsl:if test="$isIPv6Selected = 'true' and $addressPool='Customer (Export)'"><!-- TODO: check... -->			
     								<prefix-list>
     								  <name>
-    									   <xsl:value-of select="$ipv6CustomerPrifixName" /><!--STATIC-V6-E-LP350-{RE-device-name}-->
+    									   <xsl:value-of select="$STATIC-V6-E" /><!--STATIC-V6-E-LP350-{RE-device-name}-->
     									</name>
     									
-    									   <xsl:for-each select="staticRoutesForIPv6/e">
+    								   <xsl:for-each select="staticRoutesForIPv6/staticRoutesForIPv6/e">
     									      <prefix-list-item>
     									      <xsl:variable name="route" select="destinationPrefix" />
     									      <xsl:variable name="nextHop" select="nextHop" />
@@ -783,13 +930,13 @@
     						</xsl:if>
                       
 						<!-- For IPv6 enable - Add each subnet to this prefix-list when Address Pool is Customer Provided .  -->
-						<xsl:if test="$isIPv6Selected = 'true' and $addressPool='TELUS'">
+						<xsl:if test="$isIPv6Selected = 'true' and $addressPool='TELUS (No Export)'">
 								<prefix-list>
 									<name>
-									   <xsl:value-of select="$ipv6TelusPrifixName" /><!--STATIC-V6-NE-LP350-{RE-device-name}-->
+									   <xsl:value-of select="$STATIC-V6-NE" /><!--STATIC-V6-NE-LP350-{RE-device-name}-->
 									</name>
 									
-									   <xsl:for-each select="staticRoutesForIPv6/e">
+								   <xsl:for-each select="staticRoutesForIPv6/staticRoutesForIPv6/e">
 									      <prefix-list-item>
 									      <xsl:variable name="route" select="destinationPrefix" />
 									      <xsl:variable name="nextHop" select="nextHop" />
@@ -806,99 +953,75 @@
                   <prefix-list>
                      <name>DEFAULT-IPV6</name>
                   </prefix-list>
-						<!-- For IPv4 ONLY - Mandatory add of the customer interface to the pre-defined policy  -->
-                  
-                    <xsl:if test="$routingProtocol != 'Static' and $isIPv6Selected = 'false'"> <!-- for BGP only and IPv4 -->
-                        
-                       <prefix-list>
-      							<name>
-      							   <xsl:value-of select="$ipv4DirectPrefixName" /><!--DIRECT-BGP-V4-LP350-{RE-device-name}-->
-      							</name>
-      						   <!--  DOBBUT here..why not multiple list item here..TODO: -->
-      							
-      								<!-- <xsl:value-of select="$ip4NetworkAddressAndMask" /> -->
-      								   <xsl:for-each select="prefixList/e">
-      								      <prefix-list-item>
-      								      <xsl:variable name="route" select="prefixList" />
-      								      
-      								      <name> 
-      								         <xsl:value-of select="$route" />
-      								      </name>
-      								      </prefix-list-item>
-      								 </xsl:for-each>
-      								 
-      						</prefix-list>
-                      </xsl:if>
-                     <xsl:if test="$routingProtocol = 'Default' ">      
+						 <xsl:if test="$routingProtocol != 'Static' "> 
+                     <prefix-list>
+                        <name>
+                           <xsl:value-of select="concat('PREFIX-IPV4', '_', 'E',  '_',  $ciuName)" />
+                        </name>
+                        <xsl:for-each select="oldPrefixList/oldPrefixList/e">
+                           <prefix-list-item  operation="delete">
+                              <xsl:variable name="route" select="prefixList" />
+                              <name> 
+                                 <xsl:value-of select="$route" />
+                              </name>
+                           </prefix-list-item>
+                        </xsl:for-each>
+                     </prefix-list>
+                     <prefix-list>
+                        <name>
+                           <xsl:value-of select="concat('PREFIX-IPV4', '_', 'NE',  '_',  $ciuName)" />
+                        </name>
+                        <xsl:for-each select="CurrentPrefixListNoExport/CurrentPrefixListNoExport/e">
+                           <prefix-list-item  operation="delete">
+                              <xsl:variable name="route" select="prefixList" />
+                              <name> 
+                                 <xsl:value-of select="$route" />
+                              </name>
+                           </prefix-list-item>
+                        </xsl:for-each>
+                     </prefix-list>
+                     <xsl:if test="$bgpExport = 'true'">
                         <prefix-list>
                            <name>
-                              <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
+                              <xsl:value-of select="concat('PREFIX-IPV4', '_', 'E',  '_',  $ciuName)" />
                            </name>
-                           <xsl:choose>
-                              <xsl:when test="$isIPv6Selected = 'false'">
-                                 <xsl:for-each select="oldPrefixList/e">
-                                    <prefix-list-item  operation="delete">
-                                       <xsl:variable name="route" select="prefixList" />
-                                       <name> 
-                                          <xsl:value-of select="$route" />
-                                       </name>
-                                    </prefix-list-item>
-                                 </xsl:for-each>
-                              </xsl:when>
-                           <xsl:otherwise>
-                              <xsl:for-each select="oldIPv6PrefixList/e">
-                                 <prefix-list-item operation="delete">
-                                    <xsl:variable name="route" select="prefixList" />
-                                    <name> 
-                                       <xsl:value-of select="$route" />
-                                    </name>
-                                 </prefix-list-item>
-                              </xsl:for-each>
-                           </xsl:otherwise>
-					           </xsl:choose>
-                        </prefix-list> 
-     					      <prefix-list>
-                             <name>
-                                 <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
-                             </name>
-                            
-                                   <!-- DOBUT here..wheere will get interface ipv6 subnet TODO:-->
-                                  <!-- <xsl:value-of select="$ip4NetworkAddressAndMask" /> -->
-                                   <!-- if selected ipv6 from UI then sending ipv4 and ipv6 prefixes in the list otherwise just ipv4 only. -->
-                                   <xsl:choose>
-                                      <xsl:when test="$isIPv6Selected = 'false'">
-                                         <xsl:for-each select="prefixList/e">
-                                            <prefix-list-item>
-                                            <xsl:variable name="route" select="prefixList" />
-                                            <name> 
-                                               <xsl:value-of select="$route" />
-                                            </name>
-                                               </prefix-list-item>
-                                         </xsl:for-each>
-                                      </xsl:when>
-                                      <xsl:otherwise>
-                                         <xsl:for-each select="ipv6PrefixList/e">
-                                            <prefix-list-item>
-                                            <xsl:variable name="route" select="prefixList" />
-                                            <name> 
-                                               <xsl:value-of select="$route" />
-                                            </name>
-                                            </prefix-list-item>
-                                         </xsl:for-each>
-                                      </xsl:otherwise>
-                                   </xsl:choose>
-                             </prefix-list>
-                    </xsl:if>
+                           <xsl:for-each select="prefixList/prefixList/e">
+                              <prefix-list-item>
+                                 <xsl:variable name="route" select="prefixList" />
+                                 <name> 
+                                    <xsl:value-of select="$route" />
+                                 </name>
+                              </prefix-list-item>
+                           </xsl:for-each>
+                        </prefix-list>
+                     </xsl:if>
+                     <xsl:if test="$bgpNoExport = 'true'">
+                        <prefix-list>
+                           <name>
+                              <xsl:value-of select="concat('PREFIX-IPV4', '_', 'NE',  '_',  $ciuName)" />
+                           </name>
+                           <xsl:for-each select="prefixListTelusSupplier/prefixListTelusSupplier/e">
+                              <prefix-list-item>
+                                 <xsl:variable name="route" select="prefixList" />
+                                 <name> 
+                                    <xsl:value-of select="$route" />
+                                 </name>
+                              </prefix-list-item>
+                           </xsl:for-each>
+                        </prefix-list>
+                     </xsl:if>
+                  </xsl:if>
+                        
 					  
 					  <!-- For IPv6 enable - Mandatory add of the customer interface to the pre-defined policy  -->
                  <xsl:if test="$routingProtocol != 'Static' and $isIPv6Selected = 'true'"> <!-- for BGP only and IPv6 -->
                     
                     <prefix-list>
 								<name>
-								   <xsl:value-of select="$ipv6DirectPrefixName" /><!--DIRECT-BGP-V6-LP350-{RE-device-name}-->
+								   <xsl:value-of select="$DIRECT-BGP-V6" /><!--DIRECT-BGP-V6-LP350-{RE-device-name}-->
 								</name>
 						 	  
-								      <xsl:for-each select="ipv6PrefixList/e">
+                       <xsl:for-each select="ipv6PrefixList/ipv6PrefixList/e">
 								         <prefix-list-item>
 								         <xsl:variable name="route" select="ipv6PrefixList" />
 								         <name> 
@@ -911,7 +1034,7 @@
 						   <xsl:if test="$routingProtocol = 'Default' ">
 						     <prefix-list>
 						         <name>
-						            <xsl:value-of select="$ipV6PrefixName" /><!--PREFIX-IPV6_<CIU Name>-->
+						            <xsl:value-of select="$PREFIX-IPV6" /><!--PREFIX-IPV6_<CIU Name>-->
 						         </name>
 						         
 						            <!--
@@ -920,7 +1043,7 @@
 						            </name> -->
 						               <xsl:choose>
 						                  <xsl:when test="$isIPv6Selected = 'false'">
-						                     <xsl:for-each select="prefixList/e">
+						                     <xsl:for-each select="prefixList/prefixList/e">
 						                        <prefix-list-item>
 						                        <xsl:variable name="route" select="prefixList" />
 						                        <name> 
@@ -946,36 +1069,12 @@
 						</xsl:if>
                         
                      <!-- IPv4 and IPV6 Enabled , Default-Only , Export Policy Configuration , Generic Policy used to export IPV4 default route -->
-                      <xsl:if test="$routingProtocol = 'Default' ">
-                        <policy-statement>
-                          <name>
-                             <xsl:value-of select="$DEFAULT-ONLY-V4-V6"/>
-                          </name>
-                          <term>
-                             <name>10</name>
-                             <from>
-                                <prefix-list>DEFAULT</prefix-list>
-                             </from>
-                             <to>
-                                <protocol>bgp</protocol>
-                             </to>
-                             <then>
-                                <accept/>
-                             </then>
-                          </term>
-                          <term>
-                             <name>20</name>
-                             <then>
-                                <next>policy</next>
-                              </then>
-                          </term>
-                       </policy-statement> 
-                      </xsl:if>
+                     
                       <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Default' ">
                          <!-- Customer specific policy to export IPV6 default route also check for primary and secondary--> 
                          <policy-statement>
                             <name>
-                               <xsl:value-of select="$defaultOnlyForIPV6" /><!--DEFAULTONLYV6_<CIU NAME>_P-->
+                               <xsl:value-of select="$DEFAULTONLYV6" /><!--DEFAULTONLYV6_<CIU NAME>_P-->
                             </name>
                             <term>
                                <name>10</name>
@@ -1003,105 +1102,11 @@
                             </term>
                          </policy-statement>
                       </xsl:if>
-                      <!-- IPv4-Only , Full Routes , Export Policy Configuration -->
-                      <xsl:if test="$routingProtocol = 'Full' ">
-                        <policy-statement>
-                           <name>
-                              <xsl:value-of select="$CUST-FULL-OUT" />
-                            </name>
-                           <!-- deny bogus routes -->
-                           <term>
-                              <name>10</name>
-                              <from>
-                                 <prefix-list>DEFAULT</prefix-list>
-                              </from>
-                              <then>
-                                 <reject/>
-                              </then>
-                           </term>
-                           <!-- deny bogus routes -->
-                           <term>
-                              <name>20</name>
-                              <from>
-                                 <prefix-list>IANA-RESERVED</prefix-list>
-                              </from>
-                              <then>
-                                 <reject/>
-                              </then>
-                           </term>
-                           <!-- deny bogus routes -->
-                           <term>
-                              <name>30</name>
-                              <from>
-                                 <prefix-list>RFC1918</prefix-list>
-                              </from>
-                              <then>
-                                 <reject/>
-                              </then>
-                           </term>
-                           <!-- deny small routes -->
-                           <term>
-                              <name>40</name>
-                              <from>
-                                 <route-filter>
-                                    <address>0.0.0.0/0</address> <!--TODO: check if it is a default address 0.0.0.0/0-->
-                                    <prefix-length-range>/25-/32</prefix-length-range>
-                                 </route-filter>
-                              </from>
-                              <then>
-                                 <reject/>
-                              </then>
-                           </term>
-                           <!-- advertise TELUS customer routes with external community tag -->
-                           <term>
-                              <name>50</name>
-                              <from>
-                                 <community>CUST</community>
-                              </from>
-                              <then>
-                                 <origin>igp</origin>
-                                 <community>
-                                    <set/>
-                                    <community-name>200</community-name>
-                                 </community>
-                                 <accept/>
-                              </then>
-                              
-                           </term>
-                           <!-- advertise TELUS peering routes with external community tag -->
-                           <term>
-                              <name>60</name>
-                              <from>
-                                 <community>CUST</community>
-                              </from>
-                              <then>
-                                 <origin>igp</origin>
-                                 <community>
-                                    <set/>
-                                    <community-name>180</community-name>
-                                 </community>
-                                 <accept/>
-                              </then>
-                           </term>
-                           <!-- advertise TELUS peering routes with external community tag -->
-                           <term>
-                              <name>70</name>
-                              <then>
-                                 <origin>igp</origin>
-                                 <community>
-                                    <set/>
-                                    <community-name>170</community-name>
-                                 </community>
-                                 <accept/>
-                              </then>
-                           </term>
-                        </policy-statement>
-                      </xsl:if>
-                       <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Full' ">
+                      <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Full' ">
                          <!-- IPV6 specific policy that contains customer site specific parameters-->
                            <policy-statement>
                               <name>
-                                 <xsl:value-of select="$FullOnlyForIPV6" /> <!--CUSTFULLOUTV6_<CIU NAME>_P-->
+                                 <xsl:value-of select="$CUSTFULLOUTV6" /> <!--CUSTFULLOUTV6_<CIU NAME>_P-->
                               </name>
                               <term>
                                  <name>10</name>
@@ -1166,28 +1171,16 @@
                            </policy-statement>
                          </xsl:if>
                         
-                         
-                         <!--Customer specific policy to export IPV6 default route-->
-                        
-                      <!-- ipv4 only Default only import policy configuration -->
-                      <!--  PRI and SEC suffixes are to allow different BI/CI community 
-                  		assignment based on Primary and Secondary RE device names
-                  		 -->
-                        <xsl:if test="$routingProtocol = 'Default'">
+                       <xsl:if test="$routingProtocol = 'Default1'">
                         <policy-statement>
                            <name>
-                              <xsl:value-of select="$importPolicyForIPv4" /> <!--CUSTIN-V4_<CIU Name>_PRI>-->
+                              <xsl:value-of select="$CUSTIN-V4" /> <!--CUSTIN-V4_<CIU Name>_PRI>-->
                            </name>
-                           <!-- use term 10 if customer prefix is provided by TELUS,
-                          			as all peers have default route or full routes, so it
-                          			 would not block any local peer to peer traffic - TODO: confirm it as address pool is a 
-                          			 part of BGP
-                          			 -->
                            <term>
                               <name>10</name>
                               <from>
                                  <prefix-list>
-                                    <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
+                                    <xsl:value-of select="$PREFIX-IPV4" /><!--PREFIX-IPV4_<CIU Name>-->
                                  </prefix-list>
                               </from>
                               <then>
@@ -1204,18 +1197,18 @@
                               <name>20</name>
                               <from>
                                  <prefix-list>
-                                    <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
+                                    <xsl:value-of select="$PREFIX-IPV4" /><!--PREFIX-IPV4_<CIU Name>-->
                                  </prefix-list>
                               </from>
                               <then>
                                  <community>
-                                    <add/> <!--TODO confirm with mark-->
-                                    <xsl:if test="$addressPool = 'TELUS'">
+                                    <add/>
+                                    <xsl:if test="$bgpNoExport = 'true'">
                                           <community-name>
                                              <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" /> <!-- EDTN-LAB-CG01-RE1 -->
                                           </community-name>
                                        </xsl:if>
-                                    <xsl:if test="$addressPool = 'Customer'">
+                                    <xsl:if test="$bgpExport = 'true'">
                                           <community-name>
                                              <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" /> <!-- EDTN-LAB-CG01-RE1 -->
                                           </community-name>
@@ -1233,171 +1226,188 @@
                            </term>			
                         </policy-statement>
                       </xsl:if>
-                      <!-- IPv4 Only , Default Only , Export Policy Configuration-->
                       
-                      <policy-statement>
-                         <name>
-                            <xsl:value-of select="'DEFAULT-ONLY'" /> 
-                         </name>
-                         <term>
-                            <name>10</name>
-                            <from>
-                               <prefix-list>
-                                  <xsl:value-of select="'DEFAULT'" />
-                               </prefix-list>
-                            </from>
-                            <to>
-                               <protocol>bgp</protocol>
-                            </to>
-                            <then>
-                               <accept/>
-                            </then>
-                         </term>
-                         
-                         <term>
-                            <name>1000</name>
-                            <then>
-                               <reject/>
-                            </then>
-                         </term>			
-                      </policy-statement>
-                        <!--IPv4 and IPv6 Enable ,Default Only, Import Policy Configuration -->
-                         <!-- PRI and SEC suffixes are to allow different BI/CI community 
-                      		assignment based on Primary and Secondary RE device names
-                      		-->
-                        <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Default'"> 
-                         <policy-statement>
-                            <name>
-                               <xsl:value-of select="$importPolicyForIPv6" /> <!--CUSTIN-V4V6_<CIU Name>_PRI>-->
-                            </name>
-                            <!-- use term 10 if customer prefix is provided by TELUS,
-                        			 as all peers have default route or full routes, so it
-                        			would not block any local peer to peer traffic
-                        		-->
-                            <term>
-                               <name>10</name>
-                               <from>
-                                  <prefix-list>
-                                     <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
-                                  </prefix-list>
-                               </from>
-                               <then>
-                                  <community>
-                                     <add/>
-                                        <community-name>NO-EXPORT</community-name>
-                                    
-                                  </community>
-                               </then>
-                            </term>
-                            <xsl:if test="$isIPv6Selected = 'true'">
-                            <term>
-                               <name>20</name>
-                               <from>
-                                  <prefix-list>
-                                     <xsl:value-of select="$ipV6PrefixName" /><!--PREFIX-IPV6_<CIU Name>-->
-                                  </prefix-list>
-                               </from>
-                               <then>
-                                  <community>
-                                     <add/>
-                                        <community-name>NO-EXPORT</community-name>
-                                    
-                                  </community>
-                                  <accept/>
-                               </then>
-                            </term>
-                            </xsl:if>
-                            <!--  Allow only Customer IPV4 prefixes -->
-                            <term>
-                               <name>30</name>
-                               <from>
-                                  <prefix-list>
-                                     <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
-                                  </prefix-list>
-                               </from>
-                               <then>
-                                  <community>
-                                     <add/>
-                                     <xsl:if test="$addressPool = 'TELUS'">
-                                           <community-name>
-                                           <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" />
-                                           </community-name>
-                                        </xsl:if>
-                                     <xsl:if test="$addressPool = 'Customer'">
-                                           <community-name>
-                                           <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" />
-                                           </community-name>
-                                        </xsl:if>
-                                        <!--< BICI-NO-EXPORT-<RE Device Name> | BICI-EXPORT-<RE Device Name> >    TODO - discuss with mark -->
-                                  </community>
-                                  <accept/>
-                               </then>
-                            </term>
-                            <!-- tag Customer IPV6 prefixes with 852:40000 -->
-                            <xsl:if test="$isIPv6Selected = 'true'">
-                            <term>
-                               <name>40</name>
-                               <from>
-                                  <prefix-list>
-                                     <xsl:value-of select="$ipV6PrefixName" /><!--PREFIX-IPV6_<CIU Name>-->
-                                  </prefix-list>
-                               </from>
-                               <then>
-                                  <community>
-                                     <add/>
-                                        <community-name>IPV6</community-name>
-                                    </community>
-                                  <accept/>
-                               </then>
-                            </term>
-                            </xsl:if>
-                            <!--  Allow only Customer IPV6 prefixes -->
-                            <xsl:if test="$isIPv6Selected = 'true'">
-                             <term>
-                                 <name>50</name>
-                                 <from>
-                                    <prefix-list>
-                                       <xsl:value-of select="$ipV6PrefixName" /><!--PREFIX-IPV6_<CIU Name>-->
-                                    </prefix-list>
-                                 </from>
-                                 <then>
-                                    <community>
-                                       <add/>
-                                          <!--<xsl:if test="$endPointServiceType = 'BI'">-->
-                                         <xsl:if test="$addressPool = 'TELUS'">
+                           <xsl:if test="$routingProtocol != 'Static'">
+                              <policy-statement operation="delete">
+                                 <name>
+                                    <xsl:value-of select="$CUSTIN-V4V6" />
+                                 </name>
+                              </policy-statement>
+                              <policy-statement>
+                                 <name>
+                                    <xsl:value-of select="$CUSTIN-V4V6" />
+                                 </name>
+                                 <xsl:if test="$bgpNoExport = 'true'">
+                                    <term>
+                                       <name>ENTRY_10:V4-NO-EXPORT</name>
+                                       <from>
+                                          <prefix-list>
+                                             <xsl:value-of select="concat('PREFIX-IPV4', '_', 'NE',  '_',  $ciuName)" />
+                                          </prefix-list>
+                                       </from>
+                                       <then>
+                                          <community>
+                                             <add/>
+                                             <community-name>NO-EXPORT</community-name>
+                                             
+                                          </community>
+                                       </then>
+                                    </term>
+                                    <xsl:if test="$isIPv6Selected = 'true'">
+                                       <term>
+                                          <name>ENTRY_20:V6-NO-EXPORT</name>
+                                          <from>
+                                             <prefix-list>
+                                                <xsl:value-of select="concat('PREFIX-IPV6', '_', 'NE',  '_',  $ciuName)" />
+                                             </prefix-list>
+                                          </from>
+                                          <then>
+                                             <community>
+                                                <add/>
+                                                <community-name>NO-EXPORT</community-name>
+                                                
+                                             </community>
+                                             <accept/>
+                                          </then>
+                                       </term>
+                                    </xsl:if>
+                                 </xsl:if>
+                                 <!--  Allow only Customer IPV4 prefixes -->
+                                 <xsl:if test="$bgpNoExport = 'true'">
+                                    <term>
+                                       <name>ENTRY_30:V4-NO-EXPORT</name>
+                                       <from>
+                                          <prefix-list>
+                                             <xsl:value-of select="concat('PREFIX-IPV4', '_', 'NE',  '_',  $ciuName)" />
+                                          </prefix-list>
+                                       </from>
+                                       <then>
+                                          <community>
+                                             <add/>
                                              <community-name>
-                                             <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" />
+                                                <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" />
                                              </community-name>
-                                          </xsl:if>
-                                       <xsl:if test="$addressPool = 'Customer'">
+                                          </community>
+                                          <accept/>
+                                       </then>
+                                    </term>
+                                 </xsl:if>
+                                 <xsl:if test="$bgpExport = 'true'">
+                                    <term>
+                                       <name>ENTRY_35:V4-EXPORT</name>
+                                       <from>
+                                          <prefix-list>
+                                             <xsl:value-of select="concat('PREFIX-IPV4', '_', 'E',  '_',  $ciuName)" />
+                                          </prefix-list>
+                                       </from>
+                                       <then>
+                                          <community>
+                                             <add/>
                                              <community-name>
-                                             <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" />
+                                                <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" />
                                              </community-name>
-                                          </xsl:if>
-                                          <!--< BICI-NO-EXPORT-<RE Device Name> | BICI-EXPORT-<RE Device Name> >-->
-                                       
-                                    </community>
-                                    <!-- IPv6 routes received from the customer must have their NH set to CPEss WAN V6 address-->
-                                    <next-hop>
-                                       <xsl:value-of select="$ipv6IntfAddress" />
-                                    </next-hop> <!--V6 address of CPEs WAN interface -->
-                                    <accept/>
-                                 </then>
-                              </term>
-                            </xsl:if>
-                            <term>
-                               <name>1000</name>
-                               <then>
-                                  <reject/>
-                               </then>
-                            </term>			
-                         </policy-statement>
-                        </xsl:if>
-					  </policy-options> 
+                                             <!--< BICI-NO-EXPORT-<RE Device Name> | BICI-EXPORT-<RE Device Name> >    TODO - discuss with mark -->
+                                          </community>
+                                          <accept/>
+                                       </then>
+                                    </term>
+                                 </xsl:if>
+                                 <!-- tag Customer IPV6 prefixes with 852:40000 -->
+                                 <xsl:if test="$isIPv6Selected = 'true' and $bgpNoExport = 'true'">
+                                    <term>
+                                       <name>ENTRY_40:V6-ANY</name>
+                                       <from>
+                                          <prefix-list>
+                                             <xsl:value-of select="concat('PREFIX-IPV6', '_', 'NE',  '_',  $ciuName)" />
+                                          </prefix-list>
+                                       </from>
+                                       <then>
+                                          <community>
+                                             <add/>
+                                             <community-name>IPV6</community-name>
+                                          </community>
+                                          <accept/>
+                                       </then>
+                                    </term>
+                                    
+                                    <term>
+                                       <name>ENTRY_50:V6-NO-EXPORT</name>
+                                       <from>
+                                          <prefix-list>
+                                             <xsl:value-of select="concat('PREFIX-IPV6', '_', 'NE',  '_',  $ciuName)" />
+                                          </prefix-list>
+                                       </from>
+                                       <then>
+                                          <community>
+                                             <add/>
+                                             <community-name>
+                                                <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" />
+                                             </community-name>
+                                          </community>
+                                          <!-- IPv6 routes received from the customer must have their NH set to CPEss WAN V6 address-->
+                                          <next-hop>
+                                             <xsl:value-of select="$ipv6IntfAddress" />
+                                          </next-hop> <!--V6 address of CPEs WAN interface -->
+                                          <accept/>
+                                       </then>
+                                    </term>
+                                    <term>
+                                       <name>ENTRY_50:V6-NO-EXPORT</name>
+                                       <from>
+                                          <prefix-list>
+                                             <xsl:value-of select="concat('PREFIX-IPV6', '_', 'NE',  '_',  $ciuName)" />
+                                          </prefix-list>
+                                       </from>
+                                       <then>
+                                          <community>
+                                             <add/>
+                                             <community-name>
+                                                <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" />
+                                             </community-name>
+                                          </community>
+                                          <!-- IPv6 routes received from the customer must have their NH set to CPEss WAN V6 address-->
+                                          <next-hop>
+                                             <xsl:value-of select="$ipv6IntfAddress" />
+                                          </next-hop> <!--V6 address of CPEs WAN interface -->
+                                          <accept/>
+                                       </then>
+                                    </term>
+                                 </xsl:if>
+                                 <xsl:if test="$isIPv6Selected = 'true' and $bgpNoExport = 'true'">
+                                    <term>
+                                       <name>ENTRY_55:V6-EXPORT</name>
+                                       <from>
+                                          <prefix-list>
+                                             <xsl:value-of select="concat('PREFIX-IPV6', '_', 'E',  '_',  $ciuName)" />
+                                          </prefix-list>
+                                       </from>
+                                       <then>
+                                          <community>
+                                             <add/>
+                                             <community-name>
+                                                <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" />
+                                             </community-name>
+                                          </community>
+                                          <!-- IPv6 routes received from the customer must have their NH set to CPEss WAN V6 address-->
+                                          <next-hop>
+                                             <xsl:value-of select="$ipv6IntfAddress" />
+                                          </next-hop> <!--V6 address of CPEs WAN interface -->
+                                          <accept/>
+                                       </then>
+                                    </term>
+                                 </xsl:if>
+                                 <term>
+                                    <name>ENTRY_100:LAST</name>
+                                    <then>
+                                       <reject/>
+                                    </then>
+                                 </term>			
+                              </policy-statement>
+                           </xsl:if>
+                           
+                       </policy-options> 
                               
                         <!-- PROTOCOL STANZA -->
-                        <!--BGP Default Route selection from UI -->               
-                        <!-- no protocol for static... -->
                         <xsl:if test="$routingProtocol  = 'Default'">  
                         <protocols>
                            <bgp>
@@ -1436,35 +1446,34 @@
                                        </authentication-key>
                                        
                                        <!-- Import & Export Policy used for IPv4 ONLY - uncomment it if created   -->
-                                       <!--import>
-                                          <xsl:value-of select="$customerDefaultImportPolicy"/>
-                                       </import-->
                                        <import>
-                                          <xsl:value-of select="$importPolicyForIPv4"/>
+                                          <xsl:value-of select="$customerV4ImportPolicy"/>
                                        </import>
+                                       <!--
+                                       <xsl:if test="$routingProtocol != 'Static'">
+                                       <import>
+                                          <xsl:value-of select="$CUSTIN-V4"/>
+                                       </import>
+                                       </xsl:if>
+                                       -->
                                        <export>
                                           <xsl:value-of select="$DEFAULT-ONLY"/>
                                        </export>
                                        
                                        <!-- Import & Export Policy used for IPv6 enable  -->
                                        <xsl:if test="$isIPv6Selected = 'true'">
-                                         <!-- <import>
-                                             <xsl:value-of select="$customerDefaultImportPolicy"/>
-                                          </import>-->
-                                          <import>
-                                                <xsl:value-of select="$importPolicyForIPv6"/>
-                                          </import>
                                           <export>
-                                             <xsl:value-of select="$defaultOnlyForIPV6"/>
+                                             <xsl:value-of select="$DEFAULT-ONLY-V4-V6"/>
                                           </export>
                                           <export>
-                                                <xsl:value-of select="$DEFAULT-ONLY-V4-V6"/>
+                                             <xsl:value-of select="$DEFAULTONLYV6"/>
                                           </export>
+                                          
                                        </xsl:if>
                                     </neighbor>
                                  </xsl:if>
-                                 <xsl:if test="$routingProtocol = 'Full'">
-                                    <name>CUSTOMER_FULL</name>
+                                 <xsl:if test="$routingProtocol = 'Full' or $routingProtocol = 'Default-Full'">
+                                    <name>CUSTOMER-FULL</name>
                                     <type>external</type>
                                     <description>eBGP customers with full routes</description>
                                     
@@ -1485,31 +1494,35 @@
                                        <!-- Import & Export Policy used for IPv4 ONLY  -->
                                        
                                        <import>
-                                          <xsl:value-of select="$customerDefaultImportPolicy"/>
+                                          <xsl:value-of select="$customerV4ImportPolicy"/>
                                        </import>
+                                       <!--
+                                       <xsl:if test="$routingProtocol != 'Static'">
                                        <import>
-                                          <xsl:value-of select="$importPolicyForIPv4"/>
+                                          <xsl:value-of select="$CUSTIN-V4"/>
                                        </import>
+                                       </xsl:if>
+                                       -->
                                        <export>
-                                            <xsl:value-of select="$CUST-FULL-OUT"/>
+                                          <xsl:value-of select="$CUST-FULL-OUT"/>
                                        </export>
-                                       
+                                      
                                        <!-- Import & Export Policy used for IPv6 enable  -->
                                        
                                        <xsl:if test="$isIPv6Selected = 'true'">
-                                         <!--
                                           <import>
-                                             <xsl:value-of select="$customerDefaultImportPolicy"/>
+                                             <xsl:value-of select="$CUSTIN-V4V6"/>
                                           </import>
-                                          -->
-                                          <import>
-                                               <xsl:value-of select="$importPolicyForIPv6"/>
-                                          </import>
+                                          <xsl:if test="$routingProtocol = 'Default-Full'">
+                                             <export>
+                                                <xsl:value-of select="$DEFAULT-ONLY-V4-V6"/>
+                                             </export>
+                                          </xsl:if>
                                           <export>
-                                               <xsl:value-of select="$FullOnlyForIPV6"/>
+                                             <xsl:value-of select="$CUSTFULLOUTV6"/>
                                           </export>
                                           <export>
-                                                <xsl:value-of select="$CUST-FULL-OUT-V4-V6"/>
+                                             <xsl:value-of select="$CUST-FULL-OUT-V4-V6"/>
                                           </export>
                                        </xsl:if>
                                     </neighbor>
@@ -1528,16 +1541,33 @@
                                  <name>
                                     <xsl:value-of select="$port"/>
                                  </name>
-                                 <description>
-                                    <xsl:value-of select="$interfaceUnitDescription"/>
+                               <!-- if BIGS detected, dont override -->
+                               <xsl:if test="$qosType != 'QoS per Access' and $qosType != 'QoS per VPN'">
+                                <description>
+                                    <xsl:value-of select="$portDescription"/>
                                  </description>
-                                 <flexible-vlan-tagging>
-                                 </flexible-vlan-tagging>
-                                 <unit>
+                               </xsl:if>
+                               <xsl:if test="$isGEPort = 'true'">
+                                  <speed>
+                                     <xsl:value-of select="$portSpeed"/> 
+                                  </speed>
+                               </xsl:if>
+                               <xsl:if test="$adminState = 'Down'">
+                                  <disable/> 
+                               </xsl:if>
+                               <xsl:if test="$adminState = 'Up'">
+                                  <disable operation="delete">
+                                  </disable> 
+                               </xsl:if>
+                                <unit>
                                     <name>
                                        <xsl:value-of select="$interfaceUnitVlanRE"/>
                                     </name>
-                                   
+                                    
+                                    <description>
+                                       <xsl:value-of select="$interfaceUnitDescription"/>
+                                    </description>
+                                    
                                     <xsl:if test="$endPointServiceType = 'BI'">
                                      <vlan-id>
                                         <xsl:value-of select="$interfaceUnitVlanRE"/>
@@ -1546,10 +1576,13 @@
                                     <family>
                                        <inet>
                                           <filter>
-                                             <input>
-                                                <filter-name>MARK_INTERNET_PRIORITY_LOW</filter-name>
-                                             </input>
-                                             <output>
+                                             <input-list>
+                                                <filter-name>500</filter-name>
+                                             </input-list>
+                                             <input-list>
+                                                 <filter-name>INTERNET_CLASSIFIER</filter-name>
+                                             </input-list>
+                                            <output>
                                                 <filter-name>OUT_TO_BI</filter-name><!--ONLY for TELUS MANAGE BI-->
                                              </output>
                                           </filter>
@@ -1568,11 +1601,28 @@
                                 <name>
                                    <xsl:value-of select="$port"/>
                                 </name>
-                                <description>
-                                   <xsl:value-of select="$interfaceUnitDescription"/>
-                                </description>
-                                <flexible-vlan-tagging>
+     						          <!-- if BIGS detected, dont override -->
+     						          <xsl:if test="$qosType != 'QoS per Access' and qosType != 'QoS per VPN'">
+     						             <description>
+     						                <xsl:value-of select="$portDescription"/>
+     						             </description>
+     						          </xsl:if>
+     						          <xsl:if test="$isGEPort = 'true'">
+     						             <speed>
+     						                <xsl:value-of select="$portSpeed"/> 
+     						             </speed>
+     						          </xsl:if>
+     						          <xsl:if test="$adminState = 'Down'">
+     						             <disable/> 
+     						          </xsl:if>
+     						          <xsl:if test="$adminState = 'Up'">
+     						             <disable operation="delete">
+     						             </disable> 
+     						          </xsl:if>
+     						          
+                                <!--<flexible-vlan-tagging>
                                 </flexible-vlan-tagging>
+                                -->
                                 <unit>
                                    <name>
                                       <xsl:value-of select="$VLAN_ID"/>
@@ -1584,9 +1634,12 @@
                                    <family>
                                       <inet>
                                          <filter>
-                                            <input>
-                                               <filter-name>MARK_INTERNET_PRIORITY_LOW</filter-name>
-                                            </input>
+                                            <input-list>
+                                               <filter-name>500</filter-name>
+                                            </input-list>
+                                            <input-list>
+                                               <filter-name>INTERNET_CLASSIFIER</filter-name>
+                                            </input-list>
                                             <output>
                                                <filter-name>OUT_TO_BI</filter-name><!--ONLY for TELUS MANAGE BI-->
                                             </output>
@@ -1601,32 +1654,100 @@
                                 </unit>
                               </interface>
                            </xsl:if>
+                           
+                           <xsl:if test="$qosType = 'QoS per Access'">
+                              <interface-set>
+                                 <name><xsl:value-of select="$ciuName"/></name>
+                                 <interface>
+                                    <name><xsl:value-of select="$port"/></name>
+                                    <unit>
+                                       <name><xsl:value-of select="$VLAN_ID"/></name>
+                                    </unit>
+                                 </interface>
+                              </interface-set>
+                              
+                           </xsl:if>
+                           
                         </interfaces>
+                        
+                        
                        <class-of-service>
                           
-                         <scheduler-maps>
-                              <name>BICI-SCHED</name>
-                              <forwarding-class>
-                                 <name>FC_PROTOCOL_SIGNALING</name>
-                                 <scheduler>RP</scheduler>
-                              </forwarding-class>
-                              <forwarding-class>
-                                 <name>FC_BEST_EFFORT_DATA_GREEN</name>
-                                 <scheduler>BE</scheduler>
-                              </forwarding-class>
-                           </scheduler-maps>
+                         
+                           <xsl:choose>
+                               <xsl:when test="$qosType = 'QoS per Access'">
+                                  <scheduler-maps>
+                                  <name>
+                                     <xsl:value-of select="concat($schedulerMapForMultiVRF,  '_',  'BE')" /> 
+                                  </name>
+                                  
+                                  <forwarding-class>
+                                     <name>FC_TOLL_VOICE_AND_SIGNALING</name>
+                                     <scheduler>RP</scheduler>
+                                  </forwarding-class>
+                                  <xsl:if test="$isAF3Selected = 'true'">
+                                     <forwarding-class>
+                                        <name>FC_LOW_LATENCY_DATA_GREEN</name>
+                                        <scheduler>
+                                           <xsl:value-of select="concat('AF',  '_',  $af3)" />
+                                        </scheduler>
+                                     </forwarding-class>
+                                  </xsl:if>
+                                  <xsl:if test="$isAF2Selected = 'true'">
+                                     <forwarding-class>
+                                        <name>FC_HIGH_THROUGHPUT_DATA_GREEN</name>
+                                        <scheduler>
+                                           <xsl:value-of select="concat('AF',  '_',  $af2)" />
+                                        </scheduler>
+                                     </forwarding-class>
+                                  </xsl:if>
+                                  <xsl:if test="$isAF1Selected = 'true'">
+                                     <forwarding-class>
+                                        <name>FC_LOW_PRIORITY_DATA_GREEN</name>
+                                        <scheduler>
+                                           <xsl:value-of select="concat('AF',  '_',  $af1)" />
+                                        </scheduler>
+                                     </forwarding-class>
+                                  </xsl:if>
+                                  </scheduler-maps>
+                               </xsl:when>
+                               <xsl:otherwise>
+                                  
+                               </xsl:otherwise>
+                            </xsl:choose>
+                            
                            
-                           <traffic-control-profiles>
-                              <name>
-                                 <xsl:value-of select="concat('BI',  '_',  $rate)" /> <!-- BI_<rate>-->
-                              </name>
-                              <scheduler-map>BICI-SCHED</scheduler-map>
-                              <shaping-rate>
-                                 <rate>
-                                    <xsl:value-of select="$rate" /> <!--<100m>-->
-                                 </rate>
-                              </shaping-rate>
-                           </traffic-control-profiles>
+                          <traffic-control-profiles>
+                             
+                                <xsl:choose>
+                                   <!-- if multivrf, use the same scheduler with the _BE -->
+                                   <xsl:when test="$qosType = 'QoS per Access'">
+                                      <name>
+                                        <xsl:value-of select="concat($traficControlProfile,  '_BE')" /> 
+                                      </name>
+                                      <scheduler-map>
+                                         <xsl:value-of select="concat($schedulerMapForMultiVRF,  '_',  'BE')" /> 
+                                      </scheduler-map>
+                                      <shaping-rate>
+                                         <rate>
+                                            <xsl:value-of select="$rate" /> <!--<100m>-->
+                                         </rate>
+                                      </shaping-rate>
+                                   </xsl:when>
+                                   <xsl:otherwise>
+                                      <name>
+                                       <xsl:value-of select="concat('BI',  '_',  $rate)" /> 
+                                      </name>
+                                      <scheduler-map>BICI-SCHED</scheduler-map>
+                                      <shaping-rate>
+                                         <rate>
+                                            <xsl:value-of select="$rate" /> <!--<100m>-->
+                                         </rate>
+                                      </shaping-rate>
+                                   </xsl:otherwise>
+                                </xsl:choose>
+                             
+                          </traffic-control-profiles>
                            
                            <!--# depend on the connection type, if CPE directly connect to RE, 
                           	# the interface type will be ge- or xe-; if CPE connect through DE or
@@ -1639,41 +1760,72 @@
                                  </name>
                                  <unit>
                                     <name>
-                                       <xsl:if test="$accessOptionConnectionType = 'REDI'">
-                                          <xsl:value-of select="$interfaceUnitVlanRE"/>
-                                       </xsl:if>
-                                       <xsl:if test="$accessOptionConnectionType = 'REDU'">
-                                          <xsl:value-of select="$VLAN_ID"/>
-                                       </xsl:if>
+                                       <xsl:value-of select="$VLAN_ID"/>
                                     </name>
                                     <output-traffic-control-profile>
                                        <profile-name>
-                                          <xsl:value-of select="concat('BI',  '_',  $rate)" /> <!-- BI_<rate>-->
+                                          <xsl:choose>
+                                             <xsl:when test="$qosType = 'QoS per Access'">
+                                                <xsl:value-of select="concat($traficControlProfile,  '_BE')" /> 
+                                             </xsl:when>
+                                             <xsl:otherwise>
+                                                <xsl:value-of select="concat('BI',  '_',  $rate)" /> 
+                                             </xsl:otherwise>
+                                          </xsl:choose>
                                        </profile-name>
                                     </output-traffic-control-profile>
                                  </unit>
                               </interface>
+                              <xsl:if test="$qosType = 'QoS per Access'">
+                                 <interface-set>
+                                    <name>
+                                       <xsl:value-of select="$ciuName"/>
+                                    </name>
+                                    <output-traffic-control-profile>
+                                       <profile-name>
+                                          <xsl:value-of select="concat($traficControlProfile,  '_BE')" /> 
+                                       </profile-name>
+                                    </output-traffic-control-profile>
+                                 </interface-set>
+                              </xsl:if>
                            </interfaces>					
                         </class-of-service>
                        
                     <!--ROUTING_OPTIONS started-->
 						  <!-- For IPv4 ONLY.  Add the static routes for the CIU.  Repeat this for every subnet that is entered.  -->
 							<xsl:if test="$routingProtocol = 'Static' ">
+							   
       						<routing-options>
-      							<static>
-      							   <xsl:for-each select="staticRoutes/e">
-      							      <xsl:variable name="route" select="destinationPrefix" />
-      							      <xsl:variable name="nextHop" select="nextHop" />
-          								<route>
-          								   <name>
-          								      <xsl:value-of select="$route" />
-          								   </name>
-          									<next-hop>
-          									   <xsl:value-of select="$nextHop" />
-          									</next-hop>
-          								</route>
-      							   </xsl:for-each>
-      							</static>
+      						   <xsl:if test="$staticExport = 'true'">
+           							<static>
+           							   <xsl:for-each select="staticRoutes/staticRoutes/e">
+           							      <xsl:variable name="route" select="destinationPrefix" />
+           							     <route>
+               								   <name>
+               								     <xsl:value-of select="$route" />
+               								   </name>
+               									<next-hop>
+               									   <xsl:value-of select="$nextHopCustExport" />
+               									</next-hop>
+               								</route>
+           							   </xsl:for-each>
+           							</static>
+      						   </xsl:if>
+      						   <xsl:if test="$staticNoExport = 'true'">
+      						   <static>
+      						      <xsl:for-each select="StaticRoutesNoExport/staticRoutesTelusNoExport/e">
+      						         <xsl:variable name="route" select="destinationPrefix" />
+      						         <route>
+      						            <name>
+      						              <xsl:value-of select="$route" />
+      						            </name>
+      						            <next-hop>
+      						               <xsl:value-of select="$nextHopCustExport" />
+      						            </next-hop>
+      						         </route>
+      						      </xsl:for-each>
+      						   </static>
+      						   </xsl:if>
       						</routing-options>
                         
                     <!-- For IPv6 enable - Add the static routes for the CIU.  Repeat this for every subnet that is entered.  -->
@@ -1682,12 +1834,12 @@
                               <rib>
                                  <name>inet6.0</name>
                                  <static>
-                                    <xsl:for-each select="staticRoutesForIPv6/e">
+                                    <xsl:for-each select="staticRoutesForIPv6/staticRoutesForIPv6/e">
                                        <xsl:variable name="route" select="destinationPrefix" />
                                        <xsl:variable name="nextHop" select="nextHop" />
                                        <route>
                                           <name>
-                                             <xsl:value-of select="$route" /><!--{IPv6 subnet}/{prefix length}-->
+                                             <xsl:value-of select="concat($route,'/','32')" /><!--{IPv6 subnet}/{prefix length}-->
                                           </name>
                                           <next-hop>
                                              <xsl:value-of select="$nextHop" /><!--{Peer IPv6 address}-->
@@ -1704,20 +1856,14 @@
 					    
                         <policy-options>
                            <xsl:if test="$routingProtocol = 'Static' ">
-                              <xsl:if test="$addressPool = 'Customer'"><!-- TODO: check... -->	
+                              <xsl:if test="$staticExport = 'true'">
       							     <prefix-list>
       									<name>
-      									   <xsl:value-of select="$ipv4CustomerPrifixName" /><!--STATIC-V4-E-LP350-{RE-device-name}-->
+      									   <xsl:value-of select="$STATIC-V4-E" />
       									</name>
-      							        <!--
-      							        <prefix-list-item>
-      							           <xsl:value-of select="$ip4NetworkAddressAndMask" />
-      							        </prefix-list-item>-->
-      							        
-      									   <xsl:for-each select="staticRoutes/e">
+      							       <xsl:for-each select="staticRoutes/staticRoutes/e">
       									      <prefix-list-item>
       									      <xsl:variable name="route" select="destinationPrefix" />
-      									      <xsl:variable name="nextHop" select="nextHop" />
            										
       									      <name> 
       									         <xsl:value-of select="$route" />
@@ -1726,21 +1872,17 @@
       									     </xsl:for-each>
       							        
       								    </prefix-list>
-   					          </xsl:if>
+   					             </xsl:if>
 						
 							<!-- For IPv4 ONLY.  Add each subnet to this prefix-list when Address Pool is TELUS Provided  -->
-                           <xsl:if test="$addressPool = 'TELUS'"> <!-- TODO: check... -->	
+                              <xsl:if test="$staticNoExport = 'true'">
      							     <prefix-list>
      									<name>
-     									   <xsl:value-of select="$ipv4TelusPrifixName" /><!--STATIC-V4-NE-LP350-{RE-device-name}-->
+     									   <xsl:value-of select="$STATIC-V4-NE" /><!--STATIC-V4-NE-LP350-{RE-device-name}-->
      									</name>
-     							        
-     									
-     									   <!--<xsl:value-of select="$ip4NetworkAddressAndMask" />-->
-     									   <xsl:for-each select="staticRoutes/e">
+     							        <xsl:for-each select="StaticRoutesNoExport/staticRoutesTelusNoExport/e">
      									      <prefix-list-item>
      									      <xsl:variable name="route" select="destinationPrefix" />
-     									      <xsl:variable name="nextHop" select="nextHop" />
      									      <name> 
      									         <xsl:value-of select="$route" />
      									      </name>
@@ -1752,17 +1894,18 @@
                               
 					   <!-- For IPv6 enable - Add each subnet to this prefix-list when Address Pool is Customer Provided .-->
 					    
-    						  <xsl:if test="$isIPv6Selected = 'true' and $addressPool='Customer'"><!-- TODO: check... -->			
+                         <xsl:if test="$isIPv6Selected = 'true' and $staticCustExport > '0'">			
     								<prefix-list>
     								  <name>
-    									   <xsl:value-of select="$ipv6CustomerPrifixName" /><!--STATIC-V6-E-LP350-{RE-device-name}-->
+    									   <xsl:value-of select="$STATIC-V6-E" /><!--STATIC-V6-E-LP350-{RE-device-name}-->
     									</name>
     									
-    									   <xsl:for-each select="staticRoutesForIPv6/e">
+    								   <xsl:for-each select="staticRoutesForIPv6/staticRoutesForIPv6/e">
     									      <prefix-list-item>
     									      <xsl:variable name="route" select="destinationPrefix" />
     									      <xsl:variable name="nextHop" select="nextHop" />
     									      <name> 
+    									         <!--<xsl:value-of select="concat($route,'/','32')" />-->
     									         <xsl:value-of select="$route" />
     									      </name>
     									      </prefix-list-item>
@@ -1773,163 +1916,121 @@
     						</xsl:if>
                       
 						<!-- For IPv6 enable - Add each subnet to this prefix-list when Address Pool is Customer Provided .  -->
-						<xsl:if test="$isIPv6Selected = 'true' and $addressPool='TELUS'">
-                                       <prefix-list>
+                              <xsl:if test="$isIPv6Selected = 'true' and $staticTelusNoExport > '0'">
+                                 <prefix-list>
+                                    <name>
+                                       <xsl:value-of select="$STATIC-V6-NE"/>
+                                       <!--STATIC-V6-NE-LP350-{RE-device-name}-->
+                                    </name>
+
+                                    <xsl:for-each select="staticRoutesForIPv6/staticRoutesForIPv6/e">
+                                       <prefix-list-item>
+                                          <xsl:variable name="route" select="destinationPrefix"/>
+                                          <xsl:variable name="nextHop" select="nextHop"/>
                                           <name>
-                                             <xsl:value-of select="$ipv6TelusPrifixName"/>
-                                             <!--STATIC-V6-NE-LP350-{RE-device-name}-->
+                                             <!--<xsl:value-of select="concat($route,'/','32')" />-->
+                                             <xsl:value-of select="$route"/>
                                           </name>
+                                       </prefix-list-item>
+                                    </xsl:for-each>
 
-                                          <xsl:for-each select="staticRoutesForIPv6/e">
-                                             <prefix-list-item>
-                                                <xsl:variable name="route"
-                                                  select="destinationPrefix"/>
-                                                <xsl:variable name="nextHop" select="nextHop"/>
-                                                <name>
-                                                  <xsl:value-of select="$route"/>
-                                                </name>
-                                             </prefix-list-item>
-                                          </xsl:for-each>
-
-                                       </prefix-list>
+                                 </prefix-list>
 						</xsl:if>
 				     </xsl:if>
                            
-                  <prefix-list>
-                     <name>DEFAULT-IPV6</name>
-                  </prefix-list>
-						<!-- For IPv4 ONLY - Mandatory add of the customer interface to the pre-defined policy  -->
-                  
-                    <xsl:if test="$routingProtocol != 'Static' and $isIPv6Selected = 'false'"> <!-- for BGP only and IPv4 -->
-      						<prefix-list>
-      							<name>
-      							   <xsl:value-of select="$ipv4DirectPrefixName" /><!--DIRECT-BGP-V4-LP350-{RE-device-name}-->
-      							</name>
-      						   <!--  DOBBUT here..why not multiple list item here..TODO: -->
-      							<prefix-list-item>
-      								<!-- <xsl:value-of select="$ip4NetworkAddressAndMask" /> -->
-      								   <xsl:for-each select="prefixList/e">
-      								      <xsl:variable name="route" select="prefixList" />
-      								      
-      								      <name> 
-      								         <xsl:value-of select="$route" />
-      								      </name>
-      								 </xsl:for-each>
-      								 </prefix-list-item>
-      						</prefix-list>
-                      </xsl:if>
-                     <xsl:if test="$routingProtocol = 'Default' ">        
-     					     <prefix-list>
-                             <name>
-                                 <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
-                             </name>
-                             <prefix-list-item>
-                                   <!-- DOBUT here..wheere will get interface ipv6 subnet TODO:-->
-                                  <!-- <xsl:value-of select="$ip4NetworkAddressAndMask" /> -->
-                                   <!-- if selected ipv6 from UI then sending ipv4 and ipv6 prefixes in the list otherwise just ipv4 only. -->
-                                   <xsl:choose>
-                                      <xsl:when test="$isIPv6Selected = 'false'">
-                                         <xsl:for-each select="prefixList/e">
-                                            <xsl:variable name="route" select="prefixList" />
-                                            <name> 
-                                               <xsl:value-of select="$route" />
-                                            </name>
-                                         </xsl:for-each>
-                                      </xsl:when>
-                                      <xsl:otherwise>
-                                         <xsl:for-each select="ipv6PrefixList/e">
-                                            <xsl:variable name="route" select="prefixList" />
-                                            <name> 
-                                               <xsl:value-of select="$route" />
-                                            </name>
-                                         </xsl:for-each>
-                                      </xsl:otherwise>
-                                   </xsl:choose>
-                                   
-                                
-                             </prefix-list-item>
-                          </prefix-list>
+                 <xsl:if test="$routingProtocol != 'Static' "> 
+                        <xsl:if test="$bgpExport = 'true'">
+                           <prefix-list>
+                              <name>
+                                 <xsl:value-of select="concat('PREFIX-IPV4', '_', 'E',  '_',  $ciuName)" />
+                              </name>
+                                <xsl:for-each select="prefixList/prefixList/e">
+                                          <prefix-list-item>
+                                             <xsl:variable name="route" select="prefixList" />
+                                             <name> 
+                                                <xsl:value-of select="$route" />
+                                             </name>
+                                          </prefix-list-item>
+                                     </xsl:for-each>
+                           </prefix-list>
+                        </xsl:if>
+                        <xsl:if test="$bgpNoExport = 'true'">
+                           <prefix-list>
+                              <name>
+                                 <xsl:value-of select="concat('PREFIX-IPV4', '_', 'NE',  '_',  $ciuName)" />
+                              </name>
+                              <xsl:for-each select="prefixListTelusSupplier/prefixListTelusSupplier/e">
+                                 <prefix-list-item>
+                                    <xsl:variable name="route" select="prefixList" />
+                                    <name> 
+                                       <xsl:value-of select="$route" />
+                                    </name>
+                                 </prefix-list-item>
+                              </xsl:for-each>
+                           </prefix-list>
+                        </xsl:if>
                     </xsl:if>
 					  
 					  <!-- For IPv6 enable - Mandatory add of the customer interface to the pre-defined policy  -->
                  <xsl:if test="$routingProtocol != 'Static' and $isIPv6Selected = 'true'"> <!-- for BGP only and IPv6 -->
 						 	<prefix-list>
 								<name>
-								   <xsl:value-of select="$ipv6DirectPrefixName" /><!--DIRECT-BGP-V6-LP350-{RE-device-name}-->
+								   <xsl:value-of select="$DIRECT-BGP-V6" /><!--DIRECT-BGP-V6-LP350-{RE-device-name}-->
 								</name>
-						 	  <prefix-list-item>
-								      <xsl:for-each select="ipv6PrefixList">
+						 	  
+						 	   <xsl:for-each select="ipv6PrefixList/ipv6PrefixList/e">
+								         <prefix-list-item>
 								         <xsl:variable name="route" select="ipv6PrefixList" />
 								         <name> 
 								            <xsl:value-of select="$route" />
 								         </name>
+								         </prefix-list-item>
 								      </xsl:for-each>
-								  </prefix-list-item>
+								  
 							</prefix-list>
 						   <xsl:if test="$routingProtocol = 'Default' ">
 						     <prefix-list>
 						         <name>
-						            <xsl:value-of select="$ipV6PrefixName" /><!--PREFIX-IPV6_<CIU Name>-->
+						            <xsl:value-of select="$PREFIX-IPV6" /><!--PREFIX-IPV6_<CIU Name>-->
 						         </name>
-						         <prefix-list-item>
+						         
 						            <!--
 						            <name>
 						               <xsl:value-of select="$ciuLoopbackAndSubnetMask" />
 						            </name> -->
 						               <xsl:choose>
 						                  <xsl:when test="$isIPv6Selected = 'false'">
-						                     <xsl:for-each select="prefixList/e">
+						                     <xsl:for-each select="prefixList/prefixList/e">
+						                        <prefix-list-item>
 						                        <xsl:variable name="route" select="prefixList" />
 						                        <name> 
 						                           <xsl:value-of select="$route" />
 						                        </name>
+						                        </prefix-list-item>
 						                     </xsl:for-each>
 						                  </xsl:when>
 						                  <xsl:otherwise>
-						                     <xsl:for-each select="ipv6PrefixList">
+						                     <xsl:for-each select="ipv6PrefixList/ipv6PrefixList/e">
+						                        <prefix-list-item>
 						                        <xsl:variable name="route" select="ipv6PrefixList" />
 						                        <name> 
 						                           <xsl:value-of select="$route" />
 						                        </name>
+						                        </prefix-list-item>
 						                     </xsl:for-each>
 						                  </xsl:otherwise>
 						               </xsl:choose>
-						         </prefix-list-item>
+						         
 						      </prefix-list>
 						   </xsl:if>
 						</xsl:if>
                         
                      <!-- IPv4 and IPV6 Enabled , Default-Only , Export Policy Configuration , Generic Policy used to export IPV4 default route -->
-                      <xsl:if test="$routingProtocol = 'Default' ">
-                        <policy-statement>
-                          <name>
-                             <xsl:value-of select="$DEFAULT-ONLY-V4-V6"/>
-                          </name>
-                          <term>
-                             <name>10</name>
-                             <from>
-                                <prefix-list>DEFAULT</prefix-list>
-                             </from>
-                             <to>
-                                <protocol>bgp</protocol>
-                             </to>
-                             <then>
-                                <accept/>
-                             </then>
-                          </term>
-                          <term>
-                             <name>20</name>
-                             <then>
-                                <next>policy</next>
-                              </then>
-                          </term>
-                       </policy-statement> 
-                      </xsl:if>
                       <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Default' ">
                          <!-- Customer specific policy to export IPV6 default route also check for primary and secondary--> 
                          <policy-statement>
                             <name>
-                               <xsl:value-of select="$defaultOnlyForIPV6" /><!--DEFAULTONLYV6_<CIU NAME>_P-->
+                               <xsl:value-of select="$DEFAULTONLYV6" /><!--DEFAULTONLYV6_<CIU NAME>_P-->
                             </name>
                             <term>
                                <name>10</name>
@@ -1957,105 +2058,12 @@
                             </term>
                          </policy-statement>
                       </xsl:if>
-                      <!-- IPv4-Only , Full Routes , Export Policy Configuration -->
-                      <xsl:if test="$routingProtocol = 'Full' ">
-                        <policy-statement>
-                           <name>
-                              <xsl:value-of select="$CUST-FULL-OUT" />
-                            </name>
-                           <!-- deny bogus routes -->
-                           <term>
-                              <name>10</name>
-                              <from>
-                                 <prefix-list>DEFAULT</prefix-list>
-                              </from>
-                              <then>
-                                 <reject/>
-                              </then>
-                           </term>
-                           <!-- deny bogus routes -->
-                           <term>
-                              <name>20</name>
-                              <from>
-                                 <prefix-list>IANA-RESERVED</prefix-list>
-                              </from>
-                              <then>
-                                 <reject/>
-                              </then>
-                           </term>
-                           <!-- deny bogus routes -->
-                           <term>
-                              <name>30</name>
-                              <from>
-                                 <prefix-list>RFC1918</prefix-list>
-                              </from>
-                              <then>
-                                 <reject/>
-                              </then>
-                           </term>
-                           <!-- deny small routes -->
-                           <term>
-                              <name>40</name>
-                              <from>
-                                 <route-filter>
-                                    <address>0.0.0.0/0</address> <!--TODO: check if it is a default address 0.0.0.0/0-->
-                                    <prefix-length-range>/25-/32</prefix-length-range>
-                                 </route-filter>
-                              </from>
-                              <then>
-                                 <reject/>
-                              </then>
-                           </term>
-                           <!-- advertise TELUS customer routes with external community tag -->
-                           <term>
-                              <name>50</name>
-                              <from>
-                                 <community>CUST</community>
-                              </from>
-                              <then>
-                                 <origin>igp</origin>
-                                 <community>
-                                    <set/>
-                                    <community-name>200</community-name>
-                                 </community>
-                                 <accept/>
-                              </then>
-                              
-                           </term>
-                           <!-- advertise TELUS peering routes with external community tag -->
-                           <term>
-                              <name>60</name>
-                              <from>
-                                 <community>CUST</community>
-                              </from>
-                              <then>
-                                 <origin>igp</origin>
-                                 <community>
-                                    <set/>
-                                    <community-name>180</community-name>
-                                 </community>
-                                 <accept/>
-                              </then>
-                           </term>
-                           <!-- advertise TELUS peering routes with external community tag -->
-                           <term>
-                              <name>70</name>
-                              <then>
-                                 <origin>igp</origin>
-                                 <community>
-                                    <set/>
-                                    <community-name>170</community-name>
-                                 </community>
-                                 <accept/>
-                              </then>
-                           </term>
-                        </policy-statement>
-                      </xsl:if>
-                       <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Full' ">
+                      
+                       <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Full' or $routingProtocol = 'Default-Full' ">
                          <!-- IPV6 specific policy that contains customer site specific parameters-->
                            <policy-statement>
                               <name>
-                                 <xsl:value-of select="$FullOnlyForIPV6" /> <!--CUSTFULLOUTV6_<CIU NAME>_P-->
+                                 <xsl:value-of select="$CUSTFULLOUTV6" /> <!--CUSTFULLOUTV6_<CIU NAME>_P-->
                               </name>
                               <term>
                                  <name>10</name>
@@ -2120,58 +2128,48 @@
                            </policy-statement>
                          </xsl:if>
                         
-                         
-                         <!--Customer specific policy to export IPV6 default route-->
-                        
                       <!-- ipv4 only Default only import policy configuration -->
-                      <!--  PRI and SEC suffixes are to allow different BI/CI community 
-                  		assignment based on Primary and Secondary RE device names
-                  		 -->
-                        <xsl:if test="$routingProtocol = 'Default'">
+                           <!-- not using so far..wating for TELUS on this -->
+                      <xsl:if test="$routingProtocol = 'Default11'">
                         <policy-statement>
                            <name>
-                              <xsl:value-of select="$importPolicyForIPv4" /> <!--CUSTIN-V4_<CIU Name>_PRI>-->
+                              <xsl:value-of select="$CUSTIN-V4" />
                            </name>
-                           <!-- use term 10 if customer prefix is provided by TELUS,
-                          			as all peers have default route or full routes, so it
-                          			 would not block any local peer to peer traffic - TODO: confirm it as address pool is a 
-                          			 part of BGP
-                          			 -->
-                           <term>
-                              <name>10</name>
-                              <from>
-                                 <prefix-list>
-                                    <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
-                                 </prefix-list>
-                              </from>
-                              <then>
-                                 
-                                 <community>
-                                    <add/>
-                                      <community-name>NO-EXPORT</community-name>
+                           <xsl:if test="$bgpNoExport = 'true'">
+                              <term>
+                                 <name>10</name>
+                                 <from>
+                                    <prefix-list>
+                                       <xsl:value-of select="concat('PREFIX-IPV4', '_', 'NE',  '_',  $ciuName)" />
+                                    </prefix-list>
+                                 </from>
+                                 <then>
                                     
-                                 </community>
-                              
-                              </then>
-                           </term>
+                                    <community>
+                                       <add/>
+                                         <community-name>NO-EXPORT</community-name>
+                                       
+                                    </community>
+                                 
+                                 </then>
+                              </term>
+                           </xsl:if>
                            <term>
                               <name>20</name>
                               <from>
-                                 <prefix-list>
-                                    <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
-                                 </prefix-list>
+                                 <xsl:if test="$bgpExport = 'true'">
+                                    <prefix-list>
+                                       <xsl:value-of select="concat('PREFIX-IPV4','_', 'E', '_',  $ciuName)" /> 
+                                    </prefix-list>
+                                 </xsl:if>
+                                 
                               </from>
                               <then>
                                  <community>
                                     <add/> <!--TODO confirm with mark-->
-                                    <xsl:if test="$addressPool = 'TELUS'">
+                                    <xsl:if test="$bgpNoExport = 'true'">
                                           <community-name>
                                              <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" /> <!-- EDTN-LAB-CG01-RE1 -->
-                                          </community-name>
-                                       </xsl:if>
-                                    <xsl:if test="$addressPool = 'Customer'">
-                                          <community-name>
-                                             <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" /> <!-- EDTN-LAB-CG01-RE1 -->
                                           </community-name>
                                        </xsl:if>
                                    
@@ -2187,52 +2185,19 @@
                            </term>			
                         </policy-statement>
                       </xsl:if>
-                      <!-- IPv4 Only , Default Only , Export Policy Configuration-->
                       
-                      <policy-statement>
-                         <name>
-                            <xsl:value-of select="'DEFAULT-ONLY'" /> 
-                         </name>
-                         <term>
-                            <name>10</name>
-                            <from>
-                               <prefix-list>
-                                  <xsl:value-of select="'DEFAULT'" />
-                               </prefix-list>
-                            </from>
-                            <to>
-                               <protocol>bgp</protocol>
-                            </to>
-                            <then>
-                               <accept/>
-                            </then>
-                         </term>
-                         
-                         <term>
-                            <name>1000</name>
-                            <then>
-                               <reject/>
-                            </then>
-                         </term>			
-                      </policy-statement>
-                        <!--IPv4 and IPv6 Enable ,Default Only, Import Policy Configuration -->
-                         <!-- PRI and SEC suffixes are to allow different BI/CI community 
-                      		assignment based on Primary and Secondary RE device names
-                      		-->
-                        <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Default'"> 
+                        <!--<xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Default'"> -->
+                       <xsl:if test="$routingProtocol != 'Static'">
                          <policy-statement>
                             <name>
-                               <xsl:value-of select="$importPolicyForIPv6" /> <!--CUSTIN-V4V6_<CIU Name>_PRI>-->
+                               <xsl:value-of select="$CUSTIN-V4V6" />
                             </name>
-                            <!-- use term 10 if customer prefix is provided by TELUS,
-                        			 as all peers have default route or full routes, so it
-                        			would not block any local peer to peer traffic
-                        		-->
+                            <xsl:if test="$bgpNoExport = 'true'">
                             <term>
-                               <name>10</name>
+                               <name>ENTRY_10:V4-NO-EXPORT</name>
                                <from>
                                   <prefix-list>
-                                     <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
+                                     <xsl:value-of select="concat('PREFIX-IPV4', '_', 'NE',  '_',  $ciuName)" />
                                   </prefix-list>
                                </from>
                                <then>
@@ -2245,10 +2210,10 @@
                             </term>
                             <xsl:if test="$isIPv6Selected = 'true'">
                             <term>
-                               <name>20</name>
+                               <name>ENTRY_20:V6-NO-EXPORT</name>
                                <from>
                                   <prefix-list>
-                                     <xsl:value-of select="$ipV6PrefixName" /><!--PREFIX-IPV6_<CIU Name>-->
+                                     <xsl:value-of select="concat('PREFIX-IPV6', '_', 'NE',  '_',  $ciuName)" />
                                   </prefix-list>
                                </from>
                                <then>
@@ -2261,39 +2226,54 @@
                                </then>
                             </term>
                             </xsl:if>
+                            </xsl:if>
                             <!--  Allow only Customer IPV4 prefixes -->
+                            <xsl:if test="$bgpNoExport = 'true'">
                             <term>
-                               <name>30</name>
+                               <name>ENTRY_30:V4-NO-EXPORT</name>
                                <from>
                                   <prefix-list>
-                                     <xsl:value-of select="$ipV4PrefixName" /><!--PREFIX-IPV4_<CIU Name>-->
+                                     <xsl:value-of select="concat('PREFIX-IPV4', '_', 'NE',  '_',  $ciuName)" />
                                   </prefix-list>
                                </from>
                                <then>
                                   <community>
                                      <add/>
-                                     <xsl:if test="$addressPool = 'TELUS'">
-                                           <community-name>
+                                          <community-name>
                                            <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" />
                                            </community-name>
-                                        </xsl:if>
-                                     <xsl:if test="$addressPool = 'Customer'">
-                                           <community-name>
-                                           <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" />
-                                           </community-name>
-                                        </xsl:if>
-                                        <!--< BICI-NO-EXPORT-<RE Device Name> | BICI-EXPORT-<RE Device Name> >    TODO - discuss with mark -->
-                                  </community>
+                                     </community>
                                   <accept/>
                                </then>
                             </term>
+                            </xsl:if>
+                            <xsl:if test="$bgpExport = 'true'">
+                               <term>
+                                  <name>ENTRY_35:V4-EXPORT</name>
+                                  <from>
+                                     <prefix-list>
+                                        <xsl:value-of select="concat('PREFIX-IPV4', '_', 'E',  '_',  $ciuName)" />
+                                     </prefix-list>
+                                  </from>
+                                  <then>
+                                     <community>
+                                        <add/>
+                                           <community-name>
+                                              <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" />
+                                           </community-name>
+                                        <!--< BICI-NO-EXPORT-<RE Device Name> | BICI-EXPORT-<RE Device Name> >    TODO - discuss with mark -->
+                                     </community>
+                                     <accept/>
+                                  </then>
+                               </term>
+                            </xsl:if>
                             <!-- tag Customer IPV6 prefixes with 852:40000 -->
-                            <xsl:if test="$isIPv6Selected = 'true'">
+                            <xsl:if test="$isIPv6Selected = 'true' and $bgpNoExport = 'true'">
                             <term>
-                               <name>40</name>
+                               <name>ENTRY_40:V6-ANY</name>
                                <from>
                                   <prefix-list>
-                                     <xsl:value-of select="$ipV6PrefixName" /><!--PREFIX-IPV6_<CIU Name>-->
+                                     <xsl:value-of select="concat('PREFIX-IPV6', '_', 'NE',  '_',  $ciuName)" />
                                   </prefix-list>
                                </from>
                                <then>
@@ -2304,32 +2284,20 @@
                                   <accept/>
                                </then>
                             </term>
-                            </xsl:if>
-                            <!--  Allow only Customer IPV6 prefixes -->
-                            <xsl:if test="$isIPv6Selected = 'true'">
+                           
                              <term>
-                                 <name>50</name>
+                                <name>ENTRY_50:V6-NO-EXPORT</name>
                                  <from>
                                     <prefix-list>
-                                       <xsl:value-of select="$ipV6PrefixName" /><!--PREFIX-IPV6_<CIU Name>-->
+                                       <xsl:value-of select="concat('PREFIX-IPV6', '_', 'NE',  '_',  $ciuName)" />
                                     </prefix-list>
                                  </from>
                                  <then>
                                     <community>
                                        <add/>
-                                          <!--<xsl:if test="$endPointServiceType = 'BI'">-->
-                                         <xsl:if test="$addressPool = 'TELUS'">
-                                             <community-name>
+                                          <community-name>
                                              <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" />
-                                             </community-name>
-                                          </xsl:if>
-                                       <xsl:if test="$addressPool = 'Customer'">
-                                             <community-name>
-                                             <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" />
-                                             </community-name>
-                                          </xsl:if>
-                                          <!--< BICI-NO-EXPORT-<RE Device Name> | BICI-EXPORT-<RE Device Name> >-->
-                                       
+                                          </community-name>
                                     </community>
                                     <!-- IPv6 routes received from the customer must have their NH set to CPEss WAN V6 address-->
                                     <next-hop>
@@ -2338,9 +2306,53 @@
                                     <accept/>
                                  </then>
                               </term>
+                               <term>
+                                  <name>ENTRY_50:V6-NO-EXPORT</name>
+                                  <from>
+                                     <prefix-list>
+                                        <xsl:value-of select="concat('PREFIX-IPV6', '_', 'NE',  '_',  $ciuName)" />
+                                     </prefix-list>
+                                  </from>
+                                  <then>
+                                     <community>
+                                        <add/>
+                                        <community-name>
+                                           <xsl:value-of select="concat('BICI-NO-EXPORT', '-', $deviceName)" />
+                                        </community-name>
+                                     </community>
+                                     <!-- IPv6 routes received from the customer must have their NH set to CPEss WAN V6 address-->
+                                     <next-hop>
+                                        <xsl:value-of select="$ipv6IntfAddress" />
+                                     </next-hop> <!--V6 address of CPEs WAN interface -->
+                                     <accept/>
+                                  </then>
+                               </term>
+                            </xsl:if>
+                            <xsl:if test="$isIPv6Selected = 'true' and $bgpNoExport = 'true'">
+                               <term>
+                                  <name>ENTRY_55:V6-EXPORT</name>
+                                  <from>
+                                     <prefix-list>
+                                        <xsl:value-of select="concat('PREFIX-IPV6', '_', 'E',  '_',  $ciuName)" />
+                                     </prefix-list>
+                                  </from>
+                                  <then>
+                                     <community>
+                                        <add/>
+                                        <community-name>
+                                           <xsl:value-of select="concat('BICI-EXPORT', '-', $deviceName)" />
+                                        </community-name>
+                                     </community>
+                                     <!-- IPv6 routes received from the customer must have their NH set to CPEss WAN V6 address-->
+                                     <next-hop>
+                                        <xsl:value-of select="$ipv6IntfAddress" />
+                                     </next-hop> <!--V6 address of CPEs WAN interface -->
+                                     <accept/>
+                                  </then>
+                               </term>
                             </xsl:if>
                             <term>
-                               <name>1000</name>
+                               <name>ENTRY_100:LAST</name>
                                <then>
                                   <reject/>
                                </then>
@@ -2352,7 +2364,7 @@
                         <!-- PROTOCOL STANZA -->
                         <!--BGP Default Route selection from UI -->               
                         <!-- no protocol for static... -->
-                        <xsl:if test="$routingProtocol  = 'Default'">  
+                        <xsl:if test="$routingProtocol != 'Static'">
                         <protocols>
                            <bgp>
                               <group>
@@ -2390,26 +2402,23 @@
                                        </authentication-key>
                                        
                                        <!-- Import & Export Policy used for IPv4 ONLY - uncomment it if created   -->
-                                       <!--import>
-                                          <xsl:value-of select="$customerDefaultImportPolicy"/>
-                                       </import-->
                                        <import>
-                                          <xsl:value-of select="$importPolicyForIPv4"/>
+                                          <xsl:value-of select="$customerV4ImportPolicy"/>
                                        </import>
+                                       <!--<xsl:if test="$routingProtocol != 'Static'">
+                                       <import>
+                                          <xsl:value-of select="$CUSTIN-V4"/>
+                                       </import>
+                                       </xsl:if>
+                                       -->
                                        <export>
                                           <xsl:value-of select="$DEFAULT-ONLY"/>
                                        </export>
                                        
                                        <!-- Import & Export Policy used for IPv6 enable  -->
                                        <xsl:if test="$isIPv6Selected = 'true'">
-                                         <!-- <import>
-                                             <xsl:value-of select="$customerDefaultImportPolicy"/>
-                                          </import>-->
-                                          <import>
-                                                <xsl:value-of select="$importPolicyForIPv6"/>
-                                          </import>
-                                          <export>
-                                             <xsl:value-of select="$defaultOnlyForIPV6"/>
+                                        <export>
+                                             <xsl:value-of select="$DEFAULTONLYV6"/>
                                           </export>
                                           <export>
                                                 <xsl:value-of select="$DEFAULT-ONLY-V4-V6"/>
@@ -2417,33 +2426,36 @@
                                        </xsl:if>
                                     </neighbor>
                                  </xsl:if>
-                                 <xsl:if test="$routingProtocol = 'Full'">
-                                    <name>CUSTOMER_FULL</name>
+                                 <xsl:if test="$routingProtocol = 'Full' or $routingProtocol = 'Default-Full'">
+                                    <name>CUSTOMER-FULL</name>
                                     <type>external</type>
                                     <description>eBGP customers with full routes</description>
                                     
                                     <neighbor>
                                        <name>
-                                          <xsl:value-of select="$neighbourAddress"/><!--{peer IP address}-->
+                                          <xsl:value-of select="$neighbourAddress"/>
                                        </name>
                                        <description>
-                                          <xsl:value-of select="$interfaceUnitDescription"/><!--{CSID}.{CIU Name}-->
+                                          <xsl:value-of select="$interfaceUnitDescription"/>
                                        </description>
                                        <peer-as>
-                                          <xsl:value-of select="$peerAS"/><!--{Peer AS #}-->
+                                          <xsl:value-of select="$peerAS"/>
                                        </peer-as>
                                        <authentication-key>
-                                          <xsl:value-of select="$csId"/><!--{auth key from UI}-->
+                                          <xsl:value-of select="$csId"/>
                                        </authentication-key>
                                        
                                        <!-- Import & Export Policy used for IPv4 ONLY  -->
                                        
                                        <import>
-                                          <xsl:value-of select="$customerDefaultImportPolicy"/>
+                                          <xsl:value-of select="$customerV4ImportPolicy"/>
                                        </import>
+                                      <!-- <xsl:if test="$routingProtocol != 'Static'">
                                        <import>
-                                          <xsl:value-of select="$importPolicyForIPv4"/>
+                                          <xsl:value-of select="$CUSTIN-V4"/>
                                        </import>
+                                       </xsl:if>
+                                       -->
                                        <export>
                                             <xsl:value-of select="$CUST-FULL-OUT"/>
                                        </export>
@@ -2451,16 +2463,16 @@
                                        <!-- Import & Export Policy used for IPv6 enable  -->
                                        
                                        <xsl:if test="$isIPv6Selected = 'true'">
-                                         <!--
-                                          <import>
-                                             <xsl:value-of select="$customerDefaultImportPolicy"/>
+                                        <import>
+                                               <xsl:value-of select="$CUSTIN-V4V6"/>
                                           </import>
-                                          -->
-                                          <import>
-                                               <xsl:value-of select="$importPolicyForIPv6"/>
-                                          </import>
+                                          <xsl:if test="$routingProtocol = 'Default-Full'">
+                                             <export>
+                                                <xsl:value-of select="$DEFAULT-ONLY-V4-V6"/>
+                                             </export>
+                                          </xsl:if>
                                           <export>
-                                               <xsl:value-of select="$FullOnlyForIPV6"/>
+                                               <xsl:value-of select="$CUSTFULLOUTV6"/>
                                           </export>
                                           <export>
                                                 <xsl:value-of select="$CUST-FULL-OUT-V4-V6"/>
@@ -2471,9 +2483,10 @@
                                  
                               </group>
                            </bgp>
-                        </protocols>       
+                        </protocols>   
                         </xsl:if>
                         <!-- This section details the way to reference the above policies -->
+                  <!-- This section details the way to reference the above policies -->
 						</xsl:when>
 						<xsl:when test="$recordOPType = 'DELETE'">
 						   <interfaces>
@@ -2500,72 +2513,72 @@
 						  <policy-options>
 						     <policy-statement operation="delete">
 						         <name>
-						            <xsl:value-of select="$defaultOnlyForIPV6" />
+						            <xsl:value-of select="$DEFAULTONLYV6" />
 						         </name>
 						      </policy-statement>
 						     <xsl:if test="$isIPv6Selected = 'true' and $routingProtocol = 'Full' ">
  						      <policy-statement operation="delete">
  						         <name>
- 						            <xsl:value-of select="$FullOnlyForIPV6"/>
+ 						            <xsl:value-of select="$CUSTFULLOUTV6"/>
  						         </name>
  						      </policy-statement>
 						     </xsl:if>
 						     <policy-statement operation="delete">
 						        <name>
-						           <xsl:value-of select="$importPolicyForIPv4"/>
+						           <xsl:value-of select="$CUSTIN-V4"/>
 						        </name>
 						     </policy-statement>
 						     
 						     <xsl:if test="$routingProtocol  = 'Default'">  
 						        <policy-statement operation="delete">
 						           <name>
-						              <xsl:value-of select="$importPolicyForIPv4"/>
+						              <xsl:value-of select="$CUSTIN-V4"/>
 						           </name>
 						        </policy-statement>
 						     </xsl:if>
 						      <community operation="delete">
 						         <name>
-						            <xsl:value-of select="$importPolicyForIPv6" />
+						            <xsl:value-of select="$CUSTIN-V4V6" />
 						         </name>
 						      </community>
 						      <prefix-list operation="delete">
 						         <name>
-						            <xsl:value-of select="$ipv4CustomerPrifixName" />
+						            <xsl:value-of select="$STATIC-V4-E" />
 						         </name>
 						      </prefix-list>
 						      <prefix-list operation="delete">
 						         <name>
-						            <xsl:value-of select="$ipv4TelusPrifixName" />
+						            <xsl:value-of select="$STATIC-V4-NE" />
 						         </name>
 						      </prefix-list>
 						     <xsl:if test="$isIPv6Selected = 'true' and $addressPool='Customer1'">
     						     <prefix-list operation="delete">
     						        <name>
-    						           <xsl:value-of select="$ipv6CustomerPrifixName" />
+    						           <xsl:value-of select="$STATIC-V6-E" />
     						        </name>
     						     </prefix-list>
 						     </xsl:if>
 						     <xsl:if test="$isIPv6Selected = 'true' and $addressPool='TELUS1'">
 						        <prefix-list operation="delete">
 						           <name>
-						              <xsl:value-of select="$ipv6TelusPrifixName" />
+						              <xsl:value-of select="$STATIC-V6-NE" />
 						           </name>
 						        </prefix-list>
 						     </xsl:if>
 						     <prefix-list operation="delete">
 						        <name>
-						           <xsl:value-of select="$ipv4DirectPrefixName" />
+						           <xsl:value-of select="$DIRECT-BGP-V4" />
 						        </name>
 						     </prefix-list>
 						     <prefix-list operation="delete">
 						        <name>
-						           <xsl:value-of select="$ipV4PrefixName" />
+						           <xsl:value-of select="$PREFIX-IPV4" />
 						        </name>
 						     </prefix-list>
 						     <xsl:if test="$isIPv6Selected = 'true'">
 						        <prefix-list operation="delete">
 						           <name>
-						              <xsl:value-of select="$ipv6DirectPrefixName" />
+						              <xsl:value-of select="$DIRECT-BGP-V6" />
 						           </name>
 						        </prefix-list>
 						     </xsl:if>
@@ -2573,6 +2586,33 @@
 						   
 						   </policy-options>
 						   -->
+						   
+						   <xsl:if test="$routingProtocol != 'Static'">
+						      <protocols>
+						         <bgp>
+						            <group>
+						               
+						               <xsl:if test="$routingProtocol = 'Default'"> 
+						                  <name>CUSTOMER_DEFAULT</name>
+						                  <neighbor operation="delete">
+						                     <name>
+						                        <xsl:value-of select="$neighbourAddress"/>
+						                     </name>
+						                  </neighbor>
+						               </xsl:if>
+						               <xsl:if test="$routingProtocol = 'Full' or $routingProtocol = 'Default-Full'">
+						                  <name>CUSTOMER-FULL</name>
+						                  <neighbor operation="delete">
+						                     <name>
+						                        <xsl:value-of select="$neighbourAddress"/>
+						                     </name>
+						                  </neighbor>
+						               </xsl:if>
+						            </group>
+						         </bgp>
+						      </protocols>   
+						   </xsl:if>
+						   
 						   <!-- CLASS-OF-SERVICE STANZA -->
 						   
 						      <class-of-service>
@@ -2596,6 +2636,26 @@
 						            </interface>
 						         </interfaces>
 						      </class-of-service>
+						   
+						   <xsl:if test="$routingProtocol = 'Static' ">
+						      <routing-options>
+						         <static>
+						            <xsl:for-each select="staticRoutes/e">
+						               <xsl:variable name="route" select="destinationPrefix" />
+						               <xsl:variable name="nextHop" select="nextHop" />
+						               <route operation="delete">
+						                  <name>
+						                     <xsl:value-of select="$route" />
+						                  </name>
+						                  <next-hop>
+						                     <xsl:value-of select="$nextHop" />
+						                  </next-hop>
+						               </route>
+						            </xsl:for-each>
+						         </static>
+						      </routing-options>
+						   </xsl:if>
+						   
 						</xsl:when>
 					  </xsl:choose>
                      </configuration>
@@ -2633,8 +2693,7 @@
                   <xsl:variable name="efRateUpperCase">
                      <xsl:value-of select="translate($efRate, $smallcase, $uppercase)" />
                   </xsl:variable>
-                  
-                  
+                 
                   <xsl:variable name="accessOptionConnectionType">
                      <xsl:choose>
                         <xsl:when test="$connectionType = 'RE Direct'">
@@ -2650,20 +2709,22 @@
                      </xsl:choose>
                   </xsl:variable>
                   <xsl:variable name="interfaceUnitVlanRE">
-                     <xsl:choose>
+                     <xsl:value-of select="$VLAN_ID"/>
+                     <!--<xsl:choose>
                         <xsl:when test="$endPointServiceType = 'CI'">
                            <xsl:value-of select="'0'"/>
                         </xsl:when>
-                        <xsl:when test="$endPointServiceType = 'BI' and $pathPreferences='Primary'">
+                        <xsl:when test="$endPointServiceType = 'BI' and $pathPreferences='PRI'">
                            <xsl:value-of select="'1500'"/>
                         </xsl:when>
-                        <xsl:when test="$endPointServiceType = 'BI' and $pathPreferences='Secondary'">
+                        <xsl:when test="$endPointServiceType = 'BI' and $pathPreferences='SEC'">
                            <xsl:value-of select="'1501'"/>
                         </xsl:when>
                         <xsl:otherwise>
                            
                         </xsl:otherwise>
                      </xsl:choose>
+                     -->
                   </xsl:variable>
 				    <!-- DEVICE-LEVEL DERIVATIONS - END -->
       
@@ -2694,14 +2755,7 @@
                               </unit>
                            </interface>
                         </interfaces>
-                        <routing-instances>
-                           <instance operation="delete">
-                              <name>
-                                 <xsl:value-of select="$SERVICE_ID"/> <!-- service id is a routing instance name -->
-                              </name>
-                           </instance>
-                        </routing-instances>
-                       
+                      
                         <policy-options>
                           
                              
@@ -2719,14 +2773,7 @@
                                  
                                  <unit operation="delete">
                                     <name>
-                                       <xsl:choose>
-                                          <xsl:when test="$accessOptionConnectionType = 'REDI'">
-                                             <xsl:value-of select="$interfaceUnitVlanRE"/>
-                                          </xsl:when>
-                                          <xsl:otherwise>
-                                             <xsl:value-of select="$VLAN_ID"/>
-                                          </xsl:otherwise>
-                                       </xsl:choose>
+                                           <xsl:value-of select="$VLAN_ID"/>
                                     </name>		
                                  </unit>
                                  
