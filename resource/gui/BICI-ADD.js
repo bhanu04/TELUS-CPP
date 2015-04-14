@@ -5,10 +5,10 @@
       > Support: Bhanu Singh
       > Company: Juniper Networks
       > Contact: bhanus@juniper.net
-      > Version: 1.0            
-      > Revision Date: 2014-11-13
+      > Version: 1.2            
+      > Revision Date: 2015-04-14
       
-      [Copyright 2009-2014 Juniper Networks, Inc.]
+      [Copyright 2009-2015 Juniper Networks, Inc.]
       [All rights reserved.]      
       
 ***************************************************
@@ -17,8 +17,8 @@
 Ext.ns("Jx.cpp.service");
 var scriptObj = {};
 var scriptObj = {};
-scriptObj.namespace = 'Jx.cpp.service.vpls';
-Ext.define('Jx.cpp.service.vpls', {
+scriptObj.namespace = 'Jx.cpp.service.biCreate';
+Ext.define('Jx.cpp.service.biCreate', {
     extend: 'Ext.window.Window',
 
     requires: [
@@ -397,10 +397,10 @@ Ext.define('Jx.cpp.service.vpls', {
 													valueField: 'moid',
 													listeners: {
 														'select':function(list,record) {
-															var siteInterfaceGrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
+															Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
 															me.getHardwareModel(Ext.getCmp("siteName").getValue());
 															me.getSoftwareVersion(Ext.getCmp("siteName").getValue());
-															me.loadSiteInterfaceGrid(Ext.getCmp("siteName").getValue());														
+															me.loadSiteInterfaceGrid(Ext.getCmp("siteName").getValue(),'');														
 														}
 													}
 													
@@ -531,7 +531,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															var customerId = Ext.getCmp("customerId").getValue();
 															this.CIUName='';
 															if(customerId == '' || customerId == null){
-																Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please select the custoemr first");
+																Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please select the customer first");
 																return;
 															}
 															var portCombo = Ext.getCmp("portSpeed");
@@ -568,7 +568,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															    var routingProtocol = Ext.getCmp("routingProtocol").getValue();
 																me.getSelectedSite(record);
 																console.log("port name: "+record.get('portName'));
-																var interfaceDesc = "";
+																//var interfaceDesc = "";
 																 //me.getInterfaceDescription(record.get('portName'));
 																 me.getInterfaceDescription(record.get('portName'));
 																 
@@ -627,7 +627,7 @@ Ext.define('Jx.cpp.service.vpls', {
 													name: 'lblInterfaceDescription',
 													id: 'lblInterfaceDescription',
 													margin: '0 0 0 0',
-													fieldLabel: '<font color="#808080">Name</font>',
+													//fieldLabel: '<font color="#808080">Name</font>',
 													fieldStyle: 'color:#808080',
 													fieldStyle: {
 													 //'fontFamily'   : 'Garamond',
@@ -702,7 +702,7 @@ Ext.define('Jx.cpp.service.vpls', {
 																	Ext.getCmp("vlanId").setValue(""); 
 																	Ext.getCmp("vlanId").setDisabled(false); 
 																}else if(Ext.getCmp("connectionType").getValue() == 'RE Direct' && endPointServiceType == 'CI'){
-																	Ext.getCmp("vlanId").setDisabled(true); 
+																	//Ext.getCmp("vlanId").setDisabled(true); 
 																	Ext.getCmp("vlanId").setValue(""); 	
 																}else{
 																	Ext.getCmp("vlanId").setDisabled(false); 
@@ -757,7 +757,7 @@ Ext.define('Jx.cpp.service.vpls', {
 																 change: function(field, newValue, oldValue) {
 																 console.log("connection type********: "+newValue);
 																 
-																 var pathPreference = Ext.getCmp("pathPreferences");
+																 //var pathPreference = Ext.getCmp("pathPreferences");
 																 var endPointServiceType = Ext.getCmp("endPointServiceType").getValue();
 																 if(Ext.getCmp("connectionType").getValue() == 'RE Direct'){
 																	 if(Ext.getCmp("connectionType").getValue() == 'RE Direct' && newValue == 'Primary' && endPointServiceType == 'BI'){
@@ -802,17 +802,17 @@ Ext.define('Jx.cpp.service.vpls', {
 																},
 																'change':function(field, newValue, oldValue) {
 																
-																if(newValue == 'CI' && Ext.getCmp("connectionType").getValue() == 'RE Direct'){
+																/*if(newValue == 'CI' && Ext.getCmp("connectionType").getValue() == 'RE Direct'){
 																	Ext.getCmp("vlanId").setDisabled(true);
 																}else{
 																	Ext.getCmp("vlanId").setDisabled(false);
-																}
+																}*/
 																if(Ext.getCmp("connectionType").getValue() == 'RE Direct' && Ext.getCmp("pathPreferences").getValue() == 'Primary' && newValue == 'BI'){
 																	Ext.getCmp("vlanId").setValue(1500); 
 																}else if(Ext.getCmp("connectionType").getValue() == 'RE Direct' && Ext.getCmp("pathPreferences").getValue() == 'Secondary' && newValue == 'BI'){
 																	Ext.getCmp("vlanId").setValue(1501); 
 																}else if(Ext.getCmp("connectionType").getValue() == 'RE Direct' && newValue == 'CI'){
-																	Ext.getCmp("vlanId").setDisabled(true);
+																	//Ext.getCmp("vlanId").setDisabled(true);
 																	Ext.getCmp("vlanId").setValue(""); 															
 																}else{
 																	Ext.getCmp("vlanId").setDisabled(false); 
@@ -849,7 +849,7 @@ Ext.define('Jx.cpp.service.vpls', {
 																 change: function(field, newValue, oldValue) {
 																 Ext.ComponentQuery.query('#endpointPanel')[0].show();
 																 console.log("routing protocol** "+newValue);
-																 var bgpOptionGrid = Ext.getCmp("bgpOptionGrid");
+																 //var bgpOptionGrid = Ext.getCmp("bgpOptionGrid");
 																 var bgpOptionPanel = Ext.getCmp("bgpOptionPanel");
 																 var staticOptionPanel = Ext.getCmp("staticOptionPanel");
 																if(newValue.trim() == 'Static'){
@@ -1055,10 +1055,10 @@ Ext.define('Jx.cpp.service.vpls', {
 													  return;
 												   };
 													 var subnetMask = Ext.getCmp("subnetMask").getValue();
-													 var networkAddress = me.getNetworkAddress(ipAddress, subnetMask);
+													 me.getNetworkAddress(ipAddress, subnetMask);
 													 var broadcastAddress = me.getBroadcastAddress(ipAddress, subnetMask);
 													 
-													 var startRange = networkAddress.split(".")[3];
+													 //var startRange = networkAddress.split(".")[3];
 													 var endRange = broadcastAddress.split(".")[3];
 													 var neighbourAddress4 = 0;
 													 var neighbourAddress='';
@@ -1098,7 +1098,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                             name: 'subnetMask',
 											id: 'subnetMask',
 											allowBlank: false,
-											value: '31',
+											value: '30',
 											allowDecimals: false,
 											hideTrigger: true,
 											keyNavEnabled: false,
@@ -1106,7 +1106,6 @@ Ext.define('Jx.cpp.service.vpls', {
 											step:this.STEP,
 											minValue:this.MIN_SUBNET_MASK,
 											maxValue:this.MAX_SUBNET_MASK,
-											value:this.DEFAULT_SUBNET_MASK,
 											listeners: {
 											'change':function(list,record) {
 												 var ipAddress = Ext.getCmp("ipAddress").getValue();
@@ -1116,10 +1115,10 @@ Ext.define('Jx.cpp.service.vpls', {
 													  return;
 												   };
 													 var subnetMask = Ext.getCmp("subnetMask").getValue();
-													 var networkAddress = me.getNetworkAddress(ipAddress, subnetMask);
+													 me.getNetworkAddress(ipAddress, subnetMask);
 													 var broadcastAddress = me.getBroadcastAddress(ipAddress, subnetMask);
 													 
-													 var startRange = networkAddress.split(".")[3];
+													 //var startRange = networkAddress.split(".")[3];
 													 var endRange = broadcastAddress.split(".")[3];
 													 var neighbourAddress4 = 0;
 													 var neighbourAddress='';
@@ -1157,9 +1156,20 @@ Ext.define('Jx.cpp.service.vpls', {
 											labelAlign: 'right',
 											name: 'ipMTU',
 											id: 'ipMTU',
+											hidden: true,
 											store: ['1500', '3000'] 
                                         },
-										 
+										 {
+											xtype: 'label',
+											flex: 1,
+											width: 216,
+											margin: '5 0 0 0',
+											text: '.',
+											style : {
+												//background : '#F8F8F8',
+												color : '#F8F8F8'
+											}
+										},
 										{
 											xtype: 'checkboxfield',
 											fieldLabel: 'IPv6 Peer',
@@ -1259,7 +1269,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                             labelWidth: 60,
 											name: 'peerAS',
 											id: 'peerAS',
-											allowBlank: false,
+											//allowBlank: false,
 											minValue: 0,
 											hideTrigger: true,
 											keyNavEnabled: false,
@@ -1307,8 +1317,8 @@ Ext.define('Jx.cpp.service.vpls', {
 											labelWidth: 90,
                                             name: 'neighbourAddress',
 											id: 'neighbourAddress',
-											allowBlank: false,
-											vtype:'IPAddress'
+											allowBlank: false//,
+											//vtype:'IPAddress'
                                         }
                                         
                                     ]
@@ -1336,6 +1346,7 @@ Ext.define('Jx.cpp.service.vpls', {
 									checkboxToggle: true,
 									//hidden: true,
 									style: this.FIELDSET_BACKGROUND_COLOR,
+									
                                    items: [
                                         {
                                           
@@ -1394,7 +1405,9 @@ Ext.define('Jx.cpp.service.vpls', {
 															},
 															items: [{
 																xtype: 'button',
-																text: 'Add',
+																text: '<font color="#FFFFFF">Add</font>',
+																style: 'background-color:#476583',
+																fieldLabel: '<font color="#FFFFFF">Add</font>',
 																width: 60,
 																margin: 5,
 																//style: this.FIELDSET_BACKGROUND_COLOR,
@@ -1406,7 +1419,9 @@ Ext.define('Jx.cpp.service.vpls', {
 																xtype: 'button',
 																text: 'Delete',
 																//style: this.FIELDSET_BACKGROUND_COLOR,
+																text: '<font color="#FFFFFF">Delete</font>',
 																style: 'background-color:#476583',
+																fieldLabel: '<font color="#FFFFFF">Delete</font>',
 																width: 60,
 																handler: function(button, event) {
 																	var records = Ext.getCmp("prefixListPanel").selModel.getSelection();
@@ -1435,6 +1450,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                             ]
                                 }
 								 ]
+								 
                                 },
                                         {
                                     xtype: 'fieldset',
@@ -1504,16 +1520,18 @@ Ext.define('Jx.cpp.service.vpls', {
 																text: 'Add',
 																width: 60,
 																margin: 5,
-																//style: this.FIELDSET_BACKGROUND_COLOR,
+																text: '<font color="#FFFFFF">Add</font>',
 																style: 'background-color:#476583',
+																fieldLabel: '<font color="#FFFFFF">Add</font>',
 																handler: function(button, event) {
 																	me.handleAddPrefixListBGPTelusNoExport();//handleAddPrefixListBGPRouting
 																}
 															},  {
 																xtype: 'button',
 																text: 'Delete',
-																//style: this.FIELDSET_BACKGROUND_COLOR,
+																text: '<font color="#FFFFFF">Delete</font>',
 																style: 'background-color:#476583',
+																fieldLabel: '<font color="#FFFFFF">Delete</font>',
 																width: 60,
 																handler: function(button, event) {
 																	var records = Ext.getCmp("prefixListTelusSupplierGrid").selModel.getSelection();
@@ -1780,24 +1798,7 @@ Ext.define('Jx.cpp.service.vpls', {
 																			
 																		}
 																		
-																	}/*,
-																	{
-																		xtype: 'gridcolumn',
-																		sortable: true,
-																		width: 155,
-																		text: 'Next Hop',
-																		align: 'center',
-																		editable: true,
-																		dataIndex: 'nextHop',
-																		//hidden: false,
-																		editor: {
-																			xtype:'textfield',
-																			name:'nextHopVal',
-																			id:'nextHopVal',
-																			maskRe:/^[0-9 .]/
-																			//vtype:'IPAddress'
-																			}
-																	}*/
+																	}
 																],
 																dockedItems: [{
 																		xtype: 'toolbar',
@@ -1982,7 +1983,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															//triggerEvent: 'cellclick',
                                                             listeners: {
                                                                 edit: {
-                                                                 fn: me.onRowEditingEdit,
+                                                                 fn: me.onRowEditingEditStaticNoExport,
 																	scope: me
                                                                 }
                                                             }
@@ -2725,8 +2726,11 @@ Ext.define('Jx.cpp.service.vpls', {
 															////this.isCCI=true;
 															var updateBtn = Ext.getCmp('updateBtn');
 															updateBtn.show();
-															
-															
+															Ext.getCmp("endpointPanel").setDisabled(false);
+															Ext.getCmp("siteName").setValue(parseInt(record.get('pedeviceId')));
+															me.loadSiteInterfaceGrid(record.get('pedeviceId'), record.get('Interface'));
+															me.getHardwareModel(Ext.getCmp("siteName").getValue());
+															me.getSoftwareVersion(Ext.getCmp("siteName").getValue());
 															var interfacegrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
 															interfacegrid.setDisabled(true);
 															var stageBtn = Ext.getCmp('stageBtn');
@@ -2754,54 +2758,61 @@ Ext.define('Jx.cpp.service.vpls', {
 															
 															var clearInactiveEntriesFromListButton = Ext.getCmp('clearInactiveEntriesFromListButton');
 															clearInactiveEntriesFromListButton.hide();
-															var endPointServiceType =Ext.getCmp("endPointServiceType").setValue(record.get('endPointServiceType'));
-															var autonegotiate =Ext.getCmp("autonegotiate").setValue(record.get('autonegotiate'));	
-															var adminState =Ext.getCmp("adminState").setValue(record.get('adminState'));
-															var multiVRF =Ext.getCmp("multiVRF").setValue(record.get('multiVRF'));
-															var firstUnitForVRF =Ext.getCmp("firstUnitForVRF").setValue(record.get('firstUnitForVRF'));
+															Ext.getCmp("endPointServiceType").setValue(record.get('endPointServiceType'));
+															Ext.getCmp("autonegotiate").setValue(record.get('autonegotiate'));	
+															Ext.getCmp("adminState").setValue(record.get('adminState'));
+															Ext.getCmp("multiVRF").setValue(record.get('multiVRF'));
+															Ext.getCmp("firstUnitForVRF").setValue(record.get('firstUnitForVRF'));
 															Ext.getCmp("traficControlProfile").setValue(record.get('traficControlProfile'));
 															
-															var ciuName =Ext.getCmp("ciuName").setValue(record.get('ciuName'));
-															var ciuAlias =Ext.getCmp("ciuAlias").setValue(record.get('ciuAlias'));
-															var accessType =Ext.getCmp("accessType").setValue(record.get('accessType'));
-															var connectionType =Ext.getCmp("connectionType").setValue(record.get('connectionType'));
-															var csId =Ext.getCmp("csId").setValue(record.get('csId'));
-															var pathPreferences =Ext.getCmp("pathPreferences").setValue(record.get('pathPreferences'));
-															var vlanId =Ext.getCmp("vlanId").setValue(record.get('vlanId'));
-															var ipAddress =Ext.getCmp("ipAddress").setValue(record.get('ipAddress'));
-															var subnetMask =Ext.getCmp("subnetMask").setValue(record.get('subnetMask'));
-															
-															
-															var ipMTU =Ext.getCmp("ipMTU").setValue(record.get('ipMTU'));
-															
-															var ipv6Peer =Ext.getCmp("ipv6Peer").setValue(record.get('ipv6Peer'));
-															var ipv6Address =Ext.getCmp("ipv6Address").setValue(record.get('ipv6Address'));
+															Ext.getCmp("ciuName").setValue(record.get('ciuName'));
+															Ext.getCmp("ciuAlias").setValue(record.get('ciuAlias'));
+															Ext.getCmp("accessType").setValue(record.get('accessType'));
+															Ext.getCmp("connectionType").setValue(record.get('connectionType'));
+															Ext.getCmp("csId").setValue(record.get('csId'));
+															Ext.getCmp("pathPreferences").setValue(record.get('pathPreferences'));
+															Ext.getCmp("vlanId").setValue(record.get('vlanId'));
+															Ext.getCmp("ipAddress").setValue(record.get('ipAddress'));
+															Ext.getCmp("subnetMask").setValue(record.get('subnetMask'));
+															Ext.getCmp("ipMTU").setValue(record.get('ipMTU'));
+															Ext.getCmp("ipv6Peer").setValue(record.get('ipv6Peer'));
+															Ext.getCmp("ipv6Address").setValue(record.get('ipv6Address'));
 															//var ipv6Adr = record.get('ipv6Address').split(".");
 															
-															console.log("ipv6Address .  "+ipv6Address);
-													
-															var neighbourAddress =Ext.getCmp("neighbourAddress").setValue(record.get('neighbourAddress'));
-															var localPref =Ext.getCmp("localPref").setValue(record.get('localPref'));
-															var med =Ext.getCmp("med").setValue(record.get('med'));
-															var peerAS =Ext.getCmp("peerAS").setValue(record.get('peerAS'));
+															Ext.getCmp("neighbourAddress").setValue(record.get('neighbourAddress'));
+															Ext.getCmp("localPref").setValue(record.get('localPref'));
+															Ext.getCmp("med").setValue(record.get('med'));
+															Ext.getCmp("peerAS").setValue(record.get('peerAS'));
 															stageBtn.hide();
 															var selectedRowIndex = Ext.getCmp('index');
 															selectedRowIndex.setValue(index);
 															
-															var routingProtocol =Ext.getCmp("routingProtocol").setValue(record.get('routingProtocol'));
+															Ext.getCmp("routingProtocol").setValue(record.get('routingProtocol'));
 															Ext.getCmp("addressPool").setValue(record.get('addressPool'));
 															if(record.get('ingressRate') != null){
 																Ext.getCmp("ingressRate").setValue(record.get('ingressRate').toUpperCase());
 															}
 															Ext.getCmp("egressRate").setValue(record.get('egressRate').toUpperCase());
-															try{
+															/*try{
 																Ext.getCmp("staticOptionCustSupplier").collapsed = record.get('staticExport');
 																Ext.getCmp("staticOptionTelusSupplier").collapsed = record.get('staticNoExport');
 																Ext.getCmp("prefixListTelusSupplierFieldset").collapsed = record.get('bgpExport');
 																Ext.getCmp("prefixListGrid").collapsed = record.get('bgpNoExport');
 															}catch(e){
 																console.log(">> > > "+e);
-															}
+															}*/
+															if(record.get('staticExport')==false || record.get('staticExport')=='false')
+																	Ext.getCmp("staticOptionCustSupplier").expand();
+																	
+															if(record.get('staticNoExport')==false || record.get('staticNoExport')=='false')
+																Ext.getCmp("staticOptionTelusSupplier").expand();
+																
+															if(record.get('bgpNoExport')==false || record.get('bgpNoExport')=='false')
+																Ext.getCmp("prefixListTelusSupplierFieldset").expand();
+																
+															if(record.get('bgpExport')==false || record.get('bgpExport')=='false')
+																Ext.getCmp("prefixListGrid").expand();
+																	
 															if(Ext.getCmp("prefixListPanel").getStore().removeAll() != undefined)
 																Ext.getCmp("prefixListPanel").getStore().removeAll();
 															if(Ext.getCmp("prefixListTelusSupplierGrid").getStore().removeAll() != undefined)	
@@ -2820,6 +2831,7 @@ Ext.define('Jx.cpp.service.vpls', {
 															console.log("1");
 															if(Ext.getCmp("ipv6Peer").getValue() ==false && (record.get('prefixList').length == undefined || record.get('ipv6PrefixList').length == 'undefined')){ //this block will trigger for when pull the failed order for ipv4.
 															console.log("2");
+															Ext.getCmp("prefixListGrid").collapsed=false;;
 															console.log("pref list : "+record.get('prefixList').prefixList);
 																Ext.getCmp("prefixListPanel").getStore().add({
 																			prefixList: record.get('prefixList').prefixList
@@ -2829,26 +2841,26 @@ Ext.define('Jx.cpp.service.vpls', {
 															}
 
 															if(Ext.getCmp("ipv6Peer").getValue() ==false ){ 
-															console.log(">>>>>>>>>>>>>>>>>>>");
-															
 															for (var i=0; i< record.get('prefixList').length; i++) {
+																	Ext.getCmp("prefixListGrid").collapsed;
 																	console.log("prefixList "+ record.get('prefixList')[i].prefixList);
 																		Ext.getCmp("prefixListPanel").getStore().add({
 																			prefixList: record.get('prefixList')[i].prefixList
 																		
 																		}); 
 																	}
-																console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>");	
 																if(!Ext.isArray(record.get('prefixListTelusSupplier'))){	
+																Ext.getCmp("prefixListTelusSupplierFieldset").collapsed=false;
 																Ext.getCmp("prefixListTelusSupplierGrid").getStore().add({
 																			prefixList: record.get('prefixListTelusSupplier').prefixList
 																		
 																		});
 																	}
-																if(Ext.isArray(record.get('prefixListTelusSupplier'))){																		
-																	for (var i=0; i< record.get('prefixListTelusSupplier').length; i++) {
-																	console.log("prefixList "+ record.get('prefixListTelusSupplier')[i].prefixList);
-																		Ext.getCmp("prefixListTelusSupplierGrid").getStore().add({
+																if(Ext.isArray(record.get('prefixListTelusSupplier'))){		
+																	Ext.getCmp("prefixListTelusSupplierFieldset").collapsed=false;
+																for (var i=0; i< record.get('prefixListTelusSupplier').length; i++) {
+																	 console.log("prefixList "+ record.get('prefixListTelusSupplier')[i].prefixList);
+																	Ext.getCmp("prefixListTelusSupplierGrid").getStore().add({
 																			prefixList: record.get('prefixListTelusSupplier')[i].prefixList
 																		
 																		}); 
@@ -2857,32 +2869,9 @@ Ext.define('Jx.cpp.service.vpls', {
 																	
 															}
 															else if(Ext.getCmp("ipv6Peer").getValue() ==true){ //this block will execute for ipv4 and ipv6
-															console.log("4");
-																//console.log("prefixList :: >> "+ record.get('prefixList')[0].prefixList);
-																/*
-																		Ext.getCmp("prefixListPanel").getStore().add({
-																		for (var i=0; i< record.get('prefixList').length; i++) {
-																			prefixList: record.get('prefixList')[i].prefixList
-																			}
-																			
-																		}); 
-																		*/
-																	/*Ext.getCmp("prefixListPanel").getStore().removeAll();
-																		
-																		for (var i=0; i< record.get('prefixList').length; i++) {
-																	console.log("prefixList "+ record.get('prefixList')[i].prefixList);
-																		Ext.getCmp("prefixListPanel").getStore().add({
-																			prefixList: record.get('prefixList')[i].prefixList
-																		
-																		}); 
-																	}bhanu*/
-																
 																if(record.get('ipv6PrefixList').length == undefined){
-																console.log("ipv6PrefixList unde:: >> "+ record.get('ipv6PrefixList').prefixList);
 																	Ext.getCmp("ipv6PrefixListPanel").getStore().removeAll();
-																		
-																		
-																	console.log("prefixList "+ record.get('ipv6PrefixList').prefixList);
+																	//console.log("prefixList "+ record.get('ipv6PrefixList').prefixList);
 																		Ext.getCmp("ipv6PrefixListPanel").getStore().add({
 																			prefixList: record.get('ipv6PrefixList').prefixList,
 																			ipv6PrefixList: record.get('ipv6PrefixList').ipv6PrefixList
@@ -2910,9 +2899,8 @@ Ext.define('Jx.cpp.service.vpls', {
 															Ext.getCmp("prefixListPanel").getView().refresh();	
 																	
 															if(record.get('routingProtocol') == 'Static'){
-															console.log("staticroutes length");
-															console.log("staticroutes length: "+record.get('staticRoutes').length);
-															if(record.get('staticRoutes').length == undefined ){ //this block will trigger for when pull the failed order for ipv4.
+																if(record.get('staticRoutes').length == undefined ){
+																	Ext.getCmp("staticOptionCustSupplier").collapsed=false;
 																	console.log("pref list : "+record.get('staticRoutes').prefixList);
 																		Ext.getCmp("staticRoutingOption").getStore().add({
 																			destinationPrefix: record.get('staticRoutes').destinationPrefix
@@ -2920,8 +2908,8 @@ Ext.define('Jx.cpp.service.vpls', {
 																				}); 
 																	}
 																	else if(record.get('staticRoutes').length != undefined){
-																	console.log("test>> : "+record.get('staticRoutes'));
 																	for (var i=0; i< record.get('staticRoutes').length; i++) {
+																			Ext.getCmp("staticOptionCustSupplier").collapsed=false;
 																			console.log("staticRoutes "+ record.get('staticRoutes')[i].nextHop);
 																				Ext.getCmp("staticRoutingOption").getStore().add({
 																					destinationPrefix: record.get('staticRoutes')[i].destinationPrefix,
@@ -2932,8 +2920,8 @@ Ext.define('Jx.cpp.service.vpls', {
 																	Ext.getCmp("nextHopVal").setValue(record.get('nextHopVal'));
 																	Ext.getCmp("nextHopTelusSupplier").setValue(record.get('nextHopTelusSupplier'));
 																	
-																	//if(record.get('StaticRoutesNoExport').length == undefined ){ 
 																	if(!Ext.isArray(record.get('StaticRoutesNoExport'))){
+																	Ext.getCmp("staticOptionTelusSupplier").collapsed=false;
 																	console.log("no export : "+record.get('StaticRoutesNoExport').destinationPrefix);
 																		Ext.getCmp("staticTelusSupplierGrid").getStore().add({
 																			destinationPrefix: record.get('StaticRoutesNoExport').destinationPrefix
@@ -2941,9 +2929,8 @@ Ext.define('Jx.cpp.service.vpls', {
 																				}); 
 																	}
 																	if(Ext.isArray(record.get('StaticRoutesNoExport'))){
-																	//if(record.get('StaticRoutesNoExport').length > 0){ //this block will trigger for the new end point for ipv4 only
-																	console.log("no export>> : "+record.get('StaticRoutesNoExport'));
-																	for (var i=0; i< record.get('StaticRoutesNoExport').length; i++) {
+																	    Ext.getCmp("staticOptionTelusSupplier").collapsed=false;
+																		for (var i=0; i< record.get('StaticRoutesNoExport').length; i++) {
 																			console.log("StaticRoutesNoExport>>> "+ record.get('StaticRoutesNoExport')[i].destinationPrefix);
 																				Ext.getCmp("staticTelusSupplierGrid").getStore().add({
 																					destinationPrefix: record.get('StaticRoutesNoExport')[i].destinationPrefix
@@ -2953,8 +2940,7 @@ Ext.define('Jx.cpp.service.vpls', {
 																	
 																	
 																	if(Ext.getCmp("ipv6Peer").getValue() ==true){
-																		if(record.get('staticRoutesForIPv6').length == undefined ){ //this block will trigger for when pull the failed order for ipv4.
-																		console.log("pref list : "+record.get('staticRoutesForIPv6').prefixList);
+																		if(record.get('staticRoutesForIPv6').length == undefined ){
 																			Ext.getCmp("staticRoutingOptionForIPv6").getStore().add({
 																				destinationPrefix: record.get('staticRoutesForIPv6').destinationPrefix,
 																				nextHop: record.get('staticRoutesForIPv6').nextHop
@@ -2962,7 +2948,7 @@ Ext.define('Jx.cpp.service.vpls', {
 																					}); 
 																		}
 																	else{
-																		console.log("ipv6 >> : "+record.get('staticRoutesForIPv6'));
+																		//console.log("ipv6 >> : "+record.get('staticRoutesForIPv6'));
 																		for (var i=0; i< record.get('staticRoutesForIPv6').length; i++) {
 																				console.log("staticRoutes "+ record.get('staticRoutesForIPv6')[i].nextHop);
 																					Ext.getCmp("staticRoutingOptionForIPv6").getStore().add({
@@ -2976,7 +2962,8 @@ Ext.define('Jx.cpp.service.vpls', {
 																	
 																	Ext.getCmp("staticRoutingOption").getView().refresh();	
 																	Ext.getCmp("staticRoutingOptionForIPv6").getView().refresh();
-																
+																	
+																	
 																
 															}
 															me.setFieldDisabled('siteName',true);
@@ -3073,7 +3060,7 @@ Ext.define('Jx.cpp.service.vpls', {
                                     text: 'Clear',
 									hidden: true,
 									 handler: function(button, event) {
-	                                    	var data = this.clearAllFields();
+	                                    this.clearAllFields();
 	                                        
 	                                 },
 	                                    scope: this,
@@ -3314,7 +3301,7 @@ Ext.define('Jx.cpp.service.vpls', {
 		handleSiteSelection:function(grid,record,index,event) {
 		
 		this.site ='';
-		this.port = ''
+		this.port = '';
 		this.encapsulation = '';
 		this.moid = '';
 		this.site = record.get('site1');
@@ -3332,7 +3319,7 @@ Ext.define('Jx.cpp.service.vpls', {
 	},
 	getSelectedSite:function(record) {
 		this.site ='';
-		this.port = ''
+		this.port = '';
 		this.encapsulation = '';
 		this.moid = '';
 		this.site = record.get('deviceName');
@@ -3341,7 +3328,7 @@ Ext.define('Jx.cpp.service.vpls', {
 		this.moid = record.get('deviceId');
 		console.log("deviceId "+record.get('deviceId'));
 	},
-	loadSiteInterfaceGrid:function(record) {
+	loadSiteInterfaceGrid:function(record, port) {
 		console.log("moid*** "+record);
 		var interfaceList='';
 		Ext.Ajax.request({
@@ -3355,9 +3342,13 @@ Ext.define('Jx.cpp.service.vpls', {
 				} else {
 					var records = [];
 					for (var i=0; i<result.peDeviceInterfaceBeanList.length; i++) {
-						records.push(result.peDeviceInterfaceBeanList[i]);
+						if(port  == ''){
+							records.push(result.peDeviceInterfaceBeanList[i]);
+						}else if(port !='' && port == result.peDeviceInterfaceBeanList[i].portName){
+							records.push(result.peDeviceInterfaceBeanList[i]);
+						}
 					}
-					var storeData={'totalCount':records.length,'interfaceList':records};
+					//var storeData={'totalCount':records.length,'interfaceList':records};
 					var siteInterfaceGrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
 					var store = siteInterfaceGrid.getStore();
 					store.getProxy().data = records;
@@ -3375,7 +3366,7 @@ Ext.define('Jx.cpp.service.vpls', {
 	},
 	searchCustomer:function(id) {
 		console.log("id&&*** "+id);
-		var interfaceList='';
+		//var interfaceList='';
 		Ext.Ajax.request({
 			method:'GET',
 			url:'../serviceui/resteasy/cpp-customer/Alcatel/id/'+id,
@@ -3508,6 +3499,9 @@ Ext.define('Jx.cpp.service.vpls', {
 				if(key == 'qosType'){
 					formObj.qosType = val;
 				}
+				if(key == 'adminState'){
+					formObj.adminState = val;
+				}
 				
 				if(key == 'customer'){
 				
@@ -3521,6 +3515,7 @@ Ext.define('Jx.cpp.service.vpls', {
 				}
 				Ext.getCmp('endPointServiceType').setDisabled(true);
 				
+				
 			});
 		});		
 	}
@@ -3533,6 +3528,10 @@ Ext.define('Jx.cpp.service.vpls', {
 	
 			for(var i = 0; i < data.unis.length; i++){
 				var commonEndPointsData = Ext.decode(data.unis[i].endPointsData);
+				//commonEndPointsData.bgpExport = commonEndPointsData.bgpExport;
+				//commonEndPointsData.bgpNoExport = commonEndPointsData.bgpNoExport;
+				//commonEndPointsData.staticExport = commonEndPointsData.staticExport;
+				//commonEndPointsData.staticNoExport = commonEndPointsData.staticNoExport;
 				commonEndPointsData.seId = data.unis[i].seId;
 				storeData.push(commonEndPointsData);
 			}			
@@ -3542,6 +3541,11 @@ Ext.define('Jx.cpp.service.vpls', {
 				commonEndPointsData.seId = data.unis.seId;
 				console.log("interface: "+commonEndPointsData.Interface);
 				console.log("device id: "+commonEndPointsData.pedeviceId);
+				console.log("bgpExport loaded*** "+commonEndPointsData.bgpExport);
+				commonEndPointsData.bgpExport = !commonEndPointsData.bgpExport;
+				commonEndPointsData.bgpNoExport = !commonEndPointsData.bgpNoExport;
+				commonEndPointsData.staticExport = !commonEndPointsData.staticExport;
+				commonEndPointsData.staticNoExport = !commonEndPointsData.staticNoExport;
 				
 				try{
 				if(commonEndPointsData.staticRoutes.staticRoutes.e != undefined){
@@ -3561,10 +3565,10 @@ Ext.define('Jx.cpp.service.vpls', {
 					
 					
 				if(commonEndPointsData.prefixList.prefixList.e != undefined){
-					commonEndPointsData.prefixList.prefixList=commonEndPointsData.prefixList.prefixList.e.prefixList;
+					commonEndPointsData.prefixList=commonEndPointsData.prefixList.prefixList.e.prefixList;
 				}
 				if(commonEndPointsData.prefixList.prefixList.e == undefined){
-					commonEndPointsData.prefixList.prefixList=commonEndPointsData.prefixList.prefixList;
+					commonEndPointsData.prefixList=commonEndPointsData.prefixList.prefixList;
 				}
 				if(commonEndPointsData.prefixListTelusSupplier.prefixListTelusSupplier.e != undefined){
 					commonEndPointsData.prefixListTelusSupplier=commonEndPointsData.prefixListTelusSupplier.prefixListTelusSupplier.e;
@@ -3588,6 +3592,7 @@ Ext.define('Jx.cpp.service.vpls', {
 		gridStore.loadData(storeData);		
 		
 		Ext.getCmp('siteName').setDisabled(false);
+		Ext.getCmp("endpointPanel").setDisabled(true);
    },
 	getDataJSON:function(){
 	console.log("form getDataJSON data': ");
@@ -3659,6 +3664,7 @@ Ext.define('Jx.cpp.service.vpls', {
 			"accounting" : Ext.getCmp("accounting").getValue(),
 			"architecture" :"JCE",
 			"qosType" : Ext.getCmp("qosType").getValue(),
+			"adminState" : Ext.getCmp("adminState").getValue(),
 			"schedulerMapForMultiVRF" : Ext.getCmp("schedulerMapForMultiVRF").getValue(),
 			"isAF1Selected" : advancedResult["isAF1Selected"],
 			"isAF2Selected" : advancedResult["isAF2Selected"],
@@ -3709,7 +3715,6 @@ Ext.define('Jx.cpp.service.vpls', {
 				egressRate = egressRate.toLowerCase();
 			}		
 			
-			row.data.ingressRate
 			
 		var ip4NetworkAddress = this.getNetworkAddress(row.data.ipAddress, row.data.subnetMask);
 		var dataForDisplay = row.data.dataForDisplay+"|"+row.data.csId + "."+row.data.ciuName + "."+ row.data.egressRate;
@@ -3722,35 +3727,60 @@ Ext.define('Jx.cpp.service.vpls', {
 			"ciuName": row.data.ciuName,
 			"ciuAlias": row.data.ciuAlias,
 			"vlanId": row.data.vlanId	
-		}
+		};
 		
+		var staticExport = row.data.staticExport;
+		if(staticExport == 'true')
+			staticExport = true;
+		if(staticExport == 'false')
+			staticExport = false;
+			
+		var staticNoExport = row.data.staticNoExport;
+		if(staticNoExport == 'true')
+			staticNoExport = true;
+		if(staticNoExport == 'false')
+			staticNoExport = false;
+			
+		var bgpExport = row.data.bgpExport;
+		if(bgpExport == 'true')
+			bgpExport = true;
+		if(bgpExport == 'false')
+			bgpExport = false;
+			
+		var bgpNoExport = row.data.bgpNoExport;
+		if(bgpNoExport == 'true')
+			bgpNoExport = true;
+		if(bgpNoExport == 'false')
+			bgpNoExport = false;
+			
 		var static_Routes =  {
-			"staticRoutes": row.data.staticRoutes
-		}
+			"staticRoutes": staticExport == false ? row.data.staticRoutes : ""
+		};
 		var static_Routes_no_export =  {
-			"staticRoutesTelusNoExport": row.data.StaticRoutesNoExport
-		}
+			"staticRoutesTelusNoExport": staticNoExport == false ? row.data.StaticRoutesNoExport : ""
+		};
 		var static_Routes_ipv6 =  {
 			"staticRoutesForIPv6": row.data.staticRoutesForIPv6
-		}
+		};
 		
 		var prefix_list =  {
-			"prefixList": row.data.prefixList
-		}
+			"prefixList": bgpExport == false ? row.data.prefixList : ""
+		};
 		
 		var prefix_list_no_export =  {
-			"prefixListTelusSupplier": row.data.prefixListTelusSupplier
-		}
+			"prefixListTelusSupplier": bgpNoExport == false ? row.data.prefixListTelusSupplier : ""
+		};
 		
-		var prefix_list_ipv6 =  {
-			"ipv6PrefixList": row.data.ipv6PrefixList
-		}
+		//var prefix_list_ipv6 =  {
+		//	"ipv6PrefixList": row.data.ipv6PrefixList
+		//};
 		
 		var staticCustExport = row.data.staticRoutes.length;
 		var staticTelusNoExport = row.data.StaticRoutesNoExport.length;
 		var bgpPrefixListCustExport = row.data.prefixList.length;
 		var bgpPrefixListTelusNoExport = row.data.prefixListTelusSupplier.length;
-			try{
+		
+		try{
 			formDataArray.push({
 				"Interface": row.data.Interface,
 				"pedeviceId": row.data.pedeviceId,
@@ -3799,10 +3829,10 @@ Ext.define('Jx.cpp.service.vpls', {
 				"staticTelusNoExport": staticTelusNoExport,
 				"bgpPrefixListCustExport": bgpPrefixListCustExport,
 				"bgpPrefixListTelusNoExport": bgpPrefixListTelusNoExport,
-				"staticExport": !row.data.staticExport,
-				"staticNoExport": !row.data.staticNoExport,
-				"bgpExport": !row.data.bgpExport,
-				"bgpNoExport": !row.data.bgpNoExport,
+				"staticExport": !staticExport,
+				"staticNoExport": !staticNoExport,
+				"bgpExport": !bgpExport,
+				"bgpNoExport": !bgpNoExport,
 				"autonegotiate": row.data.autonegotiate,
 				"adminState": row.data.adminState,
 				"operationalMode": row.data.operationalMode,
@@ -3911,8 +3941,6 @@ Ext.define('Jx.cpp.service.vpls', {
             ], 
             data: [
                 //{valueText: '', displayText: 'Select ...'},
-                /*{valueText: 'REDI', displayText: 'RE Direct'},
-				 {valueText: 'REDU', displayText: 'RE Dual'}*/
 				 {valueText: 'RE Direct', displayText: 'RE Direct'}
 				 //{valueText: 'RE Dual', displayText: 'RE Dual'}
             ]
@@ -4028,59 +4056,59 @@ Ext.define('Jx.cpp.service.vpls', {
         return EFRateStore;
     },
 
-	validateEndpointDetails:function() {
+validateEndpointDetails:function() {
 	var isValid = false;
 	var vlan = Ext.getCmp("vlanId").getValue();
 	
 	var endPointServiceType = this.scriptUtils.getFieldByName("endPointServiceType").getValue();
-	console.log(" endPointServiceType: "+endPointServiceType);
+	//console.log(" endPointServiceType: "+endPointServiceType);
 	
 	var neighbourAddress = this.scriptUtils.getFieldByName("neighbourAddress").getValue();
 	
 	var ciuName = this.scriptUtils.getFieldByName("ciuName").getValue();
-	console.log("ciuName : "+ciuName);
+	//console.log("ciuName : "+ciuName);
 
 	var ciuAlias = this.scriptUtils.getFieldByName("ciuAlias").getValue();
-	console.log("ciuAlias : "+ciuAlias);
+	//console.log("ciuAlias : "+ciuAlias);
 
-	var accessType = this.scriptUtils.getFieldByName("accessType").getValue();
-	console.log("accessType : "+accessType);
-	var portSpeed = Ext.getCmp("portSpeed").getValue();
+	//var accessType = this.scriptUtils.getFieldByName("accessType").getValue();
+	//console.log("accessType : "+accessType);
+	//var portSpeed = Ext.getCmp("portSpeed").getValue();
 	var connectionType = this.scriptUtils.getFieldByName("connectionType").getValue();
-	console.log(" connectionType: "+connectionType);
+	//console.log(" connectionType: "+connectionType);
 
 	var csId = this.scriptUtils.getFieldByName("csId").getValue();
-	console.log(" csId: "+csId);
+	//console.log(" csId: "+csId);
 
 	var pathPreferences = this.scriptUtils.getFieldByName("pathPreferences").getValue();
-	console.log(" pathPreferences: "+pathPreferences);
+	//console.log(" pathPreferences: "+pathPreferences);
 
 
-	var vlanId = this.scriptUtils.getFieldByName("vlanId").getValue();
-	console.log("vlanId : "+vlanId);
+	//var vlanId = this.scriptUtils.getFieldByName("vlanId").getValue();
+	//console.log("vlanId : "+vlanId);
 	var ipAddress = this.scriptUtils.getFieldByName("ipAddress").getValue();
-	console.log(" ipAddress: "+ipAddress);
+	//console.log(" ipAddress: "+ipAddress);
 	var subnetMask = this.scriptUtils.getFieldByName("subnetMask").getValue();
-	console.log("subnetMask : "+subnetMask);
+	//console.log("subnetMask : "+subnetMask);
 
 	
-	var ipMTU = this.scriptUtils.getFieldByName("ipMTU").getValue();
-	console.log(" ipMTU: "+ipMTU);
+	//var ipMTU = this.scriptUtils.getFieldByName("ipMTU").getValue();
+	//console.log(" ipMTU: "+ipMTU);
 	var ipv6Peer =  Ext.getCmp('ipv6Peer').getValue();
-	console.log("ipv6Peer : "+ipv6Peer);
-	var ipv6Address = this.scriptUtils.getFieldByName("ipv6Address").getValue();
-	console.log("ipv6Address : "+ipv6Address);
+	//console.log("ipv6Peer : "+ipv6Peer);
+	//var ipv6Address = this.scriptUtils.getFieldByName("ipv6Address").getValue();
+	//console.log("ipv6Address : "+ipv6Address);
 	
 	var localPref = this.scriptUtils.getFieldByName("localPref").getValue();
-	console.log(" localPref: "+localPref);
+	//console.log(" localPref: "+localPref);
 	var med = this.scriptUtils.getFieldByName("med").getValue();
-	console.log(" med: "+med);
+	//console.log(" med: "+med);
 	var peerAS = this.scriptUtils.getFieldByName("peerAS").getValue();
-	console.log(" peerAS: "+peerAS);
+	//console.log(" peerAS: "+peerAS);
 
 	var routingProtocol = this.scriptUtils.getFieldByName("routingProtocol").getValue();
 	var addressPool = this.scriptUtils.getFieldByName("addressPool").getValue();
-	var ingressRate = this.scriptUtils.getFieldByName("ingressRate").getValue();
+	//var ingressRate = this.scriptUtils.getFieldByName("ingressRate").getValue();
 	var egressRate = this.scriptUtils.getFieldByName("egressRate").getValue();
 	console.log(">>*********************************");
 	console.log("endPointServiceType: "+endPointServiceType);
@@ -4164,7 +4192,12 @@ Ext.define('Jx.cpp.service.vpls', {
 			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the valid Local Pref");
 			return isValid;
 		}
-	else if(ipv6Peer ==false && routingProtocol !='Static' && (Ext.getCmp("prefixListPanel").getStore().count() ==0)){
+	else if(ipv6Peer ==false && routingProtocol !='Static' && (!Ext.getCmp("prefixListGrid").collapsed) && (Ext.getCmp("prefixListPanel").getStore().count() ==0)){
+			isValid = true;
+			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the prefix list");
+			return isValid;
+		}
+	else if(ipv6Peer ==false && routingProtocol !='Static' && (!Ext.getCmp("prefixListTelusSupplierFieldset").collapsed) && (Ext.getCmp("prefixListTelusSupplierGrid").getStore().count() ==0)){
 			isValid = true;
 			Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the prefix list");
 			return isValid;
@@ -4172,12 +4205,20 @@ Ext.define('Jx.cpp.service.vpls', {
 	else if(ipv6Peer ==true && routingProtocol !='Static' && (Ext.getCmp("ipv6PrefixListPanel").getStore().count() ==0)){
 		isValid = true;
 		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the prefix list");
+		
 		return isValid;
 	}	
-	else if(routingProtocol =='Static' && Ext.getCmp("staticRoutingOption").getStore().count() ==0){
+	else if(routingProtocol =='Static' && (!Ext.getCmp("staticOptionCustSupplier").collapsed)  && Ext.getCmp("staticRoutingOption").getStore().count() ==0){
 		isValid = true;
 		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the Prefix/hops in order to add to the staging area");
 		//return isValid;
+		
+	}
+	else if(routingProtocol =='Static' && (!Ext.getCmp("staticOptionTelusSupplier").collapsed)  && Ext.getCmp("staticTelusSupplierGrid").getStore().count() ==0){
+		isValid = true;
+		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please Enter the Prefix/hops in order to add to the staging area");
+		//return isValid;
+		
 	}
 	else if(routingProtocol =='Static' && ipv6Peer == true && Ext.getCmp("staticRoutingOptionForIPv6").getStore().count() == 0){
 		isValid = true;
@@ -4216,11 +4257,13 @@ if(!selection){
 }
 console.log("device id: "+this.moid);
 	console.log("port id: "+this.port);
-	var vlan = Ext.getCmp("vlanId").getValue()
+	var vlan = Ext.getCmp("vlanId").getValue();
 	console.log("vlanId: "+vlan);
 	var stagedInterfacesStore = Ext.getCmp("stagedInterfacesGrid").getStore();
 	var routingProtocol = Ext.getCmp("routingProtocol").getValue();
 	console.log("stages no ** : "+stagedInterfacesStore.count());
+	var endPointServiceType = this.scriptUtils.getFieldByName("endPointServiceType").getValue();
+	console.log(" endPointServiceType: "+endPointServiceType);
 	
 	var numberOfDuplicateVLAN = 0;
 		if(stagedInterfacesStore.count() > 0){
@@ -4229,6 +4272,13 @@ console.log("device id: "+this.moid);
 				console.log("moid>>>>>"+ row.data.pedeviceId);
 				console.log("port2>>>>>"+ row.data.Interface);
 				console.log("vlanId1>>>>>"+ row.data.vlanId);
+				console.log("row.endPointServiceType>>>>>"+ row.endPointServiceType);
+				
+				if(endPointServiceType == 'BI' && endPointServiceType == row.data.endPointServiceType){
+					Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Only One BI Service is allowed.");
+					return;
+					}
+					
 				
 				if((this.moid == row.data.pedeviceId) && (this.port == row.data.Interface) && (vlan == row.data.vlanId) ){
 				numberOfDuplicateVLAN++;
@@ -4240,8 +4290,7 @@ console.log("device id: "+this.moid);
 				}
 			}
 		}
-	var endPointServiceType = this.scriptUtils.getFieldByName("endPointServiceType").getValue();
-	console.log(" endPointServiceType: "+endPointServiceType);
+	
 
 	var ciuName = this.scriptUtils.getFieldByName("ciuName").getValue();
 	console.log("ciuName : "+ciuName);
@@ -4299,40 +4348,40 @@ console.log("device id: "+this.moid);
 				Ext.getCmp("ciuName").setDisabled(true);
 		   }
 		}
-		console.log("multiVRF > "+multiVRF);
+	console.log("multiVRF > "+multiVRF);
 		
 	var firstUnitForVRF = this.scriptUtils.getFieldByName("firstUnitForVRF").getValue();
 	var traficControlProfile = this.scriptUtils.getFieldByName("traficControlProfile").getValue();
 	
 	var vlanId = this.scriptUtils.getFieldByName("vlanId").getValue();
-	console.log("vlanId : "+vlanId);
+	//console.log("vlanId : "+vlanId);
 	var ipAddress = this.scriptUtils.getFieldByName("ipAddress").getValue();
-	console.log(" ipAddress: "+ipAddress);
+	//console.log(" ipAddress: "+ipAddress);
 	var subnetMask = this.scriptUtils.getFieldByName("subnetMask").getValue();
-	console.log("subnetMask : "+subnetMask);
+	//console.log("subnetMask : "+subnetMask);
 
 	var ipMTU = this.scriptUtils.getFieldByName("ipMTU").getValue();
-	console.log(" ipMTU: "+ipMTU);
+	//console.log(" ipMTU: "+ipMTU);
 	var ipv6Peer =  Ext.getCmp('ipv6Peer').getValue();
-	console.log("ipv6Peer : "+ipv6Peer);
+	//console.log("ipv6Peer : "+ipv6Peer);
 	var ipv6Address = this.scriptUtils.getFieldByName("ipv6Address").getValue();
-	console.log("ipv6Address : "+ipv6Address);
+	//console.log("ipv6Address : "+ipv6Address);
 	var neighbourAddress = this.scriptUtils.getFieldByName("neighbourAddress").getValue();
-	console.log("rneighbourAddressd : "+neighbourAddress);
+	//console.log("rneighbourAddressd : "+neighbourAddress);
 
 	var localPref = this.scriptUtils.getFieldByName("localPref").getValue();
-	console.log(" localPref: "+localPref);
+	//console.log(" localPref: "+localPref);
 	var med = this.scriptUtils.getFieldByName("med").getValue();
 	console.log(" med: "+med);
 	var peerAS = this.scriptUtils.getFieldByName("peerAS").getValue();
-	console.log(" peerAS: "+peerAS);
+	//console.log(" peerAS: "+peerAS);
 	var routingProtocol = this.scriptUtils.getFieldByName("routingProtocol").getValue();
 	var addressPool = this.scriptUtils.getFieldByName("addressPool").getValue();
 	var ingressRate = this.scriptUtils.getFieldByName("ingressRate").getValue();
 	var egressRate = this.scriptUtils.getFieldByName("egressRate").getValue();
 	
 	var interfaceSelected = Ext.getCmp("siteInterfaceGrid").getSelectionModel().getSelection()[0];
-	var siteName = Ext.getCmp('siteName').getValue();
+	//var siteName = Ext.getCmp('siteName').getValue();
 	
 	var softwareVersion =  Ext.getCmp("softwareVersion").getValue();
 	var nodeType = Ext.getCmp("nodeType").getValue();
@@ -4340,14 +4389,14 @@ console.log("device id: "+this.moid);
 	
 	var dataForDisplay = softwareVersion + "|"+ nodeType + "|" + siteName;	
 	
-	var qosType = Ext.getCmp('siteName').getValue();
+	//var qosType = Ext.getCmp('siteName').getValue();
 	
 	console.log("******************");
 
 
-	console.log("site': " + this.site);
-	console.log("port': " + this.port);
-	console.log("moid  : " + this.moid);
+	//console.log("site': " + this.site);
+	//console.log("port': " + this.port);
+	//console.log("moid  : " + this.moid);
 
 	if(siteName == null || interfaceSelected == undefined || interfaceSelected == 'undefined') {
             Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please select the Site and Site Interface in order to add to the staging area");
@@ -4355,8 +4404,8 @@ console.log("device id: "+this.moid);
         }
 		
 		
-		var doesIpDuplicationExistInStagedInterfacesStore = false;
-        var doesPeSubinterfaceExistInStagedInterfacesStore = false;
+		//var doesIpDuplicationExistInStagedInterfacesStore = false;
+        //var doesPeSubinterfaceExistInStagedInterfacesStore = false;
 		var stagedInterfacesStore = Ext.getCmp("stagedInterfacesGrid").getStore();
 	    var stagedInterfacesStore_RowCount = stagedInterfacesStore.count();
         		
@@ -4389,13 +4438,12 @@ console.log("device id: "+this.moid);
            	};
 	
 		
-	var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
-	
+	//var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
 	
 	var staticExport = Ext.getCmp("staticOptionCustSupplier").collapsed;
 	var staticNoExport = Ext.getCmp("staticOptionTelusSupplier").collapsed;
-	var bgpExport = Ext.getCmp("prefixListTelusSupplierFieldset").collapsed;
-	var bgpNoExport = Ext.getCmp("prefixListGrid").collapsed;
+	var bgpExport = Ext.getCmp("prefixListGrid").collapsed;
+	var bgpNoExport = Ext.getCmp("prefixListTelusSupplierFieldset").collapsed;
 	
 	var staticRoutesArr = [];
 	
@@ -4501,8 +4549,7 @@ console.log("device id: "+this.moid);
 		subnetMask: subnetMask,
 		ipMTU: ipMTU,
 		ipv6Peer: ipv6Peer,
-		ipv6Address: ipv6Address,//+"."+ipv6Address1+"."+ipv6Address2+"."+ipv6Address3,
-		//rd: rd,
+		ipv6Address: ipv6Address,
 		neighbourAddress: neighbourAddress,
 		routingProtocol: routingProtocol,
 		autonegotiate: autonegotiate,
@@ -4558,17 +4605,17 @@ console.log("handleUpdateStagedInterface");
 	var portSpeed = Ext.getCmp("portSpeed").getValue();
 
 	var csId = this.scriptUtils.getFieldByName("csId").getValue();
-	console.log(" csId: "+csId);
+	//console.log(" csId: "+csId);
 
 	var pathPreferences = this.scriptUtils.getFieldByName("pathPreferences").getValue();
-	console.log(" pathPreferences: "+pathPreferences);
+	//console.log(" pathPreferences: "+pathPreferences);
 
 	var vlanId = Ext.getCmp("vlanId").getValue();
 	var ipAddress = Ext.getCmp("ipAddress").getValue();
 	var subnetMask = Ext.getCmp("subnetMask").getValue();
 	var ipMTU = Ext.getCmp("ipMTU").getValue();
 	
-	console.log("ipMTU': " +ipMTU);
+	//console.log("ipMTU': " +ipMTU);
 	
 	var ipv6Peer =Ext.getCmp("ipv6Peer").getValue();
 	var ipv6Address =Ext.getCmp("ipv6Address").getValue();
@@ -4591,14 +4638,14 @@ console.log("handleUpdateStagedInterface");
 	var firstUnitForVRF = Ext.getCmp("firstUnitForVRF").getValue();
 	var traficControlProfile = Ext.getCmp("traficControlProfile").getValue();
 
-	console.log("******************");
-	console.log("ipAddress': " + ipAddress);
-	console.log("******************");
+	//console.log("******************");
+	//console.log("ipAddress': " + ipAddress);
+	//console.log("******************");
 	
 	var staticExport = Ext.getCmp("staticOptionCustSupplier").collapsed;
 	var staticNoExport = Ext.getCmp("staticOptionTelusSupplier").collapsed;
-	var bgpExport = Ext.getCmp("prefixListTelusSupplierFieldset").collapsed;
-	var bgpNoExport = Ext.getCmp("prefixListGrid").collapsed;
+	var bgpExport = Ext.getCmp("prefixListGrid").collapsed;
+	var bgpNoExport = Ext.getCmp("prefixListTelusSupplierFieldset").collapsed;
 	
 	var staticRoutesArr = [];
 	
@@ -4697,7 +4744,7 @@ console.log("handleUpdateStagedInterface");
 		row.data.subnetMask= subnetMask;
 		row.data.ipMTU= ipMTU;
 		row.data.ipv6Peer= ipv6Peer;
-		row.data.ipv6Address= ipv6Address;//+"."+ipv6Address1+"."+ipv6Address2+"."+ipv6Address3;
+		row.data.ipv6Address= ipv6Address;
 		//row.data.rd= rd;
 		row.data.neighbourAddress= neighbourAddress;
 		row.data.localPref= localPref;
@@ -4730,9 +4777,9 @@ console.log("handleUpdateStagedInterface");
 	
 	//var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
 	//endpointPanel.hide();
-	Ext.getCmp('staticRoutingOption').show()
+	Ext.getCmp('staticRoutingOption').show();
 	Ext.getCmp('endpointPanel').hide();
-	Ext.getCmp('staticRoutingOption').show()
+	Ext.getCmp('staticRoutingOption').show();
 	var clearInactiveEntriesFromListButton = Ext.getCmp('clearInactiveEntriesFromListButton');
 	clearInactiveEntriesFromListButton.show();
 	
@@ -4754,24 +4801,24 @@ console.log("handleUpdateStagedInterface");
 	Ext.getCmp("stagedInterfacesGrid").getView().refresh();	
 },
 handleClearAddSiteInterfacePanelButton:function() {
-        var endPointServiceType = Ext.getCmp("endPointServiceType").reset();
-		var ciuLoopback =Ext.getCmp("ciuName").reset();
-		var ciuLoopback =Ext.getCmp("ciuAlias").reset();
-		var csId =Ext.getCmp("csId").reset();
-		var accessType =Ext.getCmp("accessType").reset();
-		var connectionType =Ext.getCmp("connectionType").reset();
-		var vlanId =Ext.getCmp("vlanId").reset();
-		var ipAddress =Ext.getCmp("ipAddress").reset();
-		var subnetMask =Ext.getCmp("subnetMask").reset();
-		var ipMTU =Ext.getCmp("ipMTU").reset();
+    Ext.getCmp("endPointServiceType").reset();
+	Ext.getCmp("ciuName").reset();
+	Ext.getCmp("ciuAlias").reset();
+	Ext.getCmp("csId").reset();
+	Ext.getCmp("accessType").reset();
+	Ext.getCmp("connectionType").reset();
+	Ext.getCmp("vlanId").reset();
+	Ext.getCmp("ipAddress").reset();
+	Ext.getCmp("subnetMask").reset();
+	Ext.getCmp("ipMTU").reset();
 
-		//var rd =Ext.getCmp("rd").reset();
-		var neighbourAddress =Ext.getCmp("neighbourAddress").reset();
-		var localPref =Ext.getCmp("localPref").reset();
-		var med =Ext.getCmp("med").reset();
-		var peerAS =Ext.getCmp("peerAS").reset();
-		var enforceRoute =Ext.getCmp("enforceRoute").reset();
-		var enforceRoute =Ext.getCmp("enforceRoute").reset();
+	//Ext.getCmp("rd").reset();
+	Ext.getCmp("neighbourAddress").reset();
+	Ext.getCmp("localPref").reset();
+	Ext.getCmp("med").reset();
+	Ext.getCmp("peerAS").reset();
+	Ext.getCmp("enforceRoute").reset();
+	Ext.getCmp("enforceRoute").reset();
 
     },
    handleClearInactiveEntriesFromList:function() {
@@ -4783,19 +4830,19 @@ handleClearAddSiteInterfacePanelButton:function() {
 	//deviceId,port,vlan
 	console.log("device id: "+this.moid);
 	console.log("port id: "+this.port);
-	var vlan = Ext.getCmp("vlanId").getValue()
+	var vlan = Ext.getCmp("vlanId").getValue();
 	console.log("vlanId: "+vlan);
 	var stagedInterfacesStore = Ext.getCmp("stagedInterfacesGrid").getStore();
 	var routingProtocol = Ext.getCmp("routingProtocol").getValue();
-	console.log("stages no : "+stagedInterfacesStore.count());
+	//console.log("stages no : "+stagedInterfacesStore.count());
 	var msg = '';
 	var numberOfDuplicateVLAN = 0;
 		if(stagedInterfacesStore.count() > 0){
 			for(var i=0; i < stagedInterfacesStore.count(); i++) {
 				var row = stagedInterfacesStore.getAt(i);
-				console.log("moid>>>>>"+ row.data.pedeviceId);
-				console.log("port2>>>>>"+ row.data.Interface);
-				console.log("vlanId1>>>>>"+ row.data.vlanId);
+				//console.log("moid>>>>>"+ row.data.pedeviceId);
+				//console.log("port2>>>>>"+ row.data.Interface);
+				//console.log("vlanId1>>>>>"+ row.data.vlanId);
 				
 				if((this.moid == row.data.pedeviceId) && (this.port == row.data.port) && (vlan == row.data.vlanId) ){
 				numberOfDuplicateVLAN++;
@@ -4916,15 +4963,6 @@ handleClearAddSiteInterfacePanelButton:function() {
         else if(subnetMask_DecimalNotation == "24") {
             subnetMask_DottedDecimalNotation = "255.255.255.0";
         }
-        
-        //console.log("Value of 'subnetMask_DecimalNotation': " + subnetMask_DecimalNotation);
-        //console.log("Value of 'subnetMask_DottedDecimalNotation': " + subnetMask_DottedDecimalNotation);
-        
-        // IP = "A.B.C.D"
-    	// tempArray[0] = A
-    	// tempArray[1] = B
-    	// tempArray[2] = C
-    	// tempArray[3] = D
     	var tempArray1 = ipAddress.split(".");
         var ipAddress_FirstOctet = parseInt(tempArray1[0]);
         var ipAddress_SecondOctet = parseInt(tempArray1[1]);
@@ -4963,7 +5001,7 @@ handleClearAddSiteInterfacePanelButton:function() {
         //console.log("Value of 'networkAddress': " + networkAddress);
         
         var broadcastAddress;
-        var broadcastAddress_FourthOctet;
+        var broadcastAddress_FourthOctet='';
         
         // IP = "A.B.C.D"
     	// tempArray[0] = A
@@ -5116,7 +5154,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 
 	handleAddPrefixListBGPRouting:function() {
 	var prefixListPanelStore = Ext.getCmp("prefixListPanel").getStore();
-	var staticRoutingOptionStore_RowCount = prefixListPanelStore.count();
+	//var staticRoutingOptionStore_RowCount = prefixListPanelStore.count();
 
 
 	prefixListPanelStore.add({
@@ -5126,7 +5164,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 	},
 	handleAddPrefixListBGPTelusNoExport:function() {
 	var prefixListTelusSupplierGrid = Ext.getCmp("prefixListTelusSupplierGrid").getStore();
-	var prefixListTelusSupplierGrid_RowCount = prefixListTelusSupplierGrid.count();
+	//var prefixListTelusSupplierGrid_RowCount = prefixListTelusSupplierGrid.count();
 
 
 	prefixListTelusSupplierGrid.add({
@@ -5137,7 +5175,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 	
 	handleAddIPv6PrefixListBGPRouting:function() {
 	var prefixListPanelStore = Ext.getCmp("ipv6PrefixListPanel").getStore();
-	var staticRoutingOptionStore_RowCount = prefixListPanelStore.count();
+	//var staticRoutingOptionStore_RowCount = prefixListPanelStore.count();
 
 
 	prefixListPanelStore.add({
@@ -5147,7 +5185,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 	},
 	handleAddStaticRouting:function() {
 	var staticRoutingOptionStore = Ext.getCmp("staticRoutingOption").getStore();
-	var staticRoutingOptionStore_RowCount = staticRoutingOptionStore.count();
+	//var staticRoutingOptionStore_RowCount = staticRoutingOptionStore.count();
 
 
 	staticRoutingOptionStore.add({
@@ -5157,7 +5195,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 	},
 	handleAddStaticTelusSupplier:function() {
 	var staticRoutingOptionStore = Ext.getCmp("staticTelusSupplierGrid").getStore();
-	var staticRoutingOptionStore_RowCount = staticRoutingOptionStore.count();
+	//var staticRoutingOptionStore_RowCount = staticRoutingOptionStore.count();
 
 
 	staticRoutingOptionStore.add({
@@ -5167,7 +5205,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 	},
 	handleAddStaticRoutingForIPv6:function() {
 	var staticRoutingOptionForIPv6 = Ext.getCmp("staticRoutingOptionForIPv6").getStore();
-	var staticRoutingOptionStore_RowCount = staticRoutingOptionForIPv6.count();
+	//var staticRoutingOptionStore_RowCount = staticRoutingOptionForIPv6.count();
 
 
 	staticRoutingOptionForIPv6.add({
@@ -5214,7 +5252,7 @@ getInterfaceDescription: function(interfaceName) {
 	var vendor = 'Juniper';
     var inventoryType = 'device';
 	var device_IntferfaceDesc_XPath = "/device/configuration/interfaces/interface[name='" + interfaceName + "']";
-	var formData = this.scriptUtils.getFormValues(this);
+	//var formData = this.scriptUtils.getFormValues(this);
 	var siteName = Ext.getCmp('siteName').getValue();
 	this.getNodeList(siteName, vendor, inventoryType, device_IntferfaceDesc_XPath, function(results){ 
 		
@@ -5245,7 +5283,7 @@ getInterfaceDescription: function(interfaceName) {
 			
 			if(results["interface"]["description"]["#text"] != undefined){
 			var intfDesc = results["interface"]["description"]["#text"];
-				Ext.getCmp("lblInterfaceDescription").setValue(results["interface"]["description"]["#text"])
+				Ext.getCmp("lblInterfaceDescription").setValue(results["interface"]["description"]["#text"]);
 				Ext.getCmp("multiVRF").setValue(intfDesc.split('.').length > 1);
 				if((intfDesc.split('.').length   >  1) && (ciuName == null || ciuName =='')){
 					Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "This port is used by another customer. Please use another port");
@@ -5272,7 +5310,7 @@ getInterfaceDescription: function(interfaceName) {
 	);
 },
 getMultiVRFDetails:function(id, deviceId) {
-		var interfaceList='';
+		//var interfaceList='';
 		//serviceui/resteasy/cpp-service/advance-details/7634997?portName=ge-0/2/3&customerName=customer1
 		var selectedPort=  Ext.getCmp("siteInterfaceGrid").getSelectionModel().getSelection()[0].data.portName;
 		if(deviceId == null || deviceId ==''){
@@ -5312,13 +5350,13 @@ getMultiVRFDetails:function(id, deviceId) {
 						var ciuAlias = result.advanced[0].ciuAlias;
 						//var ciuLoopback = result.advanced[0].ciuLoopback;
 						
-						var customerId = result.advanced[0].ossCustomerId;
-						var accessRate = result.advanced[0].accessRate;
+						//var customerId = result.advanced[0].ossCustomerId;
+						//var accessRate = result.advanced[0].accessRate;
 						var qosType = result.advanced[0].qosType;
-						var unit = result.advanced[0].vlanId;
+						//var unit = result.advanced[0].vlanId;
 						
 						var accessRate = result.advanced[0].accessRate;
-						var efService = result.advanced[0].efService;
+						//var efService = result.advanced[0].efService;
 						var af1 = result.advanced[0].af1;
 						var af2 = result.advanced[0].af2;
 						var af3 = result.advanced[0].af3;
@@ -5362,6 +5400,7 @@ getMultiVRFDetails:function(id, deviceId) {
 						Ext.getCmp('ciuName').setDisabled(true);
 						Ext.getCmp("ciuAlias").setValue(ciuAlias);
 						Ext.getCmp('ciuAlias').setDisabled(true);
+						Ext.getCmp('csId').setDisabled(false);
 					}
           	}else{
 					Ext.getCmp("traficControlProfile").setValue("");
@@ -5473,6 +5512,13 @@ onRowEditingEdit: function(editor, e, eOpts) {
 		this.validateIPAddressAndMask(ip);
 		this.validateIP(nextHop);
 },
+onRowEditingEditStaticNoExport: function(editor, e, eOpts) {
+	console.log(">>>>>>>>>static no export >>>>>>>>>>>>>>>");
+		var ip = Ext.getCmp("destPrefixTelusSupplier").getValue();
+		var nextHop = Ext.getCmp("nextHopTelusSupplier").getValue();
+		this.validateIPAddressAndMask(ip);
+		this.validateIP(nextHop);
+},
 	validateIPAddressAndMask: function(ip) {
 	
 	try{
@@ -5509,16 +5555,16 @@ onRowEditingEdit: function(editor, e, eOpts) {
 	
 	try{
 	//var ip = Ext.getCmp("nextHopVal").getValue();
-	var subnetMask = ip.substring(ip.lastIndexOf('/')+1,ip.length);
+	//var subnetMask = ip.substring(ip.lastIndexOf('/')+1,ip.length);
 	var ip1 = ip.split(".")[0];
 	var ip2 = ip.split(".")[1];
 	var ip3 = ip.split(".")[2];
 	var ip4 = ip.split(".")[3];
 	
-	console.log("ip1> : "+ip1);
-	console.log("ip2> : "+ip2);
-	console.log("ip3> : "+ip3);
-	console.log("ip4Address> : "+ip4);
+	//console.log("ip1> : "+ip1);
+	//console.log("ip2> : "+ip2);
+	//console.log("ip3> : "+ip3);
+	//console.log("ip4Address> : "+ip4);
 	
 	if(ip !='' && ip != null && ip.split(".").length == 4 && (parseInt(ip1) > 0 && parseInt(ip1) < 256 && !isNaN(ip1) && parseInt(ip2) >= 0 && parseInt(ip2) < 256 && !isNaN(ip2) && parseInt(ip3) >= 0 && parseInt(ip3) < 256 && !isNaN(ip3) && parseInt(ip4) >= 0 && parseInt(ip4) < 256 && !isNaN(ip4))  ){
 
