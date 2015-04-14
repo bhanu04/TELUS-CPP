@@ -6,8 +6,8 @@
       > Support: Bhanu Singh
       > Company: Juniper Networks
       > Contact: bhanus@juniper.net    
-      > Version: 0.1           
-      > Revision Date: 2014-09-19
+      > Version: 1.2           
+      > Revision Date: 2015-04-14
       
       [Copyright 2009-2014 Juniper Networks, Inc.]
       [All rights reserved.]
@@ -165,10 +165,39 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
       <xsl:variable name="serviceOrderDescription" select="/ns2:ServiceRequest/Description"/>
       <xsl:variable name="speed" select="/*/ServiceCommonAttributes/e/speed"/>
       <xsl:variable name="userId" select="/ns2:ServiceRequest/Createdby"/>
-      <xsl:variable name="maxRoute" select="maxRoute"/>
-      <xsl:variable name="enforceRoute" select="enforceRoute"/>
+      <xsl:variable name="maxRoute" select="/*/ServiceCommonAttributes/e/maxRoute"/>
+      <xsl:variable name="enforceRoute" select="/*/ServiceCommonAttributes/e/enforceRoute"/>
       
+      <xsl:variable name="topology" select="/*/ServiceCommonAttributes/e/topology"/>
+      <xsl:variable name="endPointType" select="endPointType"/>
+      <xsl:variable name="rtMesh" select="/*/ServiceCommonAttributes/e/rd"/>
+      <xsl:variable name="rtHub" select="/*/ServiceCommonAttributes/e/rd"/>
+      <xsl:variable name="rtSpoke" select="/*/ServiceCommonAttributes/e/rtSpoke"/>
+      <xsl:variable name="rdMesh" select="/*/ServiceCommonAttributes/e/rd"/>
+      <xsl:variable name="rdHub" select="/*/ServiceCommonAttributes/e/rd"/>
+      <xsl:variable name="rdSpoke" select="/*/ServiceCommonAttributes/e/spkRd"/>
+      <xsl:variable name="spkVrfId" select="/*/ServiceCommonAttributes/e/spkVrfId"/>
       
+      <xsl:variable name="spkVrfName" select="/*/ServiceCommonAttributes/e/spkVrfName"/>
+      <xsl:variable name="vrfName" select="/*/ServiceCommonAttributes/e/vrfName"/>
+      
+      <xsl:variable name="policyGroup" select="/*/ServiceCommonAttributes/e/policyGroup"/>
+      <xsl:variable name="application" select="/*/ServiceCommonAttributes/e/application"/>
+      <xsl:variable name="endPointServiceType" select="/*/ServiceCommonAttributes/e/endPointServiceType"/>
+      
+      <xsl:variable name="vrfName">
+         <xsl:choose>
+            <xsl:when test="$topology = 'Mesh'">
+               <xsl:value-of select="/*/ServiceCommonAttributes/e/vrfName"/>
+            </xsl:when>
+            <xsl:when test="$topology = 'Hub'">
+               <xsl:value-of select="/*/ServiceCommonAttributes/e/vrfName"/>
+            </xsl:when>
+            <xsl:otherwise> <!-- Spoke-->
+               <xsl:value-of select="/*/ServiceCommonAttributes/e/spkVrfName"/>
+            </xsl:otherwise>
+         </xsl:choose>
+      </xsl:variable>
       
   <!-- TOP-LEVEL DERIVATIONS - END -->
       
@@ -232,6 +261,22 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
       <xsl:variable name="RT-CPE-MGMT-771" select="'RT_CPE_MGMT_771'"/>
       
       
+      <xsl:variable name="topologyType">
+         <xsl:choose>
+            <xsl:when test="$topology = 'Mesh'">
+               <xsl:value-of select="$MSH"/>
+            </xsl:when>
+            <xsl:when test="$topology = 'Hub'">
+               <xsl:value-of select="$HUB"/>
+            </xsl:when>
+            <xsl:when test="$topology = 'Spoke'">
+               <xsl:value-of select="$SPK"/>
+            </xsl:when>
+            <xsl:otherwise>
+               
+            </xsl:otherwise>
+         </xsl:choose>
+      </xsl:variable>
       
       <xsl:variable name="QoSEnable" select="'true'"/>
    
@@ -302,34 +347,22 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                   <xsl:variable name="serviceType" select="serviceType"/>
                   
                   <xsl:variable name="connectionType" select="connectionType"/>
-                  <xsl:variable name="policyGroup" select="policyGroup"/>
                   <xsl:variable name="ciuLoopback" select="ciuLoopback"/>
                   <xsl:variable name="loopbackSubnetMask" select="'32'"/>
                   <xsl:variable name="ciuName" select="ciuName"/>
                   <xsl:variable name="ciuAlias" select="ciuAlias"/>
                   
-                  <xsl:variable name="topology" select="topology"/>
-                  <xsl:variable name="endPointType" select="endPointType"/>
-                  <xsl:variable name="rtMesh" select="rtMesh"/>
-                  <xsl:variable name="rtHub" select="rtHub"/>
-                  <xsl:variable name="rtSpoke" select="rtSpoke"/>
-                  <xsl:variable name="rdMesh" select="rdMesh"/>
-                  <xsl:variable name="rdHub" select="rdHub"/>
-                  <xsl:variable name="rdSpoke" select="rdSpoke"/>
-                 
                   <xsl:variable name="siteName" select="site"/>
-                  <xsl:variable name="endPointServiceType" select="endPointServiceType"/>
+                  <xsl:variable name="endPointServiceType1" select="endPointServiceType"/>
                   <xsl:variable name="ipv6NextHOP" select="nextHOP"/>
                   
                   <xsl:variable name="multiVRF" select="multiVRF"/>
                   <xsl:variable name="traficControlProfile" select="traficControlProfile"/>
                   <xsl:variable name="qosType" select="qosType"/>
-                  <xsl:variable name="spkVrfId" select="spkVrfId"/>
                   <xsl:variable name="autonegotiate" select="autonegotiate"/>
                   <xsl:variable name="adminState" select="adminState"/>
                   <xsl:variable name="portSpeed" select="portSpeed"/>
-                  <xsl:variable name="spkVrfName" select="spkVrfName"/>
-                  
+                  <xsl:variable name="management" select="management"/>
                   
                   
                   <xsl:variable name="operationalMode" select="operationalMode"/>
@@ -340,7 +373,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                   
                   <xsl:variable name="beService" >
                   <xsl:choose>
-                     <xsl:when test="$classifier = 'v2-802.1p'">
+                     <xsl:when test="$classifier = '802.1p'">
                         <xsl:value-of select="'true'"/>
                      </xsl:when>
                      <xsl:otherwise>
@@ -399,7 +432,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                      </xsl:choose>
                   </xsl:variable>
                   
-                  <xsl:variable name="vrfName">
+                  <xsl:variable name="vrfName111">
                      <xsl:choose>
                         <xsl:when test="$topology = 'Mesh'">
                             <xsl:value-of select="vrfName"/>
@@ -429,7 +462,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                   
                  
                  <xsl:variable name="routingInstanceBGPDescription">          
-                    <xsl:value-of select="concat($csId, '.', $ciuName, '.', $endPointServiceType, '.', $application , '.', $protocol, '.', $vrfName, '.', $pathPreferences, '.', $vrfName, '.', $pathPreferences, '.', $accessOptionConnectionType , '.', $policyGroup, '.', $operationalMode)" />
+                    <xsl:value-of select="concat($csId, '.', $ciuName, '...', $endPointServiceType, '.', $application , '.', $protocol, '.', $vrfName, '.', $pathPreferences, '...', $accessOptionConnectionType , '.', $policyGroup, '.', $operationalMode)" />
                   </xsl:variable>
                  
                   <xsl:variable name="vpnSpeed">
@@ -474,16 +507,16 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                            <xsl:value-of select="concat('SM','_',  'EF','_',  $AF3,'_',  $AF2,'_',  $AF1)" />
                         </xsl:when>
                         <xsl:when test="$interfaceUnitCount > '0' and $qosType = 'QoS per Access' and $beService = 'true'">
-                           <xsl:value-of select="concat('SM','_',  'EF','_',  $AF3,'_',  $AF2,'_',  $AF1, '_', 'REM')" />
+                           <xsl:value-of select="concat('SM','_',  'EF','_',  $AF3,'_',  $AF2,'_',  $AF1, '_', 'SCA')" />
                         </xsl:when>
                         <xsl:when test="$efService = 'true' and $beService = 'true' and $interfaceUnitCount = '0'">
-                           <xsl:value-of select="concat('SM','_',  'EF','_',  $AF3,'_',  $AF2,'_',  $AF1, '_', 'REM')" />
+                           <xsl:value-of select="concat('SM','_',  'EF','_',  $AF3,'_',  $AF2,'_',  $AF1, '_', 'SCA')" />
                         </xsl:when>
                         <xsl:when test="$efService = 'true' and $beService = 'false' and $interfaceUnitCount = '0'">
                            <xsl:value-of select="concat('SM','_',  'EF','_',  $AF3,'_',  $AF2,'_',  $AF1)" />
                         </xsl:when>
                         <xsl:when test="$efService = 'false' and $beService = 'true' and $interfaceUnitCount = '0'">
-                           <xsl:value-of select="concat('SM','_',  'NOEF','_',  $AF3,'_',  $AF2,'_',  $AF1, '_', 'REM')" />
+                           <xsl:value-of select="concat('SM','_',  'NOEF','_',  $AF3,'_',  $AF2,'_',  $AF1, '_', 'SCA')" />
                         </xsl:when>
                         <xsl:when test="$efService = 'false' and $beService = 'false' and $interfaceUnitCount = '0'">
                            <xsl:value-of select="concat('SM','_',  'NOEF','_',  $AF3,'_',  $AF2,'_',  $AF1)" />
@@ -497,20 +530,20 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                   
                   <xsl:variable name="trafic-control-profile-name">
                      <xsl:choose>
-                        <xsl:when test="$interfaceUnitCount > '0' and $qosType = 'QoS per Access'  and $beService = 'false'">
+                        <xsl:when test="$interfaceUnitCount >= '0' and $qosType = 'QoS per Access'  and $beService = 'false'">
                            <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'EF', '_', $AF3,'_',  $AF2,'_',  $AF1)" />
                         </xsl:when>
-                        <xsl:when test="$interfaceUnitCount > '0' and $qosType = 'QoS per Access'  and $beService = 'true'">
-                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'EF', '_', $AF3,'_',  $AF2,'_',  $AF1, '_', 'REM')" />
+                        <xsl:when test="$interfaceUnitCount >= '0' and $qosType = 'QoS per Access'  and $beService = 'true'">
+                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'EF', '_', $AF3,'_',  $AF2,'_',  $AF1, '_', 'SCA')" />
                         </xsl:when>
                         <xsl:when test="$efService = 'false' and $beService = 'false' and $interfaceUnitCount = '0'">
                            <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'NOEF', '_', $AF3,'_',  $AF2,'_',  $AF1)" />
                         </xsl:when>
                         <xsl:when test="$efService = 'true' and $beService = 'true' and $interfaceUnitCount = '0'">
-                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'EF', '_', $AF3,'_',  $AF2,'_',  $AF1, '_', 'REM')" />
+                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'EF', '_', $AF3,'_',  $AF2,'_',  $AF1, '_', 'SCA')" />
                         </xsl:when>
                         <xsl:when test="$efService = 'false' and $beService = 'true' and $interfaceUnitCount = '0'">
-                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'NOEF', '_', $AF3,'_',  $AF2,'_',  $AF1, '_', 'REM')" />
+                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'NOEF', '_', $AF3,'_',  $AF2,'_',  $AF1, '_', 'SCA')" />
                         </xsl:when>
                         
                         <xsl:otherwise>
@@ -537,13 +570,13 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                    <xsl:variable name="trafic-control-profile-name-rem">
                      <xsl:choose>
                         <xsl:when test="$efService = 'true'">
-                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'EF', '_', $AF3,'_',  $AF2,'_',  $AF1,'_',  'REM')" />
+                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'EF', '_', $AF3,'_',  $AF2,'_',  $AF1,'_',  'SCA')" />
                         </xsl:when>
                         <xsl:when test="$efService = 'false'">
-                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'NOEF', '_', $AF3,'_',  $AF2,'_',  $AF1,'_',  'REM')" />
+                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'NOEF', '_', $AF3,'_',  $AF2,'_',  $AF1,'_',  'SCA')" />
                         </xsl:when>
                         <xsl:otherwise>
-                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'NOEF', '_', $AF3,'_',  $AF2,'_',  $AF1,'_',  'REM')" />
+                           <xsl:value-of select="concat('IP_NTWKSv2','_',  $accessRate,'_', 'NOEF', '_', $AF3,'_',  $AF2,'_',  $AF1,'_',  'SCA')" />
                         </xsl:otherwise>
                      </xsl:choose>
                   </xsl:variable>
@@ -551,13 +584,13 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                   <xsl:variable name="interfaceUnitDescription">
                      <xsl:choose>
                         <xsl:when test="$efService = 'true'">
-                           <xsl:value-of select="concat($csId,  '.',  $ciuName, $accessType, '.', $accessRate, '.', $endPointServiceType, '.', $application, '.', $protocol, '.', $vrfName, '.', $pathPreferences, '.', $vpnSpeed, '.', $architecture, '.', $accessOptionConnectionType, '.', $policyGroup, '.', $operationalMode, '.', $ciuAlias)" />
+                           <xsl:value-of select="concat($csId,  '.',  $ciuName,'..', $accessType, '.', $accessRate, '.', $endPointServiceType, '.', $application, '.', $protocol, '.', $vrfName, '.', $pathPreferences, '.', $vpnSpeed, '.', $architecture, '.', $accessOptionConnectionType, '.', $policyGroup, '.', $operationalMode, '.', $ciuAlias)" />
                         </xsl:when>
                         <xsl:when test="$efService = 'false'">
-                           <xsl:value-of select="concat($csId,  '.', $ciuName, $accessType, '.', $accessRate, '.', $endPointServiceType, '.', $application, '.', $protocol, '.', $vrfName, '.', $pathPreferences, '.', $vpnSpeed, '.', $architecture, '.', $accessOptionConnectionType, '.', $policyGroup, '.', $operationalMode, '.', $ciuAlias)" />
+                           <xsl:value-of select="concat($csId,  '.', $ciuName,'..', $accessType, '.', $accessRate, '.', $endPointServiceType, '.', $application, '.', $protocol, '.', $vrfName, '.', $pathPreferences, '.', $vpnSpeed, '.', $architecture, '.', $accessOptionConnectionType, '.', $policyGroup, '.', $operationalMode, '.', $ciuAlias)" />
                         </xsl:when>
                         <xsl:otherwise>
-                           <xsl:value-of select="concat($csId,  '.', $ciuName, $accessType, '.', $accessRate, '.', $endPointServiceType, '.', $application, '.', $protocol, '.', $vrfName, '.', $pathPreferences, '.', $vpnSpeed, '.', $architecture, '.', $accessOptionConnectionType, '.', $policyGroup, '.', $operationalMode, '.', $ciuAlias)" />
+                           <xsl:value-of select="concat($csId,  '.', $ciuName,'..', $accessType, '.', $accessRate, '.', $endPointServiceType, '.', $application, '.', $protocol, '.', $vrfName, '.', $pathPreferences, '.', $vpnSpeed, '.', $architecture, '.', $accessOptionConnectionType, '.', $policyGroup, '.', $operationalMode, '.', $ciuAlias)" />
                         </xsl:otherwise>
                      </xsl:choose>
                   </xsl:variable>
@@ -565,24 +598,6 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                   
                 <xsl:variable name="interface-description">
                      <xsl:value-of select="concat($csId,  '.', $ciuName, '.', $accessRate)" />
-                  </xsl:variable>
-                  
-                  
-                  <xsl:variable name="topologyType">
-                     <xsl:choose>
-                        <xsl:when test="$topology = 'Mesh'">
-                           <xsl:value-of select="$MSH"/>
-                        </xsl:when>
-                        <xsl:when test="$topology = 'Hub'">
-                           <xsl:value-of select="$HUB"/>
-                        </xsl:when>
-                        <xsl:when test="$topology = 'Spoke'">
-                           <xsl:value-of select="$SPK"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                          
-                        </xsl:otherwise>
-                     </xsl:choose>
                   </xsl:variable>
                   
                   <xsl:variable name="groupName">
@@ -634,7 +649,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                      <xsl:value-of select="concat($TARGET,':' , $rtHub)" />
                   </xsl:variable>
                   <xsl:variable name="targetCommunityMemberForSpoke">
-                     <xsl:value-of select="concat($TARGET,':' , $rtSpoke)" />
+                     <xsl:value-of select="concat($TARGET,':' , $rdSpoke)" />
                   </xsl:variable>
                  
                   <xsl:variable name="originCommunityMember">
@@ -1052,6 +1067,11 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     <disable operation="delete">
                                     </disable> 
                                  </xsl:if>
+                                 <hierarchical-scheduler>
+                                 </hierarchical-scheduler>
+                                 <flexible-vlan-tagging/>
+                                 <encapsulation>flexible-ethernet-services</encapsulation>
+                                 
                                  <unit>
                                     <name>
                                        <xsl:value-of select="$VLAN_ID"/>
@@ -1067,64 +1087,67 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     <family>
                                        <inet>
                                           <!-- address comes from IPv4 Address/Mask -->
-                                          <mtu>
+                                          <!--<mtu>
                                              <xsl:value-of select="$MTU"/> 
                                           </mtu> 
+                                          -->
                                           <address>
                                                  <name>
                                                     <xsl:value-of select="$IPv4AddressMask"/>
                                                  </name>
                                              </address>
                                           
-                                          <xsl:if test="$qosType = 'QoS per VPN'">
-                                             <filter>
-                                                <output>
-                                                   <filter-name>PRIORITIZE_MGT_TRAFFIC</filter-name>
-                                                </output>
-                                             </filter>
-                                          </xsl:if>
-                                          <xsl:if test="$qosType = 'QoS per Access'">
-                                             
-                                             <xsl:choose>
-                                                <xsl:when test="$interfaceUnitCount = '0'">
-                                                   <xsl:choose>
-                                                   <xsl:when test="$efService='false'">
-                                                      <filter>
-                                                         <output-list>PRIORITIZE_MGT_TRAFFIC</output-list>
-                                                         <output-list>
-                                                            <xsl:value-of select="$reclassifyFilter"/>
-                                                         </output-list>
-                                                      </filter>
-                                                   </xsl:when>
-                                                      <xsl:otherwise>
-                                                         <filter>
-                                                            <output>
-                                                               <filter-name>PRIORITIZE_MGT_TRAFFIC</filter-name>
-                                                            </output>
-                                                         </filter>
-                                                      </xsl:otherwise>
-                                                   </xsl:choose>
-                                                </xsl:when>
-                                             </xsl:choose>
-                                             
-                                             <xsl:choose>
-                                                <xsl:when test="$interfaceUnitCount = '1'">
+                                             <xsl:if test="$qosType = 'QoS per VPN' and $management = 'true'">
+                                                <filter>
+                                                   <output>
+                                                      <filter-name>PRIORITIZE_MGT_TRAFFIC</filter-name>
+                                                   </output>
+                                                </filter>
+                                             </xsl:if>
+                                             <xsl:if test="$qosType = 'QoS per Access'">
+                                                
                                                    <xsl:choose>
                                                       <xsl:when test="$efService='false'">
                                                          <filter>
-                                                            <output>
-                                                               <filter-name>
+                                                            <xsl:if test="$management = 'true'">
+                                                               <output-list>PRIORITIZE_MGT_TRAFFIC</output-list>
+                                                            </xsl:if>
+                                                            <xsl:if test="$interfaceUnitCount = '0'">
+                                                               <output-list>
                                                                   <xsl:value-of select="$reclassifyFilter"/>
-                                                               </filter-name>
-                                                            </output>
+                                                               </output-list>
+                                                               </xsl:if>
                                                          </filter>
                                                       </xsl:when>
-                                                      <xsl:otherwise>
-                                                        <!-- do nothing -->
-                                                      </xsl:otherwise>
-                                                   </xsl:choose>
-                                                </xsl:when>
-                                             </xsl:choose>
+                                                         <xsl:otherwise>
+                                                            <xsl:if test="$management = 'true'">
+                                                               <filter>
+                                                                  <output>
+                                                                     <filter-name>PRIORITIZE_MGT_TRAFFIC</filter-name>
+                                                                  </output>
+                                                               </filter>
+                                                            </xsl:if>
+                                                         </xsl:otherwise>
+                                                     </xsl:choose>
+                                             
+                                                     <xsl:choose>
+                                                         <xsl:when test="$interfaceUnitCount = '1'">
+                                                            <xsl:choose>
+                                                               <xsl:when test="$efService='false'">
+                                                                  <filter>
+                                                                     <output>
+                                                                        <filter-name>
+                                                                           <xsl:value-of select="$reclassifyFilter"/>
+                                                                        </filter-name>
+                                                                     </output>
+                                                                  </filter>
+                                                               </xsl:when>
+                                                               <xsl:otherwise>
+                                                                 <!-- do nothing -->
+                                                               </xsl:otherwise>
+                                                            </xsl:choose>
+                                                         </xsl:when>
+                                                    </xsl:choose>
                                              
                                            </xsl:if>
                                        </inet>
@@ -1176,9 +1199,11 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     </vlan-id>
                                     <family>
                                        <inet>
+                                          <!--
                                           <mtu>
                                              <xsl:value-of select="$MTU"/> 
                                           </mtu> 
+                                          -->
                                           <!-- address comes from IPv4 Address/Mask -->
                                           <address>
                                                  <name>
@@ -1270,12 +1295,12 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                         </interfaces>
                         
                         <!-- FIREWALL STANZA -->     
-                        <xsl:if test="$efService = 'true'">
+                        <xsl:if test="$efService = 'true' and $endPointServiceType = 'CML3'">
                            <firewall>
                               <!-- Policer used in all cases below.  These rates come from a table that must be followed -->
                               <xsl:if test="$efService = 'true'">
                                 <!-- CML3-->
-                                 <xsl:if test="$efService = 'true' and $endPointServiceType = 'CML3'">
+                                 <xsl:if test="$efService = 'true'"><!--  and $endPointServiceType = 'CML3' -->
                                  <policer>
                                     <name>
                                        <xsl:value-of select="$policerName"/>
@@ -1364,7 +1389,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  </transmit-rate>
                                  <buffer-size>
                                     <percent>
-                                       <xsl:value-of select="$AF3"/>
+                                       <xsl:value-of select="'20'"/>
                                     </percent>
                                  </buffer-size>
                                  <!-- fixed value for a ST scheduler -->
@@ -1383,7 +1408,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  </transmit-rate>
                                  <buffer-size>
                                     <percent>
-                                       <xsl:value-of select="$AF2"/>
+                                       <xsl:value-of select="'20'"/>
                                     </percent>
                                  </buffer-size>
                                  <priority>low</priority>
@@ -1401,7 +1426,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  </transmit-rate>
                                  <buffer-size>
                                    <percent>
-                                       <xsl:value-of select="$AF1"/>
+                                      <xsl:value-of select="'20'"/>
                                     </percent>
                                  </buffer-size>
                                 <priority>low</priority>
@@ -1451,8 +1476,8 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     </xsl:if>
                                     <xsl:if test="$beService = 'true'">
                                        <forwarding-class>
-                                          <name>FC_BEST_EFFORT_DATA_GREEN</name>
-                                          <scheduler>AF_REM</scheduler>
+                                          <name>FC_BEST_EFFORT_DATA_YELLOW</name>
+                                          <scheduler>AF_SCA</scheduler>
                                        </forwarding-class>
                                     </xsl:if>
                             </scheduler-maps>
@@ -1492,22 +1517,34 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                   </xsl:if>
                                   <!-- choose the classifier based on UI selection -->
                                   <classifiers>
-                                     <xsl:if test="$classifier = 'v2-DSCP(default)'">
+                                     <xsl:if test="$classifier = 'DSCP'">
                                        <dscp>
                                           <name>IPv2_PREMIUM</name>
                                        </dscp>
                                      </xsl:if>
-                                     <xsl:if test="$classifier = 'v2-802.1p'">
+                                     <xsl:if test="$classifier = '802.1p'">
                                         <ieee-802.1>
                                            <classifier-name>IPv2_PREMIUM_DOT1P</classifier-name>
                                         </ieee-802.1>
                                      </xsl:if>
-                                     <xsl:if test="$classifier = 'v2-802.1ad'">
+                                     <xsl:if test="$classifier = '802.1ad'">
                                         <ieee-802.1ad>
                                            <classifier-name>IPv2_PREMIUM_DEI</classifier-name>
                                         </ieee-802.1ad>
                                      </xsl:if>
                                   </classifiers>
+                                  <rewrite-rules>
+                                     <xsl:if test="$classifier = '802.1p'">
+                                        <ieee-802.1>
+                                           <rewrite-rule-name>REWRITE_DOT1P_IPV2_PREMIUM</rewrite-rule-name>
+                                        </ieee-802.1>
+                                     </xsl:if>
+                                     <xsl:if test="$classifier = '802.1ad'">
+                                        <ieee-802.1ad>
+                                           <rewrite-rule-name>REWRITE_DOT1AD_IPV2_PREMIUM</rewrite-rule-name>
+                                        </ieee-802.1ad>
+                                     </xsl:if>
+                                  </rewrite-rules>
                                </unit>
                                
                             </interface>
@@ -1533,23 +1570,34 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  <!-- choose the classifier based on UI selection -->
                                  
                                  <classifiers>
-                                    <xsl:if test="$classifier = 'v2-DSCP(default)'">
+                                    <xsl:if test="$classifier = 'DSCP'">
                                      <dscp>
                                         <name>IPv2_ENHANCED</name>
                                      </dscp>
                                     </xsl:if>
-                                    <xsl:if test="$classifier = 'v2-802.1p'">
+                                    <xsl:if test="$classifier = '802.1p'">
                                        <ieee-802.1>
                                           <classifier-name>IPv2_ENHANCED_DOT1P</classifier-name>
                                        </ieee-802.1>
                                     </xsl:if>
-                                    <xsl:if test="$classifier = 'v2-802.1ad'">
+                                    <xsl:if test="$classifier = '802.1ad'">
                                      <ieee-802.1ad>
                                         <classifier-name>IPv2_ENHANCED_DEI</classifier-name>
                                      </ieee-802.1ad>
                                     </xsl:if>
                                  </classifiers>
-                                 
+                                 <rewrite-rules>
+                                    <xsl:if test="$classifier = '802.1p'">
+                                       <ieee-802.1>
+                                          <rewrite-rule-name>REWRITE_DOT1P_IPV2_PREMIUM</rewrite-rule-name>
+                                       </ieee-802.1>
+                                    </xsl:if>
+                                    <xsl:if test="$classifier = '802.1ad'">
+                                       <ieee-802.1ad>
+                                          <rewrite-rule-name>REWRITE_DOT1AD_IPV2_PREMIUM</rewrite-rule-name>
+                                       </ieee-802.1ad>
+                                    </xsl:if>
+                                 </rewrite-rules>
                               </unit>
                            </interface>
                            </xsl:if>
@@ -1574,17 +1622,30 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  <!-- choose the classifier based on UI selection -->
                                  
                                  <classifiers>
-                                    <xsl:if test="$classifier = 'v2-DSCP(default)'">
+                                    <xsl:if test="$classifier = 'DSCP'">
                                     <dscp>
                                        <name>IPv2_AF3_ONLY</name>
                                     </dscp>
                                     </xsl:if>
-                                    <xsl:if test="$classifier = 'v2-802.1p'">
+                                    <xsl:if test="$classifier = '802.1p'">
                                     <ieee-802.1>
                                        <classifier-name>IPv2_AF3_ONLY_DOT1P</classifier-name>
                                     </ieee-802.1>
                                     </xsl:if>
                                  </classifiers>
+                                 <rewrite-rules>
+                                    <xsl:if test="$classifier = '802.1p'">
+                                       <ieee-802.1>
+                                          <rewrite-rule-name>REWRITE_DOT1P_AF3_ONLY</rewrite-rule-name>
+                                       </ieee-802.1>
+                                    </xsl:if>
+                                    <!--<xsl:if test="$classifier = '802.1ad'">
+                                       <ieee-802.1ad>
+                                          <rewrite-rule-name>REWRITE_DOT1P_AF3_ONLY</rewrite-rule-name>
+                                       </ieee-802.1ad>
+                                    </xsl:if>
+                                    -->
+                                 </rewrite-rules>
                               </unit>
                            </interface>
                            </xsl:if>
@@ -1609,17 +1670,29 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     <!-- choose the classifier based on UI selection -->
                                     
                                     <classifiers>
-                                       <xsl:if test="$classifier = 'v2-DSCP(default)'">
+                                       <xsl:if test="$classifier = 'DSCP'">
                                        <dscp>
                                           <name>IPv2_AF2_ONLY</name>
                                        </dscp>
                                        </xsl:if>
-                                       <xsl:if test="$classifier = 'v2-802.1p'">
+                                       <xsl:if test="$classifier = '802.1p'">
                                        <ieee-802.1>
                                           <classifier-name>IPv2_AF2_ONLY_DOT1P</classifier-name>
                                        </ieee-802.1>
                                        </xsl:if>
                                     </classifiers>
+                                    <rewrite-rules>
+                                       <xsl:if test="$classifier = '802.1p'">
+                                          <ieee-802.1>
+                                             <rewrite-rule-name>REWRITE_DOT1P_AF2_ONLY</rewrite-rule-name>
+                                          </ieee-802.1>
+                                       </xsl:if>
+                                       <!--<xsl:if test="$classifier = '802.1ad'">
+                                          <ieee-802.1ad>
+                                             <rewrite-rule-name>REWRITE_DOT1P_AF2_ONLY</rewrite-rule-name>
+                                          </ieee-802.1ad>
+                                       </xsl:if>-->
+                                    </rewrite-rules>
                                  </unit>
                               </interface>
                            </xsl:if>
@@ -1643,17 +1716,30 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     <!-- choose the classifier based on UI selection -->
                                     
                                     <classifiers>
-                                       <xsl:if test="$classifier = 'v2-DSCP(default)'">
+                                       <xsl:if test="$classifier = 'DSCP'">
                                        <dscp>
                                           <name>IPv2_AF1_ONLY</name>
                                        </dscp>
                                        </xsl:if>
-                                       <xsl:if test="$classifier = 'v2-802.1p'">
+                                       <xsl:if test="$classifier = '802.1p'">
                                        <ieee-802.1>
                                           <classifier-name>IPv2_AF1_ONLY_DOT1P</classifier-name>
                                        </ieee-802.1>
                                        </xsl:if>
                                     </classifiers>
+                                    <rewrite-rules>
+                                       <xsl:if test="$classifier = '802.1p'">
+                                          <ieee-802.1>
+                                             <rewrite-rule-name>REWRITE_DOT1P_AF1_ONLY</rewrite-rule-name>
+                                          </ieee-802.1>
+                                       </xsl:if>
+                                       <!--<xsl:if test="$classifier = '802.1ad'">
+                                          <ieee-802.1ad>
+                                             <rewrite-rule-name>REWRITE_DOT1P_AF1_ONLY</rewrite-rule-name>
+                                          </ieee-802.1ad>
+                                       </xsl:if>
+                                       -->
+                                    </rewrite-rules>
                                  </unit>
                               </interface>
                            </xsl:if>
@@ -1664,28 +1750,9 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     </name>
                                   
                                        <output-traffic-control-profile>
-                                         <xsl:if test="$isAllAFSelected='true'">
-                                             <profile-name>
+                                            <profile-name>
                                                 <xsl:value-of select="$trafic-control-profile-name"/>
                                              </profile-name>
-                                          </xsl:if>
-                                          <xsl:if test="$isAF3Selected='true' and $isAF1Selected='false' and $isAF2Selected='false'">
-                                             <profile-name>
-                                                <xsl:value-of select="$trafic-control-profile-name"/>
-                                             </profile-name>
-                                          </xsl:if>
-                                          
-                                          <xsl:if test="$isAF2Selected='true' and $isAF1Selected='false' and $isAF3Selected='false'">
-                                             <profile-name>
-                                                <xsl:value-of select="$trafic-control-profile-name"/>
-                                             </profile-name>
-                                          </xsl:if>
-                                          
-                                          <xsl:if test="$isAF1Selected='true' and $isAF2Selected='false' and $isAF3Selected='false'">
-                                             <profile-name>
-                                                <xsl:value-of select="$trafic-control-profile-name"/>
-                                             </profile-name>
-                                          </xsl:if>
                                        </output-traffic-control-profile>
                                    </interface-set>
                               </xsl:if>
@@ -1790,7 +1857,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  <term>
                                     <!-- this is a fixed name for the CIU Management VRF  -->
                                     <!--<name>1</name>-->
-                                    <name>ENTRY_1:NMC_MGMT_770 import</name>
+                                    <name>ENTRY_1:NMC_MGMT_770-IMPORT</name>
                                     <from>
                                        <protocol>bgp</protocol>
                                        <!-- this is a pre-existing community for the CIU Management VRF  -->
@@ -1805,7 +1872,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  
                                  <term>
                                     <!-- this is a fixed name  -->
-                                    <name>ENTRY_3:PERF_HUB import</name>
+                                    <name>ENTRY_3:PERF_HUB-IMPORT</name>
                                     <from>
                                        <protocol>bgp</protocol>
                                        <!-- this is a pre-existing community for the CIU Management VRF  -->
@@ -1817,7 +1884,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  </term>
                                  <xsl:if test="$policyGroup = 'TQSTD'">
                                  <term>
-                                    <name>"ENTRY_4:TQ_NMC_Management"</name>
+                                    <name>ENTRY_4:TQ_NMC_MANAGEMENT</name>
                                     <from>
                                        <protocol>bgp</protocol>
                                        <community>RT_TQ_NMC_MGMT</community>
@@ -1829,7 +1896,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  </xsl:if>
                                  <xsl:if test="$policyGroup = 'BVOIP'">
                                     <term>
-                                       <name>"ENTRY_5:BVOIP VPRN import"</name>
+                                       <name>ENTRY_5:BVOIP VPRN-IMPORT</name>
                                        <from>
                                           <protocol>bgp</protocol>
                                           <prefix-list>
@@ -1852,7 +1919,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     <xsl:if test="$topology = 'Mesh'">
                                        <term>
                                           <name>
-                                             <xsl:value-of select="'ENTRY_999:VPRN import'"/><!--<xsl:value-of select="$vrfName"/>-->
+                                             <xsl:value-of select="'ENTRY_999:VPRN-IMPORT'"/><!--<xsl:value-of select="$vrfName"/>-->
                                           </name>
                                           <from>
                                              <protocol>bgp</protocol>
@@ -1868,7 +1935,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  <xsl:if test="$topology = 'Spoke'">
                                     <term>
                                        <name>
-                                          <xsl:value-of select="'ENTRY_201:HUB import'"/><!--$vpnName-->
+                                          <xsl:value-of select="'ENTRY_201:HUB-IMPORT'"/><!--$vpnName-->
                                        </name>
                                        <from>
                                           <protocol>bgp</protocol>
@@ -1898,7 +1965,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     </term>
                                        <term>
                                           <name>
-                                             <xsl:value-of select="'ENTRY_999:VPRN import'"/><!--$vpnName-->
+                                             <xsl:value-of select="'ENTRY_999:VPRN-IMPORT'"/><!--$vpnName-->
                                           </name>
                                           <from>
                                              <protocol>bgp</protocol>
@@ -1916,7 +1983,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  <!-- THIS TERM IS TML3 AND CML3 -->
                                  
                                  <term>
-                                    <name>ENTRY_1000:LAST Reject</name>
+                                    <name>ENTRY_1000:LAST-REJECT</name>
                                     <then>
                                        <reject/>
                                     </then>
@@ -1936,7 +2003,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                               <xsl:if test="$endPointServiceType = 'TML3' or $endPointServiceType = 'TML3A'">
                                  <xsl:if test="$policyGroup = 'TQSTD'">
                                     <term>
-                                       <name>"ENTRY_1:TQ_NMC_MANAGEMENT Export"</name>
+                                       <name>ENTRY_1:TQ_NMC_MANAGEMENT-EXPORT</name>
                                        <from>
                                           <protocol>bgp</protocol>
                                           <prefix-list>
@@ -1954,7 +2021,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  </xsl:if>
                                  <xsl:if test="$policyGroup = 'CNS3'">
                                   <term>
-                                     <name>"ENTRY_1:CNS3-LAN-MGMT"</name>
+                                     <name>ENTRY_1:CNS3-LAN-MGMT</name>
                                      <from>
                                         <protocol>bgp</protocol>
                                         <prefix-list>
@@ -1971,7 +2038,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                   </term>
                                  </xsl:if>
                                  <term>
-                                    <name>ENTRY_200:LB_MGMT export</name>
+                                    <name>ENTRY_200:LB_MGMT-EXPORT</name>
                                     <from>
                                        <protocol>bgp</protocol>
                                        <prefix-list>
@@ -2022,7 +2089,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                               <xsl:if test="$endPointServiceType = 'TML3' or $endPointServiceType = 'TML3A' or $endPointServiceType = 'CML3'">
                                  <term>
                                     <name>
-                                       <xsl:value-of select="'ENTRY_999:VPRN BGP export'" />
+                                       <xsl:value-of select="'ENTRY_999:VPRN-BGP-EXPORT'" />
                                     </name>
                                     <from>
                                        <protocol>bgp</protocol>
@@ -2043,7 +2110,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  
                                  <term>
                                     <name>
-                                       <xsl:value-of select="'ENTRY_1000:LAST Reject'" />
+                                       <xsl:value-of select="'ENTRY_1000:LAST-REJECT'" />
                                     </name>
                                     <then>
                                        <reject/>
@@ -2077,13 +2144,28 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     </term>
                                  </xsl:if>   
                                  <term>
-                                    <name>10</name>
+                                    <name>ENTRY_20:SET-LP-FILTER-RT-SOO</name>
                                     <then>
-                                      
-                                      
                                        <local-preference>
                                           <xsl:value-of select="$localPref"/>
                                        </local-preference>
+                                       <community>
+                                          <delete/>
+                                          <community-name>
+                                             <xsl:value-of select="'MATCH_RT'" />
+                                          </community-name>
+                                       </community>
+                                       <community>
+                                          <delete/>
+                                          <community-name>
+                                             <xsl:value-of select="'MATCH_SOO'" />
+                                          </community-name>
+                                       </community>
+                                    </then>
+                                 </term>
+                                 <term>
+                                    <name>ENTRY_60:V4-SET-NH-ADD-SOO</name>
+                                    <then>
                                        <community>
                                           <add/>
                                           <community-name>
@@ -2094,11 +2176,12 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     </then>
                                  </term>
                                  <term>
-                                    <name>Entry_100:LAST</name><!-- last -->
+                                    <name>ENTRY_100:LAST</name>
                                     <then>
                                        <reject/>
                                     </then>
                                  </term>
+                                 
                               </policy-statement>
                            </xsl:if>
                            
@@ -2112,8 +2195,9 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                  <name>
                                     <xsl:value-of select="$TML3ExportPolicy" />
                                  </name>
+                                 
                                  <term>
-                                    <name>5</name>
+                                    <name>ENTRY_10:FILTER-SOO</name>
                                     <from>
                                        <community>
                                           <xsl:value-of select="$sooCommunityName" />
@@ -2123,25 +2207,42 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                        <reject/>
                                     </then>
                                  </term>
+                                 
                                  <term>
-                                    <name>Direct Route</name>
-                                    <from>
-                                       <protocol>direct</protocol>
-                                    </from>
+                                    <name>ENTRY_60:V4-DIRECT-FILTER-RT-SOO</name>
+                                       <from>
+                                          <protocol>direct</protocol>
+                                       </from>
                                     <then>
+                                       <community>
+                                          <delete/>
+                                          <community-name>
+                                             <xsl:value-of select="'MATCH_RT'" />
+                                          </community-name>
+                                       </community>
+                                       <community>
+                                          <delete/>
+                                          <community-name>
+                                             <xsl:value-of select="'MATCH_SOO'" />
+                                          </community-name>
+                                       </community>
                                        <accept/>
                                     </then>
                                  </term>
                                  <term>
-                                    <name>Entry_100:LAST</name> <!-- last -->
+                                    <name>ENTRY_100:LAST-FILTER-RT-SOO</name>
                                     <then>
                                        <community>
                                           <delete/>
-                                          <community-name>match-target</community-name>
+                                          <community-name>
+                                             <xsl:value-of select="'MATCH_RT'" />
+                                          </community-name>
                                        </community>
                                        <community>
                                           <delete/>
-                                          <community-name>match-origin</community-name>
+                                          <community-name>
+                                             <xsl:value-of select="'MATCH_SOO'" />
+                                          </community-name>
                                        </community>
                                        <accept/>
                                     </then>
@@ -2203,7 +2304,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                                     </then>
                                  </term>
                                  <term>
-                                    <name>Entry_100:LAST</name> <!-- last -->
+                                    <name>ENTRY_100:LAST</name> <!-- last -->
                                     <then>
                                        <community>
                                           <delete/>
@@ -2344,9 +2445,8 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
    				  <xsl:variable name="VLAN_ID" select="outerEncap"/>
                  <xsl:variable name="entityID" select="../entityID"/>
    				  <xsl:variable name="deviceID" select="pedeviceId"/>
-                  <xsl:variable name="port" select="Interface"/> 
-                  <!--<xsl:variable name="port" select="'ge-0/3/4'"/>-->
-   				  <xsl:variable name="speed" select="speed"/>
+                 <xsl:variable name="port" select="Interface"/> 
+                 <xsl:variable name="speed" select="speed"/>
                  <xsl:variable name="vendorType" select="vendorType"/>
                   
                   <xsl:variable name="VLAN_ID" select="outerEncap"/>
@@ -2357,11 +2457,8 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                   <xsl:variable name="AF3" select="af3"/>
                   
                   <xsl:variable name="efService" select="efService"/>
-                  <xsl:variable name="topology" select="topology"/>
-                  <xsl:variable name="endPointType" select="endPointType"/>
                   <xsl:variable name="ciuName" select="ciuName"/>
                   <xsl:variable name="pathPreferences" select="pathPreferences"/>
-                  <xsl:variable name="endPointServiceType" select="endPointServiceType"/>
                   
                   <xsl:variable name="pathPreferences">
                      <xsl:choose>
@@ -2391,40 +2488,6 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                      <xsl:value-of select="concat($SCH_PR, '-', $AF3)" />
                   </xsl:variable>
                   
-                  
-                  <xsl:variable name="topologyType">
-                     <xsl:choose>
-                        <xsl:when test="$topology = 'Mesh'">
-                           <xsl:value-of select="$MSH"/>
-                        </xsl:when>
-                        <xsl:when test="$topology = 'Hub'">
-                           <xsl:value-of select="$HUB"/>
-                        </xsl:when>
-                        <xsl:when test="$topology = 'Spoke'">
-                           <xsl:value-of select="$SPK"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                           
-                        </xsl:otherwise>
-                     </xsl:choose>
-                  </xsl:variable>
-                  
-                  <xsl:variable name="vrfName">
-                     <xsl:choose>
-                        <xsl:when test="$topology = 'Mesh'">
-                           <xsl:value-of select="vrfName"/>
-                        </xsl:when>
-                        <xsl:when test="$topology = 'Hub'">
-                           <xsl:value-of select="vrfName"/>
-                        </xsl:when>
-                        <xsl:otherwise> <!-- Spoke-->
-                           <xsl:value-of select="spkVrfName"/>
-                        </xsl:otherwise>
-                     </xsl:choose>
-                  </xsl:variable>
-                  
-                  
-                  
                  <xsl:variable name="rtCommunityName">
                      <xsl:value-of select="concat($RT, '_' ,  $vrfName, '_VPRN', $SERVICE_ID, '_', $topologyType)" />
                   </xsl:variable>
@@ -2434,7 +2497,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                   </xsl:variable>
                  
                   <xsl:variable name="sooCommunityName">
-                     <xsl:value-of select="concat($SOO,'_' ,$ciuName, '_', $vrfName)" />  <!-- twcb to ciuName-->
+                     <xsl:value-of select="concat($SOO,'_' ,$ciuName, '_', $vrfName)" />
                   </xsl:variable>
                   
                   <xsl:variable name="prefixMgmtName">
@@ -2465,7 +2528,6 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                            <xsl:value-of select="concat('S' ,'SOO','_',$ciuName,'_' ,$vrfName)" />
                         </xsl:otherwise>
                      </xsl:choose>
-                     <!--<xsl:value-of select="concat('SET_LP_',$pathPreferences, '_' ,'SOO','_',$ciuName,'_' ,$vpnName)" />-->
                   </xsl:variable>
                   
                   <xsl:variable name="TML3ExportPolicy">
@@ -2575,7 +2637,6 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                         <interfaces>
                            <interface>
                               <name>
-                                 <!-- <xsl:value-of select="$INTERFACE_NAME"/> -->
                                  <xsl:value-of select="$port"/>
                               </name>
                              <xsl:choose>
@@ -2625,7 +2686,7 @@ BELOW IS A SAMPLE 'SERVICEREQUEST.XML' ASSOCIATED WITH THIS XSLT SCRIPT:
                         <routing-instances>
                            <instance operation="delete">
                               <name>
-                                 <xsl:value-of select="$SERVICE_ID"/> <!-- service id is a routing instance name -->
+                                 <xsl:value-of select="$SERVICE_ID"/>
                               </name>
                            </instance>
                         </routing-instances>

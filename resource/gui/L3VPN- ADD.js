@@ -5,10 +5,10 @@
       > Support: Bhanu Singh
       > Company: Juniper Networks
       > Contact: bhanus@juniper.net
-      > Version: 1.0            
-      > Revision Date: 2014-08-25
+      > Version: 1.2            
+      > Revision Date: 2015-04-14
       
-      [Copyright 2009-2014 Juniper Networks, Inc.]
+      [Copyright 2009-2015 Juniper Networks, Inc.]
       [All rights reserved.]      
       
 ***************************************************
@@ -372,9 +372,9 @@ Ext.define('Jx.cpp.service.l3vpn', {
 												'change':function(list,record) {
 												
 													var topology = Ext.getCmp('topology').getValue();
-													var endPointType = Ext.getCmp('endPointType');
-													var values = [];
-													var siteInterfaceCount = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0].getStore().count();
+													//var endPointType = Ext.getCmp('endPointType');
+													//var values = [];
+													//var siteInterfaceCount = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0].getStore().count();
 													if(topology == 'Mesh'){
 														Ext.getCmp("vpnName").setFieldLabel("VRF Name");
 														//Ext.getCmp("AsRd").setFieldLabel("Route Distinguisher");
@@ -495,7 +495,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 														'change':function(list,record) {
 															var serviceType = Ext.getCmp('endPointServiceType').getValue();
 															var ciuLoopback = Ext.getCmp('ciuLoopback');
-															var loopbackSubnetMask = Ext.getCmp('loopbackSubnetMask');
+															//var loopbackSubnetMask = Ext.getCmp('loopbackSubnetMask');
 															if(serviceType =='CML3'){
 																me.setFieldDisabled("ciuName",true);	
 																me.setFieldDisabled("ciuAlias",true);	
@@ -507,7 +507,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 																me.setFieldDisabled("loopbackSubnetMask",false);	
 																me.setFieldDisabled("ciuName",false);	
 																me.setFieldDisabled("ciuAlias",false);
-																me.setFieldDisabled("management",true);																
+																//me.setFieldDisabled("management",true);																
 															}													
 														}
 													}
@@ -528,7 +528,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 												blur : function() {
 														//console.log("off focus ** ")
 															var rd = Ext.getCmp("rd").getValue();
-															console.log("off focus ** "+rd)
+															console.log("off focus ** "+rd);
 															if(rd.split(":").length == 2 && rd.split(":")[0].length <=5 && rd.split(":")[1].length <=5 && rd.split(":")[0].length > 1 && rd.split(":")[1].length > 1){
 																//do nothing
 															}else{
@@ -536,7 +536,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 																Ext.getCmp('rd').focus(true, 200);
 															return;
 															}
-															console.log("off focus ** ")
+															console.log("off focus ** ");
 														}
 											}
 										},
@@ -643,7 +643,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 												blur : function() {
 														//console.log("off focus ** ")
 															var rd = Ext.getCmp("spkRd").getValue();
-															console.log("off focus ** "+rd)
+															console.log("off focus ** "+rd);
 															if(rd.split(":").length == 2 && rd.split(":")[0].length <=5 && rd.split(":")[1].length <=5 && rd.split(":")[0].length > 1 && rd.split(":")[1].length > 1){
 																//do nothing
 															}else{
@@ -651,7 +651,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 																Ext.getCmp('spkRd').focus(true, 200);
 															return;
 															}
-															console.log("off focus ** ")
+															console.log("off focus ** ");
 														}
 											}
 										},
@@ -771,11 +771,11 @@ Ext.define('Jx.cpp.service.l3vpn', {
 													valueField: 'moid',
 													listeners: {
 														'select':function(list,record) {
-															var siteInterfaceGrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
+															//var siteInterfaceGrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
 															
 															me.getHardwareModel(Ext.getCmp("siteName").getValue());
 															me.getSoftwareVersion(Ext.getCmp("siteName").getValue());
-															me.loadSiteInterfaceGrid(Ext.getCmp("siteName").getValue());														
+															me.loadSiteInterfaceGrid(Ext.getCmp("siteName").getValue(),'');														
 														}
 														
 													}
@@ -930,7 +930,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 																	var customerId = Ext.getCmp("customerId").getValue();
 																	this.CIUName='';
 																	if(customerId == '' || customerId == null){
-																		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please select the custoemr first");
+																		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please select the customer first");
 																		return;
 																	}
 																	
@@ -950,40 +950,10 @@ Ext.define('Jx.cpp.service.l3vpn', {
 																	//me.setFieldDisabled('endPointType',false);
 																	me.getInterfaceDescription(record.get('portName'));
 																	
-																	var topology = Ext.getCmp('topology').getValue();
-																		//alert("topology> "+topology);
+																	//var topology = Ext.getCmp('topology').getValue();
+																	//alert("topology> "+topology);
 																	//var endPointType = Ext.getCmp('endPointType');
-																
-																
-																	/*
-																	if(topology == 'Full Mesh' && endPointType.getValue() =='Full Mesh') {
-																        me.setFieldDisabled('endPointType',true);
-																		endPointType.emptyText = 'Select..';
-																		endPointType.applyEmptyText();
-																		var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
-																		endpointPanel.show();
-																		
-																		
-																		//Ext.getCmp('optionPanelGrid').getSelectionModel().select(0);
-																		Ext.getCmp('accessOptionGrid').show();
-																	}
-																	else if(topology == 'Hub & Spoke'  && endPointType.getValue() != null) {
-																		me.setFieldDisabled('endPointType',false);
-																		endPointType.emptyText = 'Select..';
-																		endPointType.applyEmptyText();
-																		var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
-																		endpointPanel.show();
-																		
-																		
-																		//Ext.getCmp('optionPanelGrid').getSelectionModel().select(0);
-																		Ext.getCmp('accessOptionGrid').show();
-																		
-																	}else if(topology == null) {
-																		me.setFieldDisabled('endPointType',true);
-																	}
-																	else{
-																		me.setFieldDisabled('endPointType',false);
-																	}*/														
+																													
 																}
 															},
                                                     selModel: Ext.create('Ext.selection.CheckboxModel', {
@@ -1283,10 +1253,10 @@ Ext.define('Jx.cpp.service.l3vpn', {
 													  return;
 												   };
 													 var subnetMask = Ext.getCmp("subnetMask").getValue();
-													 var networkAddress = me.getNetworkAddress(ipAddress, subnetMask);
+													 me.getNetworkAddress(ipAddress, subnetMask);
 													 var broadcastAddress = me.getBroadcastAddress(ipAddress, subnetMask);
 													 
-													 var startRange = networkAddress.split(".")[3];
+													 //var startRange = networkAddress.split(".")[3];
 													 var endRange = broadcastAddress.split(".")[3];
 													 
 													 console.log("endRange> "+endRange);
@@ -1348,10 +1318,10 @@ Ext.define('Jx.cpp.service.l3vpn', {
 													  return;
 												   };
 													 var subnetMask = Ext.getCmp("subnetMask").getValue();
-													 var networkAddress = me.getNetworkAddress(ipAddress, subnetMask);
+													 me.getNetworkAddress(ipAddress, subnetMask);
 													 var broadcastAddress = me.getBroadcastAddress(ipAddress, subnetMask);
 													 
-													 var startRange = networkAddress.split(".")[3];
+													 //var startRange = networkAddress.split(".")[3];
 													 var endRange = broadcastAddress.split(".")[3];
 													 var neighbourAddress4 = 0;
 													 var neighbourAddress='';
@@ -1379,11 +1349,23 @@ Ext.define('Jx.cpp.service.l3vpn', {
 											fieldLabel: 'IP MTU',
                                             labelWidth: 53,
 											labelAlign: 'right',
+											hidden: true,
 											value: '1500',
 											name: 'ipMTU',
 											id: 'ipMTU',
 											store: ['1500', '3000'] 
                                         },
+										{
+											xtype: 'label',
+											flex: 1,
+											width: 185,
+											margin: '5 50 10 0',
+											text: '.',
+											style : {
+												//background : '#F8F8F8',
+												color : '#F8F8F8'
+											}
+										},
 										{
 											xtype: 'checkboxfield',
 											fieldLabel: 'IPv6 Peer',
@@ -1437,7 +1419,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 											fieldLabel: 'Operational Mode',
 											labelSeparator: ' ',
 											labelWidth: 100,
-											
+											emptyText:'Select',
 											labelAlign: 'left',
 											name: 'operationalMode',
 											id: 'operationalMode',
@@ -1548,50 +1530,6 @@ Ext.define('Jx.cpp.service.l3vpn', {
 												
 											}
                                         },
-                                        /*{
-                                            xtype: 'textfield',
-                                            margin: '5 10 0 0',
-                                            maxWidth: 130,
-                                            width: 130,
-											labelWidth: 70,
-											//colspan:2,
-											labelAlign: 'right',
-											allowBlank: false,
-											name: 'rt',
-											id: 'rt',
-                                            fieldLabel: '<b>RT(Mesh)</b>'
-											//hidden: true,
-											//disabled:true
-                                        },
-										{
-                                            xtype: 'textfield',
-                                            margin: '5 10 0 0',
-                                            maxWidth: 130,
-                                            width: 130,
-											labelWidth: 70,
-											//colspan:2,
-											labelAlign: 'right',
-											allowBlank: false,
-											name: 'rtHub',
-											id: 'rtHub',
-                                            fieldLabel: '<b>RT(Hub)</b>',
-											hidden: true,
-											disabled:true
-                                        },
-										{
-                                            xtype: 'textfield',
-                                            margin: '5 0 0 0',
-                                            maxWidth: 130,
-                                            width: 130,
-											labelWidth: 70,
-											labelAlign: 'right',
-											allowBlank: false,
-											name: 'rtSpoke',
-											id: 'rtSpoke',
-                                            fieldLabel: '<b>RT(Spoke)</b>',
-											hidden: true,
-											disabled:true
-                                        },*/
                                         {	
                                             xtype: 'numberfield',
                                             margin: '5 10 0 0',
@@ -1630,8 +1568,8 @@ Ext.define('Jx.cpp.service.l3vpn', {
 											labelWidth: 100,
                                             name: 'neighbourAddress',
 											id: 'neighbourAddress',
-											allowBlank: false,
-											vtype:'IPAddress'
+											allowBlank: false//,
+											//vtype:'IPAddress'
                                         },
 										{
                                             xtype: 'textfield',
@@ -1877,9 +1815,9 @@ Ext.define('Jx.cpp.service.l3vpn', {
 											width: 110,
 											maxWidth: 110,
 											labelWidth: 80,
-											disabled: true,
+											//disabled: true,
                                             fieldLabel: 'Management',
-                                            boxLabel: '',
+                                            boxLabel: ''/*,
 											handler: function (field, value) {
 												scope: this,
 												this.checkValue = field.getValue();
@@ -1892,7 +1830,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 													Ext.getCmp("managementVPLS").hide();
 													Ext.getCmp("managementVLAN").hide();													
 												}
-											}
+											}*/
                                         },
 										{
                                             xtype: 'textfield',
@@ -1960,7 +1898,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 														 change: function(field, newValue, oldValue) {
 														 //console.log("connection type********: "+newValue);
 														 
-														 var pathPreference = Ext.getCmp("pathPreferences");
+														 //var pathPreference = Ext.getCmp("pathPreferences");
 														 
 														 if(newValue == 'QoS per VPN'){
 															Ext.getCmp("vpnSpeed").setDisabled(false);
@@ -2115,6 +2053,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
                                             labelWidth: 60,
 											store: this.getClassifier(),
 											queryMode: 'local',
+											value: 'DSCP',
 											displayField: 'displayText',
 											valueField: 'valueText',
 											name: 'classifier',
@@ -2122,24 +2061,24 @@ Ext.define('Jx.cpp.service.l3vpn', {
 											listeners: {
 														 change: function(field, newValue, oldValue) {
 														 console.log("selected classifier* "+newValue);
-														 if(newValue == 'v2-802.1ad'){
-															Ext.getCmp("isAllAFSelected").setValue(true);
-															 me.setFieldDisabled("isAllAFSelected",true);	
-															 me.setFieldDisabled("beService",false);	
-															Ext.getCmp("beService").setValue(true);
+														 if(newValue == '802.1ad'){
+															 //Ext.getCmp("isAllAFSelected").setValue(true);
+															 //me.setFieldDisabled("isAllAFSelected",true);	
+															 //me.setFieldDisabled("beService",false);	
+															 Ext.getCmp("beService").setValue(true);
 															}
 														else{
-															Ext.getCmp("isAllAFSelected").setValue(false);
-															if(!Ext.getCmp("ciuName").disabled)
-																me.setFieldDisabled("isAllAFSelected",false);	
+															//Ext.getCmp("isAllAFSelected").setValue(false);
+															if(Ext.getCmp("ciuName").disabled){
+																//me.setFieldDisabled("isAllAFSelected",false);	
+																//me.setFieldDisabled("beService",true);
+																Ext.getCmp("beService").setValue(false);
+																}
 																
-																me.setFieldDisabled("beService",true);
-																Ext.getCmp("beService").setValue(false);															
 															}	
 														}
 													}
-												
-                                        },
+										},
 										{
                                             xtype: 'checkboxfield',
                                             id: 'isAllAFSelected',
@@ -3028,6 +2967,12 @@ Ext.define('Jx.cpp.service.l3vpn', {
                                                             align: 'center',
                                                             dataIndex: 'dataForDisplay',
 															hidden: true
+                                                        },
+														{
+                                                            xtype: 'gridcolumn',
+                                                            align: 'center',
+                                                            dataIndex: 'management',
+															hidden: true
                                                         }
 														/*{
 															xtype: 'gridcolumn',
@@ -3053,8 +2998,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 															//console.log("selected row1 : "+index);
 															//console.log(">>>   : "+record.get('topology'));
 															console.log(">>>  device id : "+record.get('pedeviceId'));
-															Ext.getCmp("siteName").setValue(record.get('pedeviceId'));
-															
+															Ext.getCmp("siteName").setValue(parseInt(record.get('pedeviceId')));
 															Ext.getCmp("endpointPanel").setDisabled(false);
 															Ext.getCmp('spkVrfId').setDisabled(false);
 															Ext.getCmp('spkVrfName').setDisabled(false);
@@ -3066,7 +3010,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 															Ext.getCmp('peerAS').setDisabled(false);
 															Ext.getCmp('neighbourAddress').setDisabled(false);
 															Ext.getCmp('ciuLoopback').setDisabled(false);
-															Ext.getCmp('ciuName').setDisabled(false);
+															//Ext.getCmp('ciuName').setDisabled(false);
 															Ext.getCmp('accessRate').setDisabled(false);
 															
 															var portCombo = Ext.getCmp("portSpeed");
@@ -3127,56 +3071,54 @@ Ext.define('Jx.cpp.service.l3vpn', {
 																	
 															}
 															
-															var autonegotiate =Ext.getCmp("autonegotiate").setValue(record.get('autonegotiate'));	
-															var adminState =Ext.getCmp("adminState").setValue(record.get('adminState'));
+															Ext.getCmp("autonegotiate").setValue(record.get('autonegotiate'));	
+															Ext.getCmp("adminState").setValue(record.get('adminState'));
 															Ext.getCmp("operationalMode").setValue(record.get('operationalMode'));
 															
-															var multiVRF =Ext.getCmp("multiVRF").setValue(record.get('multiVRF'));
-															var firstUnitForVRF =Ext.getCmp("firstUnitForVRF").setValue(record.get('firstUnitForVRF'));
-															var traficControlProfile =Ext.getCmp("traficControlProfile").setValue(record.get('traficControlProfile'));
+															Ext.getCmp("multiVRF").setValue(record.get('multiVRF'));
+															Ext.getCmp("firstUnitForVRF").setValue(record.get('firstUnitForVRF'));
+															Ext.getCmp("traficControlProfile").setValue(record.get('traficControlProfile'));
 															
-															var qosType =Ext.getCmp("qosType").setValue(record.get('qosType'));
+															Ext.getCmp("qosType").setValue(record.get('qosType'));
 															
-															var nextHOP =Ext.getCmp("nextHOP").setValue(record.get('nextHOP'));
-															var endPointServiceType =Ext.getCmp("endPointServiceType").setValue(record.get('endPointServiceType'));
+															Ext.getCmp("nextHOP").setValue(record.get('nextHOP'));
+															Ext.getCmp("endPointServiceType").setValue(record.get('endPointServiceType'));
 															Ext.getCmp("ciuLoopback").setValue(record.get('ciuLoopback'));
-															var ciuName =Ext.getCmp("ciuName").setValue(record.get('ciuName'));
-															var ciuAlias =Ext.getCmp("ciuAlias").setValue(record.get('ciuAlias'));
-															var accessType =Ext.getCmp("accessType").setValue(record.get('accessType'));
+															Ext.getCmp("ciuName").setValue(record.get('ciuName'));
+															Ext.getCmp("ciuAlias").setValue(record.get('ciuAlias'));
+															Ext.getCmp("accessType").setValue(record.get('accessType'));
 															Ext.getCmp("portSpeed").setValue(record.get('portSpeed'));
-															var connectionType =Ext.getCmp("connectionType").setValue(record.get('connectionType'));
-															var csId =Ext.getCmp("csId").setValue(record.get('csId'));
-															var pathPreferences =Ext.getCmp("pathPreferences").setValue(record.get('pathPreferences'));
-															var vlanId =Ext.getCmp("vlanId").setValue(record.get('vlanId'));
-															var ipAddress =Ext.getCmp("ipAddress").setValue(record.get('ipAddress'));
-															//Ext.getCmp("ipAddressAndMask").setValue(record.get('ipAddressAndMask'));
-															var subnetMask =Ext.getCmp("subnetMask").setValue(record.get('subnetMask'));
+															Ext.getCmp("connectionType").setValue(record.get('connectionType'));
+															Ext.getCmp("csId").setValue(record.get('csId'));
+															Ext.getCmp("pathPreferences").setValue(record.get('pathPreferences'));
+															Ext.getCmp("vlanId").setValue(record.get('vlanId'));
+															Ext.getCmp("ipAddress").setValue(record.get('ipAddress'));
+															Ext.getCmp("subnetMask").setValue(record.get('subnetMask'));
 															
-															var loopbackSubnetMask =Ext.getCmp("loopbackSubnetMask").setValue(record.get('loopbackSubnetMask'));
+															Ext.getCmp("loopbackSubnetMask").setValue(record.get('loopbackSubnetMask'));
 															
-															var ipMTU =Ext.getCmp("ipMTU").setValue(record.get('ipMTU'));
+															Ext.getCmp("ipMTU").setValue(record.get('ipMTU'));
 															
-															var ipv6Peer =Ext.getCmp("ipv6Peer").setValue(record.get('ipv6Peer'));
-															var ipv6Address =Ext.getCmp("ipv6Address").setValue(record.get('ipv6Address'));
+															Ext.getCmp("ipv6Peer").setValue(record.get('ipv6Peer'));
+															Ext.getCmp("ipv6Address").setValue(record.get('ipv6Address'));
 															
-															//console.log("ipv6Address .  "+ipv6Address);
 															//var mvpn =  Ext.getCmp('mvpn').checkboxCmp.getValue();
-															var rd =Ext.getCmp("rd").setValue(record.get('rd'));
-															var neighbourAddress =Ext.getCmp("neighbourAddress").setValue(record.get('neighbourAddress'));
-															var localPref =Ext.getCmp("localPref").setValue(record.get('localPref'));
-															var med =Ext.getCmp("med").setValue(record.get('med'));
-															var peerAS =Ext.getCmp("peerAS").setValue(record.get('peerAS'));
+															////Ext.getCmp("rd").setValue(record.get('rd'));
+															Ext.getCmp("neighbourAddress").setValue(record.get('neighbourAddress'));
+															Ext.getCmp("localPref").setValue(record.get('localPref'));
+															Ext.getCmp("med").setValue(record.get('med'));
+															Ext.getCmp("peerAS").setValue(record.get('peerAS'));
 															//var rt =Ext.getCmp("rt").setValue(record.get('rt'));
 															//var rtHub =Ext.getCmp("rtHub").setValue(record.get('rtHub'));
 															//var rtSpoke =Ext.getCmp("rtSpoke").setValue(record.get('rtSpoke'));
 															
-															Ext.getCmp("spkVrfName").setValue(record.get('spkVrfName'));
+															////Ext.getCmp("spkVrfName").setValue(record.get('spkVrfName'));
 															//Ext.getCmp("AsRdSpk").setValue(record.get('AsRdSpk'));
 															//Ext.getCmp("AsRd").setValue(record.get('AsRd'));
-															Ext.getCmp("spkRd").setValue(record.get('spkRd'));
-															Ext.getCmp("spkVrfId").setValue(record.get('spkVrfId'));
+															////Ext.getCmp("spkRd").setValue(record.get('spkRd'));
+															////Ext.getCmp("spkVrfId").setValue(record.get('spkVrfId'));
 
-															var accessRate =Ext.getCmp("accessRate").setValue(record.get('accessRate'));
+															Ext.getCmp("accessRate").setValue(record.get('accessRate'));
 															
 															var topology = record.get('topology');
 															Ext.getCmp("topology").setValue(topology);
@@ -3215,38 +3157,38 @@ Ext.define('Jx.cpp.service.l3vpn', {
 																Ext.getCmp("spkVrfId").setDisabled(true);
 															}
 															
-															var vpnName =Ext.getCmp("vpnName").setValue(record.get('vpnName'));
-															var vpnAlias =Ext.getCmp("vpnAlias").setValue(record.get('vpnAlias'));
-															var policyGroup =Ext.getCmp("policyGroup").setValue(record.get('policyGroup'));
+															////Ext.getCmp("vpnName").setValue(record.get('vpnName'));
+															Ext.getCmp("vpnAlias").setValue(record.get('vpnAlias'));
+															Ext.getCmp("policyGroup").setValue(record.get('policyGroup'));
 															
-															Ext.getCmp("spkVrfName").setValue(record.get('spkVrfName'));
-															Ext.getCmp("spkRd").setValue(record.get('spkRd'));
-															Ext.getCmp("spkVrfId").setValue(record.get('spkVrfId'));
-															var vpnRate =Ext.getCmp("vpnSpeed").setValue(record.get('vpnRate'));
+															////Ext.getCmp("spkVrfName").setValue(record.get('spkVrfName'));
+															////Ext.getCmp("spkRd").setValue(record.get('spkRd'));
+															////Ext.getCmp("spkVrfId").setValue(record.get('spkVrfId'));
+															Ext.getCmp("vpnSpeed").setValue(record.get('vpnRate'));
 															
-															var efRate =Ext.getCmp("efRate").setValue(record.get('efRate'));
+															Ext.getCmp("efRate").setValue(record.get('efRate'));
 															
-															var efService =Ext.getCmp("efService").setValue(record.get('efService'));
-															var beService =Ext.getCmp("beService").setValue(record.get('beService'));
-															var classifier =Ext.getCmp("classifier").setValue(record.get('classifier'));
+															Ext.getCmp("efService").setValue(record.get('efService'));
+															Ext.getCmp("beService").setValue(record.get('beService'));
+															Ext.getCmp("classifier").setValue(record.get('classifier'));
 															
-															var isAllAFSelected =Ext.getCmp("isAllAFSelected").setValue(record.get('isAllAFSelected'));
-															var isAF1Selected =Ext.getCmp("isAF1Selected").setValue(record.get('isAF1Selected'));
-															var isAF2Selected =Ext.getCmp("isAF2Selected").setValue(record.get('isAF2Selected'));
-															var isAF3Selected =Ext.getCmp("isAF3Selected").setValue(record.get('isAF3Selected'));
+															Ext.getCmp("isAllAFSelected").setValue(record.get('isAllAFSelected'));
+															Ext.getCmp("isAF1Selected").setValue(record.get('isAF1Selected'));
+															Ext.getCmp("isAF2Selected").setValue(record.get('isAF2Selected'));
+															Ext.getCmp("isAF3Selected").setValue(record.get('isAF3Selected'));
 															
-															var af1 =Ext.getCmp("af1").setValue(record.get('af1'));
-															var af2 =Ext.getCmp("af2").setValue(record.get('af2'));
-															var af3 =Ext.getCmp("af3").setValue(record.get('af3'));
+															Ext.getCmp("af1").setValue(record.get('af1'));
+															Ext.getCmp("af2").setValue(record.get('af2'));
+															Ext.getCmp("af3").setValue(record.get('af3'));
 															
-															var mvpn =Ext.getCmp("mvpn").checkboxCmp.setValue(record.get('mvpn'));
-															var senderSite =Ext.getCmp("senderSite").setValue(record.get('senderSite'));
-															var ssmIP =Ext.getCmp("ssmIP").setValue(record.get('ssmIP'));
-															var ssmIpMask =Ext.getCmp("ssmIpMask").setValue(record.get('ssmIpMask'));
-															var rpType =Ext.getCmp("rpType").setValue(record.get('rpType'));
-															var rpAddress =Ext.getCmp("rpAddress").setValue(record.get('rpAddress'));
-															var rpGprRange =Ext.getCmp("rpGprRange").setValue(record.get('rpGprRange'));
-															
+															Ext.getCmp("mvpn").checkboxCmp.setValue(record.get('mvpn'));
+															Ext.getCmp("senderSite").setValue(record.get('senderSite'));
+															Ext.getCmp("ssmIP").setValue(record.get('ssmIP'));
+															Ext.getCmp("ssmIpMask").setValue(record.get('ssmIpMask'));
+															Ext.getCmp("rpType").setValue(record.get('rpType'));
+															Ext.getCmp("rpAddress").setValue(record.get('rpAddress'));
+															Ext.getCmp("rpGprRange").setValue(record.get('rpGprRange'));
+															Ext.getCmp("management").setValue(record.get('management'));
 															//console.log("rpGprRange .  "+rpGprRange);
 															
 														    stageBtn.hide();
@@ -3256,17 +3198,17 @@ Ext.define('Jx.cpp.service.l3vpn', {
 															me.setFieldDisabled('siteName',true);
 															me.setFieldDisabled('topology',true);
 															Ext.ComponentQuery.query('#endpointPanel')[0].show();
-															
+															me.loadSiteInterfaceGrid(record.get('pedeviceId'), record.get('Interface'));
 															me.getHardwareModel(Ext.getCmp("siteName").getValue());
 															me.getSoftwareVersion(Ext.getCmp("siteName").getValue());
-															Ext.getCmp("siteName").setValue(record.get('pedeviceId'));
+															//Ext.getCmp("siteName").setValue(record.get('pedeviceId'));
 														
 															},
 															 itemclick: function(dv, record, item, index, e) {
 																//console.log("selected row11 : "+index);
 																var selectedRowIndex = Ext.getCmp('index');
 																selectedRowIndex.setValue(index);
-																Ext.getCmp("siteName").setValue(record.get('pedeviceId'));
+																//Ext.getCmp("siteName").setValue(record.get('pedeviceId'));
 														
 															}
 															},
@@ -3353,7 +3295,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
                                     text: 'Clear',
 									hidden: true,
 									 handler: function(button, event) {
-	                                    	var data = this.clearAllFields();
+	                                    	this.clearAllFields();
 	                                        
 	                                 },
 	                                    scope: this,
@@ -3542,7 +3484,8 @@ Ext.define('Jx.cpp.service.l3vpn', {
 				{name: 'traficControlProfile'},
 				{name: 'qosType'},
 				{name: 'dataForDisplay'},
-				{name: 'prefixList'}
+				{name: 'prefixList'},
+				{name: 'management'}
                 
             ], groupField: 'site', 
             data: [
@@ -3587,7 +3530,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 		handleSiteSelection:function(grid,record,index,event) {
 		
 		this.site ='';
-		this.port = ''
+		this.port = '';
 		this.encapsulation = '';
 		this.moid = '';
 		this.site = record.get('site1');
@@ -3605,7 +3548,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 	},
 	getSelectedSite:function(record) {
 		this.site ='';
-		this.port = ''
+		this.port = '';
 		this.encapsulation = '';
 		this.moid = '';
 		this.site = record.get('deviceName');
@@ -3614,7 +3557,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 		this.moid = record.get('deviceId');
 		console.log("deviceId "+record.get('deviceId'));
 	},
-	loadSiteInterfaceGrid:function(record) {
+	loadSiteInterfaceGrid:function(record, port) {
 		console.log("moid*** "+record);
 		var interfaceList='';
 		Ext.Ajax.request({
@@ -3628,9 +3571,13 @@ Ext.define('Jx.cpp.service.l3vpn', {
 				} else {
 					var records = [];
 					for (var i=0; i<result.peDeviceInterfaceBeanList.length; i++) {
-						records.push(result.peDeviceInterfaceBeanList[i]);
+						if(port  == ''){
+							records.push(result.peDeviceInterfaceBeanList[i]);
+						}else if(port !='' && port == result.peDeviceInterfaceBeanList[i].portName){
+							records.push(result.peDeviceInterfaceBeanList[i]);
+						}
 					}
-					var storeData={'totalCount':records.length,'interfaceList':records};
+					//var storeData={'totalCount':records.length,'interfaceList':records};
 					var siteInterfaceGrid = Ext.ComponentQuery.query('gridpanel[name=siteInterfaceGrid]')[0];
 					var store = siteInterfaceGrid.getStore();
 					store.getProxy().data = records;
@@ -3648,7 +3595,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 	},
 	searchCustomer:function(id) {
 		console.log("customer number *** "+id);
-		var interfaceList='';
+		//var interfaceList='';
 		Ext.Ajax.request({
 			method:'GET',
 			url:'../serviceui/resteasy/cpp-customer/Alcatel/id/'+id,
@@ -3663,24 +3610,18 @@ Ext.define('Jx.cpp.service.l3vpn', {
 					Ext.getCmp("customerName").setValue(result["CPPCustomerBean"]["name"]);
 					Ext.getCmp("email").setValue(result["CPPCustomerBean"]["email"]);
 					Ext.getCmp("customerDescription").setValue(result["CPPCustomerBean"]["description"]);
-					//Ext.getCmp("customerName").setDisabled(true);
-					//Ext.getCmp("email").setDisabled(true);
-					//Ext.getCmp("customerDescription").setDisabled(true);
 					
 				}else{
 					Ext.getCmp("customerName").setValue('');
 					Ext.getCmp("email").setValue('');
 					Ext.getCmp("customerDescription").setValue('');
-					//Ext.getCmp("customerName").setDisabled(true);
-					//Ext.getCmp("email").setDisabled(true);
-					//Ext.getCmp("customerDescription").setDisabled(true);
 				}
 				
 			}
 		});
 	},
 	getMultiVRFDetails:function(id) {
-		var interfaceList='';
+		//var interfaceList='';
 		//serviceui/resteasy/cpp-service/advance-details/7634997?portName=ge-0/2/3&customerName=customer1
 		var selectedPort=  Ext.getCmp("siteInterfaceGrid").getSelectionModel().getSelection()[0].data.portName;
 		var deviceId = Ext.getCmp("siteName").getValue();
@@ -3690,6 +3631,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 			url:'../serviceui/resteasy/cpp-service/advance-details/'+deviceId+'?Interface='+selectedPort+'&ossCustomerId='+ossCustomerId,
 			success:function(r) {				
 				var result = Ext.decode(r.responseText);
+				console.log("result> > : > "+result);
 				//advancedResult = {};
 				try{
 				//Ext.getCmp("ciuName").setValue("");
@@ -3699,7 +3641,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 				    console.log("ciu name >> ..   :"+result.advanced[0].ciuName);
 					//var qosType = result.advanced[0].qosType;
 					//console.log("qosType >:> "+result.advanced[0].qosType == 'QoS Per Access');
-					console.log("is qos per access?  >:> "+result.advanced[0].qosType.trim() == "QoS per Access");
+					//console.log("is qos per access?  >:> "+result.advanced[0].qosType.trim() == "QoS per Access");
 					console.log("qosType >:> "+result.advanced[0].qosType);
 					
 					if(result.advanced[0].qosType.trim() == "QoS per Access"){
@@ -3711,7 +3653,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 						var ciuAlias = result.advanced[0].ciuAlias;
 						var ciuLoopback = result.advanced[0].ciuLoopback;
 						
-						var customerId = result.advanced[0].ossCustomerId;
+						//var customerId = result.advanced[0].ossCustomerId;
 						var accessRate = result.advanced[0].accessRate;
 						var efRate = result.advanced[0].efRate;
 						console.log("efRate<< "+efRate);
@@ -3722,7 +3664,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 						var isAF3Selected = result.advanced[0].isAF3Selected;
 						var isAllAFSelected = result.advanced[0].isAllAFSelected;
 						var qosType = result.advanced[0].qosType;
-						var unit = result.advanced[0].vlanId;
+						//var unit = result.advanced[0].vlanId;
 						
 						
 						/*advancedResult['af1'] = af1;
@@ -3742,45 +3684,46 @@ Ext.define('Jx.cpp.service.l3vpn', {
 						advancedResult['unit'] = unit;*/
 						
 						Ext.getCmp("endPointServiceType").setValue("TML3A");
+						//Ext.getCmp('accessRate').setDisabled(true);
 						Ext.getCmp('endPointServiceType').setDisabled(true);
-						Ext.getCmp("af1").setValue(af1);
-						Ext.getCmp('af1').setDisabled(true);
-						Ext.getCmp("af2").setValue(af2);
-						Ext.getCmp('af2').setDisabled(true);
-						Ext.getCmp("af3").setValue(af3);
-						Ext.getCmp('af3').setDisabled(true);
-						Ext.getCmp("efService").setValue(efService);
-						Ext.getCmp("accessRate").setValue(accessRate);
-						Ext.getCmp('accessRate').setDisabled(true);
-						//Ext.getCmp('efService').setDisabled(true);
-						if(Ext.getCmp("efService").getValue() == true){
-						console.log("efrate.... "+efRate.split("|")[0])
-						//Ext.getCmp("efRate").setValue(efRate.split("|")[0]);
-						Ext.getCmp('efRate').setValue(efRate);
 						Ext.getCmp('efRate').setDisabled(true);
-						}
-						
-						console.log("efrate1....");
-						Ext.getCmp("isAF1Selected").setValue(isAF1Selected);
-						Ext.getCmp("isAF2Selected").setValue(isAF2Selected);
-						Ext.getCmp("isAF3Selected").setValue(isAF3Selected);
-						Ext.getCmp("isAllAFSelected").setValue(isAllAFSelected);
-						Ext.getCmp("qosType").setValue(qosType);
 						Ext.getCmp('qosType').setDisabled(true);
-						
-						
 						Ext.getCmp("isAF1Selected").setDisabled(true);
 						Ext.getCmp("isAF2Selected").setDisabled(true);
 						Ext.getCmp("isAF3Selected").setDisabled(true);
 						Ext.getCmp("isAllAFSelected").setDisabled(true);
 						
-						Ext.getCmp("ciuName").setValue(ciuName);
 						Ext.getCmp('ciuName').setDisabled(true);
-						Ext.getCmp("ciuAlias").setValue(ciuAlias);
 						Ext.getCmp('ciuAlias').setDisabled(true);
-						Ext.getCmp("ciuLoopback").setValue(ciuLoopback);
-						Ext.getCmp('ciuLoopback').setDisabled(true);
+						//Ext.getCmp('ciuLoopback').setDisabled(true);
+						//Ext.getCmp('efService').setDisabled(true);
+						if(efService == 'true'){
+						//console.log("efrate>.... "+efRate.split("|")[0]);
+						//Ext.getCmp("efRate").setValue(efRate.split("|")[0]);
+						
+						//TODO: check value properly - for Phase 2
+						//Ext.getCmp('efRate').setValue(efRate);
+						
+						}
+						
+						console.log("efrate1.>...");
+						Ext.getCmp("isAF1Selected").setValue(isAF1Selected);
+						Ext.getCmp("isAF2Selected").setValue(isAF2Selected);
+						Ext.getCmp("isAF3Selected").setValue(isAF3Selected);
+						Ext.getCmp("isAllAFSelected").setValue(isAllAFSelected);
+						Ext.getCmp("qosType").setValue(qosType);
+						Ext.getCmp("af1").setValue(af1);
+						Ext.getCmp("af2").setValue(af2);
+						Ext.getCmp("af3").setValue(af3);
+						Ext.getCmp("efService").setValue(efService);
+						Ext.getCmp("accessRate").setValue(accessRate);
+						Ext.getCmp("ciuName").setValue(ciuName);
+						Ext.getCmp("ciuAlias").setValue(ciuAlias);
+						//Ext.getCmp("ciuLoopback").setValue(ciuLoopback);
 						Ext.getCmp("multiVRF").setValue(true);
+						Ext.getCmp('af1').setDisabled(true);
+						Ext.getCmp('af2').setDisabled(true);
+						Ext.getCmp('af3').setDisabled(true);
 					}
           	}else{
 					Ext.getCmp("endPointServiceType").setValue("TML3");
@@ -3808,7 +3751,7 @@ Ext.define('Jx.cpp.service.l3vpn', {
 					Ext.getCmp("accessRate").setValue("");
 					Ext.getCmp('accessRate').setDisabled(false);
 					Ext.getCmp("qosType").setValue("");
-					Ext.getCmp('qosType').setDisabled(false)
+					Ext.getCmp('qosType').setDisabled(false);
 					Ext.getCmp("isAF1Selected").setDisabled(false);
 					Ext.getCmp("isAF2Selected").setDisabled(false);
 					Ext.getCmp("isAF3Selected").setDisabled(false);
@@ -3883,7 +3826,8 @@ Ext.define('Jx.cpp.service.l3vpn', {
 			{
 				name:'mtu',
 				mapping:'mtu'
-			},{
+			},
+			{
 				name:'vendorType',
 				mapping:'vendorType'			
 			}],
@@ -3928,23 +3872,23 @@ Ext.define('Jx.cpp.service.l3vpn', {
 		
     },
 populateData:function(data){
-
 	this.scriptUtils.setFieldValues(this,this.commonData);
-			  
-			 
-			  var attribs = Ext.JSON.decode(data.attribs);
-
-	
-var formObj = {};
+	// var attribs = Ext.JSON.decode(data.attribs);
+	var formObj = {};
+	var rdVal='';
    	//formObj.externalId = data.externalId;	
 	if(data.attribs != undefined){
 		generalAttr = Ext.decode(data.attribs);
 		Ext.iterate(generalAttr, function(item,index,arrObj){
 			Ext.iterate(item, function(key,val,obj){
-			console.log(key);
+			//console.log(key);
 			if(key == 'serviceOrderId'){
 					formObj.serviceId = val;
 					Ext.getCmp('serviceId').setDisabled(true);
+				}
+				if(key == 'topology'){
+					formObj.topology = val;
+					Ext.getCmp('topology').setDisabled(true);
 				}
 				if(key == 'vpnName'){
 					formObj.vpnName = val;
@@ -3953,10 +3897,6 @@ var formObj = {};
 				if(key == 'vpnAlias'){
 					formObj.vpnAlias = val;
 					Ext.getCmp('vpnAlias').setDisabled(true);
-				}
-				if(key == 'rd'){
-					formObj.rd = val;
-					Ext.getCmp('rd').setDisabled(true);
 				}
 				if(key == 'endPointServiceType'){
 					formObj.endPointServiceType = val;
@@ -3976,30 +3916,52 @@ var formObj = {};
 						}
 						Ext.getCmp('enforceRoute').setDisabled(true);
 				}
-				if(key == 'qosType'){
+				/*if(key == 'qosType'){
 					formObj.qosType = val;
 					Ext.getCmp('qosType').setDisabled(true);
-				}
+				}*/
 				if(key == 'application'){
 					formObj.application = val;
 					Ext.getCmp('application').setDisabled(true);
 				}
 				if(key == 'operationalMode'){
 					formObj.operationalMode = val;
-					Ext.getCmp('operationalMode').setDisabled(true);
+					//Ext.getCmp('operationalMode').setDisabled(true);
 				}
 				if(key == 'redistConnRoutes'){
 					formObj.redistConnRoutes = val;
 					Ext.getCmp('redistConnRoutes').setDisabled(true);
 				}
-				if(key == 'accounting'){
-					formObj.accounting = val;
-					Ext.getCmp('accounting').setDisabled(true);
+				
+				if(key == 'adminState'){
+					formObj.adminState = val;
 				}
-				if(key == 'flowSampling'){
-					formObj.flowSampling = val;
-					Ext.getCmp('flowSampling').setDisabled(true);
+				if(key == 'policyGroup'){
+					formObj.policyGroup = val;
 				}
+				if(key == 'vrfName'){
+					formObj.vpnName = val;
+				}
+				
+				if(key == 'rd'){
+				console.log("rd**: "+val);
+				formObj.rd = val;
+				rdVal = val;
+				Ext.getCmp('rd').setValue(val);
+				Ext.getCmp('rd').setDisabled(true);
+				rdVal = val;
+				}
+				if(key == 'spkVrfName'){
+					formObj.spkVrfName = val;
+				}
+				if(key == 'spkRd'){
+					formObj.spkRd = val;
+					Ext.getCmp('spkRd').setDisabled(true);
+				}
+				if(key == 'spkVrfId'){
+					formObj.spkVrfId = val;
+				}
+				
 				if(key == 'customer'){
 				
 				    var attribs = Ext.JSON.decode(data.attribs);
@@ -4034,22 +3996,22 @@ var formObj = {};
 				var commonEndPointsData = Ext.decode(data.unis.endPointsData);
 				commonEndPointsData.seId = data.unis.seId;
 				
-				commonEndPointsData.vpnName = commonEndPointsData.vrfName;
+				//commonEndPointsData.vpnName = commonEndPointsData.vrfName;
 				//console.log("rdMesh: "+commonEndPointsData.rdMesh);
 				//console.log("rdHub: "+commonEndPointsData.rdHub);
 				//console.log("rdSpoke: "+commonEndPointsData.rdSpoke);
 				
 				if(commonEndPointsData.topology == 'Mesh'){
-					commonEndPointsData.rd = commonEndPointsData.rdMesh; //RD = RT
+					//commonEndPointsData.rd = commonEndPointsData.rdMesh; //RD = RT
 					//commonEndPointsData.AsRd = commonEndPointsData.ASMesh;
 				}else if(commonEndPointsData.topology == 'Hub'){
-					commonEndPointsData.rd = commonEndPointsData.rdHub; //RD=RT
+					//commonEndPointsData.rd = commonEndPointsData.rdHub; //RD=RT
 					//commonEndPointsData.AsRdSpk = commonEndPointsData.ASSpoke;
 					//commonEndPointsData.AsRd = commonEndPointsData.ASHub;
 					//commonEndPointsData.AsRdSpk = commonEndPointsData.ASSpoke;
-					commonEndPointsData.spkRd = commonEndPointsData.rdSpoke;
+					//commonEndPointsData.spkRd = commonEndPointsData.rdSpoke;
 				}else if(commonEndPointsData.topology == 'Spoke'){
-					commonEndPointsData.spkRd = commonEndPointsData.rdSpoke; //RD=RT
+					//commonEndPointsData.spkRd = commonEndPointsData.rdSpoke; //RD=RT
 					//commonEndPointsData.AsRdSpk = commonEndPointsData.ASSpoke;
 					//commonEndPointsData.AsRd = commonEndPointsData.ASHub;
 				}
@@ -4076,7 +4038,7 @@ var formObj = {};
 				}
 				
 				
-				commonEndPointsData.ipAddressAndMask = commonEndPointsData.ipAddress+"/"+ commonEndPointsData.subnetMask
+				commonEndPointsData.ipAddressAndMask = commonEndPointsData.ipAddress+"/"+ commonEndPointsData.subnetMask;
 				//commonEndPointsData:port
 				storeData.push(commonEndPointsData);
 			}
@@ -4088,8 +4050,8 @@ var formObj = {};
 		gridStore.removeAll();
 		gridStore.loadData(storeData);		
 		
-		
-
+		Ext.getCmp('rd').setValue(rdVal);
+		Ext.getCmp('spkRd').setDisabled(true);
 		Ext.getCmp('spkVrfId').setDisabled(true);
 		Ext.getCmp('spkVrfName').setDisabled(true);
 		Ext.getCmp('siteName').setDisabled(false);
@@ -4099,9 +4061,9 @@ var formObj = {};
 		Ext.getCmp('ipAddress').setDisabled(true);
 		Ext.getCmp('peerAS').setDisabled(true);
 		Ext.getCmp('neighbourAddress').setDisabled(true);
-		Ext.getCmp('ciuLoopback').setDisabled(true);
-		Ext.getCmp('ciuName').setDisabled(true);
-		Ext.getCmp('accessRate').setDisabled(true);
+		//Ext.getCmp('ciuLoopback').setDisabled(true);
+		//Ext.getCmp('ciuName').setDisabled(true);
+		//Ext.getCmp('accessRate').setDisabled(true);
 	
    },
 	getDataJSON:function(){
@@ -4138,36 +4100,52 @@ var formObj = {};
             "description": Ext.getCmp("customerDescription").getValue()
 		});
 		
+		var vpnName = Ext.getCmp("vpnName").getValue().trim();
+		var topology = Ext.getCmp("topology").getValue();
+		if(topology == 'Mesh')
+			topology = 'MSH';
+		if(topology == 'Hub')
+			topology = 'HUB';
+		if(topology == 'Spoke')
+			topology = 'SPK';
+			
 		console.log("customer service order name: " + cdata.name);
-		common.name=Ext.getCmp("serviceId").getValue();//cdata.serviceId;//cdata.name;
-		//common.externalId = cdata.serviceId;
+		//store: ['Mesh', 'Hub' , 'Spoke'],
+		//var vrfName = 
+		//common.name=Ext.getCmp("serviceId").getValue();
+		common.name = vpnName + "." + topology;
+		console.log("service name: " + common.name);
 		common.externalId = Ext.getCmp("customerId").getValue();
 		
 		common.serviceTag = "TELUS_L3VPN";
         
         // Add service common attributes ...
 		var commonAttributesArray = [];
-		var vpnName = Ext.getCmp("vpnName").getValue().trim();
-			vpnName.replace('&','&amp;')
+		//vpnName.replace('&','&amp;');
 		//cdata.serviceOrderName		
+		//rd spkRd
 		commonAttributesArray.push({
-			 "serviceOrderId": Ext.getCmp("serviceId").getValue(),
+			"serviceOrderId": Ext.getCmp("serviceId").getValue(),
             "vpnName": vpnName,
 			"vpnAlias": Ext.getCmp("vpnAlias").getValue(),
-			"rd": Ext.getCmp("rd").getValue(),
 			"endPointServiceType": Ext.getCmp("endPointServiceType").getValue(),
 			"policyGroup": Ext.getCmp("policyGroup").getValue(),
             "application": Ext.getCmp("application").getValue(),
 			"operationalMode": Ext.getCmp("operationalMode").getValue(),
 			"maxRoute": Ext.getCmp("maxRoute").getValue(),
 			"enforceRoute": Ext.getCmp("enforceRoute").getValue(),
-			//"topology": cdata.topology,
-			"serviceType" : cdata.serviceType,
+			//"serviceType" : cdata.serviceType,
 			"qosType" : Ext.getCmp("qosType").getValue(),
+			"adminState" : Ext.getCmp("adminState").getValue(),
 			"accounting" : Ext.getCmp("accounting").getValue(),
 			"flowSampling" : Ext.getCmp("flowSampling").getValue(),
 			"architecture" :"JCE",
-			"redistConnRoutes" : Ext.getCmp("redistConnRoutes").getValue(),
+			"topology" : Ext.getCmp("topology").getValue(),
+			"vrfName" : Ext.getCmp("vpnName").getValue(),
+			"spkVrfName" : Ext.getCmp("spkVrfName").getValue(),
+			"spkVrfId" : Ext.getCmp("spkVrfId").getValue(),
+			"rd" : Ext.getCmp("rd").getValue(),
+			"spkRd" : Ext.getCmp("spkRd").getValue(),
 			"customer": customerArray
 		});
 		
@@ -4210,7 +4188,7 @@ var formObj = {};
 				portSpeed = portSpeed.toLowerCase();
 				
 			}
-			var multiVRFArray = [];	
+			/*var multiVRFArray = [];	
 			multiVRFArray.push({
 				"ossCustomerId": Ext.getCmp("customerId").getValue(),
 				"qosType": row.data.qosType,
@@ -4229,13 +4207,33 @@ var formObj = {};
 				"ciuAlias": row.data.ciuAlias,
 				"vlanId": row.data.vlanId,
 				"prefixList": prefix_list
-			});
+			});*/
+			
+			var multiVRFArray = {
+			"ossCustomerId": Ext.getCmp("customerId").getValue(),
+				"qosType": row.data.qosType,
+				"efRate": row.data.efRate,
+				"efService": row.data.efService,
+				"accessRate": row.data.accessRate,
+				"isAllAFSelected": row.data.isAllAFSelected,
+				"isAF1Selected": row.data.isAF1Selected,
+				"isAF2Selected": row.data.isAF2Selected,
+				"isAF3Selected": row.data.isAF3Selected,
+				"af1": row.data.af1,
+				"af2": row.data.af2,
+				"af3": row.data.af3,
+				"ciuLoopback": row.data.ciuLoopback,
+				"ciuName": row.data.ciuName,
+				"ciuAlias": row.data.ciuAlias,
+				"vlanId": row.data.vlanId,
+				"prefixList": prefix_list
+			};
 			
 			var dataForDisplay = row.data.dataForDisplay+"|"+row.data.csId + "."+row.data.ciuName + "."+ row.data.accessRate;	
 			
 			var prefix_list =  {
 				"prefixList": row.data.prefixList
-			}
+			};
 		
 			//var ciuName = row.data.ciuName.replace('','');
 			formDataArray.push({
@@ -4307,6 +4305,7 @@ var formObj = {};
 				"rpType": row.data.rpType,
 				"rpAddress": row.data.rpAddress,
 				"rpGprRange": row.data.rpGprRange,
+				"management": row.data.management,
 				"seId": 0,
 				"outerEncap":row.data.vlanId,
 				"innerEncap":1,
@@ -4341,7 +4340,7 @@ var formObj = {};
 	var vpnName = Ext.getCmp("vpnName").getValue();
 	var serviceId = Ext.getCmp("serviceId").getValue();
 	var topology = Ext.getCmp("topology").getValue();
-	var vpnAlias = Ext.getCmp("vpnAlias").getValue();
+	//var vpnAlias = Ext.getCmp("vpnAlias").getValue();
 	
 	if(serviceId == null || serviceId == ''){
 	Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please enter the valid Service Id");
@@ -4372,7 +4371,6 @@ var formObj = {};
                 {name: 'displayText'}
             ], 
             data: [
-                {valueText: '', displayText: 'Select ...'},
                 {valueText: 'PEN', displayText: 'Pending'},
                 {valueText: 'TST', displayText: 'Test'},
 				{valueText: 'OPR', displayText: 'Operational'}
@@ -4457,11 +4455,10 @@ var formObj = {};
                 {name: 'displayText'}
             ], 
             data: [
-                {valueText: '', displayText: 'Select ...'},
-                {valueText: 'v2-DSCP(default)', displayText: 'v2-DSCP(default)'},
-				{valueText: 'v2-802.1p', displayText: 'v2-802.1p'},
-				{valueText: 'v2-802.1ad', displayText: 'v2-802.1ad'},
-				{valueText: 'v1-IP Prec', displayText: 'v1-IP Prec'}
+                {valueText: 'DSCP', displayText: 'DSCP'},
+				{valueText: '802.1p', displayText: '802.1p'},
+				{valueText: '802.1ad', displayText: '802.1ad'}/*,
+				{valueText: 'v1-IP Prec', displayText: 'v1-IP Prec'}*/
             ]
         });
 
@@ -4577,73 +4574,36 @@ var formObj = {};
 	var vpnName = Ext.getCmp("vpnName").getValue();
 	
 	var endPointServiceType = Ext.getCmp("endPointServiceType").getValue();
-	//console.log(" endPointServiceType: "+endPointServiceType);
 	var ciuLoopback = Ext.getCmp("ciuLoopback").getValue();
-	//console.log("ciuLoopback : "+ciuLoopback);
-	
 	var neighbourAddress = Ext.getCmp("neighbourAddress").getValue();
 	
 	var ciuName = Ext.getCmp("ciuName").getValue();
-	//console.log("ciuName : "+ciuName);
-
 	var ciuAlias = Ext.getCmp("ciuAlias").getValue();
-	//console.log("ciuAlias : "+ciuAlias);
-
-	var accessType = Ext.getCmp("accessType").getValue();
-	//console.log("accessType : "+accessType);
-	var portSpeed = Ext.getCmp("portSpeed").getValue();
+	//var accessType = Ext.getCmp("accessType").getValue();
+	//var portSpeed = Ext.getCmp("portSpeed").getValue();
 	var connectionType = Ext.getCmp("connectionType").getValue();
-	//console.log(" connectionType: "+connectionType);
-
 	var csId = Ext.getCmp("csId").getValue();
-	
-	//var rt = Ext.getCmp("rt").getValue();
-	
-	//var rtHub = Ext.getCmp("rtHub").getValue();
-	
-	//var rtSpoke = Ext.getCmp("rtSpoke").getValue();
-	
-	//console.log(" csId: "+csId);
-
 	var pathPreferences = Ext.getCmp("pathPreferences").getValue();
-	//console.log(" pathPreferences: "+pathPreferences);
-
-
-	var vlanId = Ext.getCmp("vlanId").getValue();
-	console.log("vlanId : "+vlanId);
-	var ipAddress = Ext.getCmp("ipAddress").getValue();
-	//console.log(" ipAddress: "+ipAddress);
-
-	var subnetMask = Ext.getCmp("subnetMask").getValue();
-	console.log("subnetMask : "+subnetMask);
-
-	var loopbackSubnetMask = Ext.getCmp("loopbackSubnetMask").getValue();
-	//console.log("loopbackSubnetMask : "+loopbackSubnetMask);
-
-
-	var ipMTU = Ext.getCmp("ipMTU").getValue();
-	//console.log(" ipMTU: "+ipMTU);
-	var ipv6Peer =  Ext.getCmp('ipv6Peer').getValue();
-	//console.log("ipv6Peer : "+ipv6Peer);
-	var ipv6Address = Ext.getCmp("ipv6Address").getValue();
-	//console.log("ipv6Address : "+ipv6Address);
 	
+	//var vlanId = Ext.getCmp("vlanId").getValue();
+	var ipAddress = Ext.getCmp("ipAddress").getValue();
+	var subnetMask = Ext.getCmp("subnetMask").getValue();
+	//var loopbackSubnetMask = Ext.getCmp("loopbackSubnetMask").getValue();
+	//var ipMTU = Ext.getCmp("ipMTU").getValue();
+	//var ipv6Peer =  Ext.getCmp('ipv6Peer').getValue();
+	//var ipv6Address = Ext.getCmp("ipv6Address").getValue();
 	var localPref = Ext.getCmp("localPref").getValue();
-	//console.log(" localPref: "+localPref);
 	var med = Ext.getCmp("med").getValue();
-	//console.log(" med: "+med);
 	var peerAS = Ext.getCmp("peerAS").getValue();
-	//console.log(" peerAS: "+peerAS);
-	var rd = Ext.getCmp("rd").getValue();
+	//var rd = Ext.getCmp("rd").getValue();
 	
 	var accessRate = Ext.getCmp("accessRate").getValue();
 	
-	var vpnAlias = Ext.getCmp("vpnAlias").getValue();
-	var policyGroup = Ext.getCmp("policyGroup").getValue();
-	//var vpnRate = Ext.getCmp("vpnSpeed").getValue();
+	//var vpnAlias = Ext.getCmp("vpnAlias").getValue();
+	//var policyGroup = Ext.getCmp("policyGroup").getValue();
 	
-	var efService = Ext.getCmp("efService").getValue();
-	var efRate = Ext.getCmp("efRate").getValue();
+	//var efService = Ext.getCmp("efService").getValue();
+	//var efRate = Ext.getCmp("efRate").getValue();
 	var classifier = Ext.getCmp("classifier").getValue();
 	
 	var vpnSpeed = Ext.getCmp("vpnSpeed").getValue();
@@ -4761,16 +4721,11 @@ handleAddStagedInterface:function() {
 	//Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "This port is used by another customer. Please use another port");
 	//return;
 //	}
-
-						//var prefixListGrid = this.up('window').getCompByName('gridpanel','prefixListGrid');
-						//var prefixListGridStore = prefixListGrid.getStore();
-						//console.log("prefix list count : "+prefixListGridStore.count());
 						
 
 console.log("is port valid: "+this.isPortValid);
 
 //var isPortValid = this.isPortValid;
-//console.log("is port valid: "+ sPortValid);
 if(!isPortValid){
 	Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "This interface is not ready for use");
 	return;
@@ -4789,25 +4744,15 @@ if(!selection){
 	return;
 
 }
-//alert("interface selected: "+selection);
 
-
-
-    //console.log("device id: "+this.moid);
-	//console.log("port id: "+this.port);
-	var vlan = Ext.getCmp("vlanId").getValue()
+	var vlan = Ext.getCmp("vlanId").getValue();
 	//console.log("vlanId: "+vlan);
 	var stagedInterfacesStore = Ext.getCmp("stagedInterfacesGrid").getStore();
-	
-	//console.log("stages no ** : "+stagedInterfacesStore.count());
 	
 	var numberOfDuplicateVLAN = 0;
 		if(stagedInterfacesStore.count() > 0){
 			for(var i=0; i < stagedInterfacesStore.count(); i++) {
 				var row = stagedInterfacesStore.getAt(i);
-				//console.log("moid>>>>>"+ row.data.pedeviceId);
-				//console.log("port2>>>>>"+ row.data.Interface);
-				//console.log("vlanId1>>>>>"+ row.data.vlanId);
 				
 				if((this.moid == row.data.moid) && (this.port == row.data.Interface) && (vlan == row.data.vlanId) ){
 				numberOfDuplicateVLAN++;
@@ -4822,91 +4767,44 @@ if(!selection){
 		
 
 var endPointServiceType = this.scriptUtils.getFieldByName("endPointServiceType").getValue();
-//console.log(" endPointServiceType: "+endPointServiceType);
 var ciuLoopback = this.scriptUtils.getFieldByName("ciuLoopback").getValue();
-//console.log("ciuLoopback : "+ciuLoopback);
 
 var ciuName = this.scriptUtils.getFieldByName("ciuName").getValue();
-//console.log("ciuName : "+ciuName);
 
-Ext.getCmp("ciuName").setDisabled(false);
+//Ext.getCmp("ciuName").setDisabled(false);
 
 var ciuAlias = this.scriptUtils.getFieldByName("ciuAlias").getValue();
-//console.log("ciuAlias : "+ciuAlias);
-
-/*if(ciuName.contains("!") || ciuName.contains("&") || ciuAlias.contains("!") || ciuAlias.contains("&")){
-	Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "special character !/& not allowed in CIU Name/Alias!");
-	return;
-}*/
-				
 
 var accessType = this.scriptUtils.getFieldByName("accessType").getValue();
-//console.log("accessType : "+accessType);
 var portSpeed = this.scriptUtils.getFieldByName("portSpeed").getValue();
 var connectionType = this.scriptUtils.getFieldByName("connectionType").getValue();
-//console.log(" connectionType: "+connectionType);
 
 var csId = this.scriptUtils.getFieldByName("csId").getValue();
-//console.log(" csId: "+csId);
-
 var pathPreferences = this.scriptUtils.getFieldByName("pathPreferences").getValue();
-//console.log(" pathPreferences: "+pathPreferences);
-
-
 var vlanId = this.scriptUtils.getFieldByName("vlanId").getValue();
-//console.log("vlanId : "+vlanId);
 var ipAddress = this.scriptUtils.getFieldByName("ipAddress").getValue();
-//console.log(" ipAddress: "+ipAddress);
-
 var subnetMask = this.scriptUtils.getFieldByName("subnetMask").getValue();
-//console.log("subnetMask : "+subnetMask);
-
 var loopbackSubnetMask = this.scriptUtils.getFieldByName("loopbackSubnetMask").getValue();
-//console.log("loopbackSubnetMask : "+loopbackSubnetMask);
-
-
 var ipMTU = this.scriptUtils.getFieldByName("ipMTU").getValue();
-//console.log(" ipMTU: "+ipMTU);
-
-//var ipv6Peer = this.scriptUtils.getFieldByName("ipv6Peer").getValue();
-
 var ipv6Peer =  Ext.getCmp('ipv6Peer').getValue();
-//console.log("ipv6Peer : "+ipv6Peer);
 var ipv6Address = this.scriptUtils.getFieldByName("ipv6Address").getValue();
-//var ipv6Address1 = this.scriptUtils.getFieldByName("ipv6Address1").getValue();
-//var ipv6Address2 = this.scriptUtils.getFieldByName("ipv6Address2").getValue();
-//var ipv6Address3 = this.scriptUtils.getFieldByName("ipv6Address3").getValue();
-//console.log("ipv6Address : "+ipv6Address);
-
-
 var rd = this.scriptUtils.getFieldByName("rd").getValue();
-//console.log("rd : "+rd);
 var vpnName = this.scriptUtils.getFieldByName("vpnName").getValue(); //Mesh vrf
 var spkVrfName = this.scriptUtils.getFieldByName("spkVrfName").getValue(); 
 var spkRd = this.scriptUtils.getFieldByName("spkRd").getValue(); 
 var spkVrfId = this.scriptUtils.getFieldByName("spkVrfId").getValue(); 
+var management = this.scriptUtils.getFieldByName("management").getValue(); 
 
 
 var neighbourAddress = this.scriptUtils.getFieldByName("neighbourAddress").getValue();
-//console.log("rneighbourAddressd : "+neighbourAddress);
-
 var localPref = this.scriptUtils.getFieldByName("localPref").getValue();
-//console.log(" localPref: "+localPref);
 var med = this.scriptUtils.getFieldByName("med").getValue();
-console.log(" med: "+med);
 var peerAS = this.scriptUtils.getFieldByName("peerAS").getValue();
-console.log(" peerAS: "+peerAS);
-
 var accessRate = this.scriptUtils.getFieldByName("accessRate").getValue();
 var vpnAlias = Ext.getCmp("vpnAlias").getValue();
 var policyGroup = Ext.getCmp("policyGroup").getValue();
 var vpnRate = Ext.getCmp("vpnSpeed").getValue();
-
-console.log(" accessRate: "+accessRate);
 var efRate = this.scriptUtils.getFieldByName("efRate").getValue();
-console.log("efRate : "+efRate);
-
-
 var efService =  Ext.getCmp('efService').getValue();
 
 var isAllAFSelected =  Ext.getCmp('isAllAFSelected').getValue();
@@ -4919,38 +4817,17 @@ var beService =  Ext.getCmp('beService').getValue();
 var classifier =  Ext.getCmp('classifier').getValue();
 
 var af1 = this.scriptUtils.getFieldByName("af1").getValue();
-console.log("af1 : "+af1);
 var af2 = this.scriptUtils.getFieldByName("af2").getValue();
-console.log(" af2: "+af2);
 var af3 = this.scriptUtils.getFieldByName("af3").getValue();
-console.log("af3 : "+af3);
 
 var mvpn =  Ext.getCmp('mvpn').checkboxCmp.getValue();
-//var mvpn = this.scriptUtils.getFieldByName("mvpn").getValue();
-console.log("mvpn : "+mvpn);
 var senderSite = this.scriptUtils.getFieldByName("senderSite").getValue();
-console.log("senderSite : "+senderSite);
 var ssmIP = this.scriptUtils.getFieldByName("ssmIP").getValue();
-console.log("ssmIP : "+ssmIP);
 var ssmIpMask = this.scriptUtils.getFieldByName("ssmIpMask").getValue();
-console.log("ssmIpMask : "+ssmIpMask);
 var rpType = this.scriptUtils.getFieldByName("rpType").getValue();
-console.log(" rpType: "+rpType);
 var rpAddress = this.scriptUtils.getFieldByName("rpAddress").getValue();
-console.log(" rpAddress: "+rpAddress);
 var rpGprRange = this.scriptUtils.getFieldByName("rpGprRange").getValue();
-console.log("rpGprRange : "+rpGprRange);
-
-console.log("ipAddress': " + ipAddress);
-
-
 var topology = this.scriptUtils.getFieldByName("topology").getValue();
-console.log(" topology: "+topology);
-
-//var AsRd = this.scriptUtils.getFieldByName("AsRd").getValue();
-//var AsRdSpk = this.scriptUtils.getFieldByName("AsRdSpk").getValue();
-	
-
 var autonegotiate = this.scriptUtils.getFieldByName("autonegotiate").getValue();
 var adminState = this.scriptUtils.getFieldByName("adminState").getValue();
 var operationalMode = this.scriptUtils.getFieldByName("operationalMode").getValue();
@@ -4982,27 +4859,18 @@ for(var i=0; i < stagedInterfacesStore_RowCount; i++) {
 		Ext.getCmp("ciuName").setDisabled(true);
    }*/
 }
-		console.log("multiVRF > "+multiVRF);
+    console.log("multiVRF > "+multiVRF);
 		
 	var firstUnitForVRF = this.scriptUtils.getFieldByName("firstUnitForVRF").getValue();
 	var traficControlProfile = this.scriptUtils.getFieldByName("traficControlProfile").getValue();
 	var qosType = this.scriptUtils.getFieldByName("qosType").getValue();
 	
-var nextHOP = this.scriptUtils.getFieldByName("nextHOP").getValue();
-
-//var rt = this.scriptUtils.getFieldByName("rt").getValue();
-//var rtHub = this.scriptUtils.getFieldByName("rtHub").getValue();
-
-//var rtSpoke = this.scriptUtils.getFieldByName("rtSpoke").getValue();
-
-//console.log(" rt: "+rt);
-
-console.log("******************");
+   var nextHOP = this.scriptUtils.getFieldByName("nextHOP").getValue();
 
 
-	console.log("site': " + this.site);
-	console.log("port': " + this.port);
-	console.log("moid  : " + this.moid);
+	//console.log("site': " + this.site);
+	//console.log("port': " + this.port);
+	//console.log("moid  : " + this.moid);
 	if(!this.validateAF()){
 		Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "Please enter the valid AF1%AF2%AF3%");
 	return;
@@ -5018,11 +4886,11 @@ console.log("******************");
             return true;
         }
 		
-		var doesIpDuplicationExistInStagedInterfacesStore = false;
-        var doesPeSubinterfaceExistInStagedInterfacesStore = false;
+		//var doesIpDuplicationExistInStagedInterfacesStore = false;
+        //var doesPeSubinterfaceExistInStagedInterfacesStore = false;
 		var stagedInterfacesStore = Ext.getCmp("stagedInterfacesGrid").getStore();
 	    var stagedInterfacesStore_RowCount = stagedInterfacesStore.count();
-        var doesIpDuplicationExistInStagedInterfacesStore = false;		
+        //var doesIpDuplicationExistInStagedInterfacesStore = false;		
 			for(var i=0; i < stagedInterfacesStore_RowCount; i++) {
 				var row = stagedInterfacesStore.getAt(i);
 			   if(row.data.site == this.moid) {
@@ -5085,10 +4953,8 @@ console.log("******************");
 		loopbackSubnetMask: loopbackSubnetMask,
 		ipMTU: ipMTU,
 		ipv6Peer: ipv6Peer,
-		ipv6Address: ipv6Address,//+"."+ipv6Address1+"."+ipv6Address2+"."+ipv6Address3,
+		ipv6Address: ipv6Address,
 		vpnName: vpnName,
-		//AsRd: AsRd,
-		//AsRdSpk: AsRdSpk,
 		rd: rd,
 		spkVrfName: spkVrfName,
 		spkRd: spkRd,
@@ -5131,9 +4997,7 @@ console.log("******************");
 		topology: topology,
 		dataForDisplay: dataForDisplay,
 		prefixList: ipv4PrefixListArr,
-		//rt: rt,
-		//rtHub: rtHub,
-		//rtSpoke: rtSpoke
+		management: management
 	}); 	
 },
 
@@ -5160,11 +5024,8 @@ console.log("handleUpdateStagedInterface");
 	var connectionType = Ext.getCmp("connectionType").getValue();
 	
 	var csId = this.scriptUtils.getFieldByName("csId").getValue();
-console.log(" csId: "+csId);
 
-var pathPreferences = this.scriptUtils.getFieldByName("pathPreferences").getValue();
-console.log(" pathPreferences: "+pathPreferences);
-
+	var pathPreferences = this.scriptUtils.getFieldByName("pathPreferences").getValue();
 	var vlanId = Ext.getCmp("vlanId").getValue();
 	var ipAddress = Ext.getCmp("ipAddress").getValue();
 	var subnetMask = Ext.getCmp("subnetMask").getValue();
@@ -5178,33 +5039,18 @@ console.log(" pathPreferences: "+pathPreferences);
           return;
        };
 	
-	console.log("ipMTU': " +ipMTU);
-	
 	var ipv6Peer =Ext.getCmp("ipv6Peer").getValue();
 	var ipv6Address =Ext.getCmp("ipv6Address").getValue();
-	//var ipv6Address1 =Ext.getCmp("ipv6Address1").getValue();
-	//var ipv6Address2 =Ext.getCmp("ipv6Address2").getValue();
-	//var ipv6Address3 =Ext.getCmp("ipv6Address3").getValue();
-
+	
 	var rd = Ext.getCmp("rd").getValue();
 	var vpnName = Ext.getCmp("vpnName").getValue(); //Mesh vrf
 	var spkVrfName = Ext.getCmp("spkVrfName").getValue(); 
 	var spkRd = Ext.getCmp("spkRd").getValue(); 
 	var spkVrfId = Ext.getCmp("spkVrfId").getValue();
-	//var AsRd = Ext.getCmp("AsRd").getValue();
-	//var AsRdSpk = Ext.getCmp("AsRdSpk").getValue();
 	var neighbourAddress = Ext.getCmp("neighbourAddress").getValue();
 	var localPref = Ext.getCmp("localPref").getValue();
 	var med = Ext.getCmp("med").getValue();
 	var peerAS = Ext.getCmp("peerAS").getValue();
-	
-	//var rt = Ext.getCmp("rt").getValue();
-	//var rtHub = Ext.getCmp("rtHub").getValue();
-	//var rtSpoke = Ext.getCmp("rtSpoke").getValue();
-	
-	console.log("peerAS': " +peerAS);
-	
-	
 	var accessRate = Ext.getCmp("accessRate").getValue();
 	var vpnAlias = Ext.getCmp("vpnAlias").getValue();
 	var policyGroup = Ext.getCmp("policyGroup").getValue();
@@ -5221,8 +5067,6 @@ console.log(" pathPreferences: "+pathPreferences);
 	var af2 = Ext.getCmp("af2").getValue();
 	var af3 = Ext.getCmp("af3").getValue();
 	
-	console.log("af3': " +af3);
-	
 	var mvpn =Ext.getCmp("mvpn").checkboxCmp.getValue();
 	var senderSite =Ext.getCmp("senderSite").getValue();
 	var ssmIP =Ext.getCmp("ssmIP").getValue();
@@ -5230,6 +5074,7 @@ console.log(" pathPreferences: "+pathPreferences);
 	var rpType =Ext.getCmp("rpType").getValue();
 	var rpAddress =Ext.getCmp("rpAddress").getValue();
 	var rpGprRange =Ext.getCmp("rpGprRange").getValue();
+	var management =Ext.getCmp("management").getValue();
 	
 	//var autonegotiate = (Ext.getCmp("autonegotiate").getValue()==true) ? "true" : "false";
 	//var adminState = (Ext.getCmp("adminState").getValue()==true) ? "true" : "false";
@@ -5242,32 +5087,19 @@ console.log(" pathPreferences: "+pathPreferences);
 	var traficControlProfile = Ext.getCmp("traficControlProfile").getValue();
 	var qosType = Ext.getCmp("qosType").getValue();
 	var nextHOP = Ext.getCmp("nextHOP").getValue();
-	console.log("rpGprRange': " +rpGprRange);
-	console.log("autonegotiate': " +autonegotiate);
-	console.log("adminState': " +adminState);
-
 	var index = Ext.getCmp("index").getValue();
-	console.log('index to update: '+index);
 	
 	Ext.getCmp("prefixDetailBtn").hide();
 
 
-	console.log("******************");
-	console.log("ipAddress': " + ipAddress);
-	console.log("******************");
-
-
-	console.log("site': " + this.site);
-	console.log("port': " + this.port);
-	console.log("moid  : " + this.moid);
+	//console.log("site': " + this.site);
+	//console.log("port': " + this.port);
+	//console.log("moid  : " + this.moid);
 	
 	if(af1+af2+af3 > 100 || af1+af2+af3 < 100){
 	 Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "AF1% AF2% AF3% should be 100!");
             return true;
 	}
-	
-	//var isCCI = Ext.getCmp('isCCI');
-	//isCCI.setValue(false);
 	
 	var ipv4PrefixListArr = [];
 	var prefixListGrid = Ext.getCmp("prefixListGrid1").getStore();
@@ -5300,7 +5132,7 @@ console.log(" pathPreferences: "+pathPreferences);
 		row.data.loopbackSubnetMask=loopbackSubnetMask;
 		row.data.ipMTU= ipMTU;
 		row.data.ipv6Peer= ipv6Peer;
-		row.data.ipv6Address= ipv6Address;//+"."+ipv6Address1+"."+ipv6Address2+"."+ipv6Address3;
+		row.data.ipv6Address= ipv6Address;
 		row.data.rd= rd;
 		row.data.vpnName = vpnName,
 		row.data.spkVrfName = spkVrfName,
@@ -5333,10 +5165,6 @@ console.log(" pathPreferences: "+pathPreferences);
 		row.data.rpType=rpType;
 		row.data.rpAddress=rpAddress;
 		row.data.rpGprRange=rpGprRange;
-		//row.data.rtHub=rtHub;
-		//row.data.rtSpoke=rtSpoke;
-		//row.data.AsRd=AsRd;
-		//row.data.AsRdSpk=AsRdSpk;
 		
 		row.data.autonegotiate = autonegotiate;
 		row.data.adminState = adminState;
@@ -5347,6 +5175,7 @@ console.log(" pathPreferences: "+pathPreferences);
 		row.data.qosType = qosType;
 		row.data.nextHOP = nextHOP;
 		row.data.prefixList = ipv4PrefixListArr;
+		row.data.management = management;
 
 	var endpointPanel = Ext.ComponentQuery.query('#endpointPanel')[0];
 	endpointPanel.hide();
@@ -5366,8 +5195,8 @@ console.log(" pathPreferences: "+pathPreferences);
 	interfacegrid.setDisabled(false);
 	
 	
-	var siteName = Ext.getCmp('siteName').setDisabled(false);
-	var topology = Ext.getCmp('topology').setDisabled(false);
+	Ext.getCmp('siteName').setDisabled(false);
+	Ext.getCmp('topology').setDisabled(false);
 	
 															
 	//me.setFieldDisabled('siteInterface',true);
@@ -5375,33 +5204,33 @@ console.log(" pathPreferences: "+pathPreferences);
 	Ext.getCmp("stagedInterfacesGrid").getView().refresh();	
 },
 handleClearAddSiteInterfacePanelButton:function() {
-        var endPointServiceType = Ext.getCmp("endPointServiceType").reset();
-		var ciuLoopback =Ext.getCmp("ciuLoopback").reset();
-		var ciuLoopback =Ext.getCmp("ciuName").reset();
-		var ciuLoopback =Ext.getCmp("ciuAlias").reset();
-		var csId =Ext.getCmp("csId").reset();
-		var accessType =Ext.getCmp("accessType").reset();
+        Ext.getCmp("endPointServiceType").reset();
+		Ext.getCmp("ciuLoopback").reset();
+		Ext.getCmp("ciuName").reset();
+		Ext.getCmp("ciuAlias").reset();
+		Ext.getCmp("csId").reset();
+		Ext.getCmp("accessType").reset();
 		Ext.getCmp("portSpeed").reset();
-		var connectionType =Ext.getCmp("connectionType").reset();
-		var vlanId =Ext.getCmp("vlanId").reset();
-		var ipAddress =Ext.getCmp("ipAddress").reset();
-		var subnetMask =Ext.getCmp("subnetMask").reset();
-		var loopbackSubnetMask =Ext.getCmp("loopbackSubnetMask").reset();
-		var ipMTU =Ext.getCmp("ipMTU").reset();
+		Ext.getCmp("connectionType").reset();
+		Ext.getCmp("vlanId").reset();
+		Ext.getCmp("ipAddress").reset();
+		Ext.getCmp("subnetMask").reset();
+		Ext.getCmp("loopbackSubnetMask").reset();
+		Ext.getCmp("ipMTU").reset();
 
-		var rd =Ext.getCmp("rd").reset();
-		var neighbourAddress =Ext.getCmp("neighbourAddress").reset();
-		var localPref =Ext.getCmp("localPref").reset();
-		var med =Ext.getCmp("med").reset();
-		var peerAS =Ext.getCmp("peerAS").reset();
-		var accessRate =Ext.getCmp("accessRate").reset();
-		var vpnAlias =Ext.getCmp("vpnAlias").reset();
-		var policyGroup =Ext.getCmp("policyGroup").reset();
-		var vpnRate =Ext.getCmp("vpnSpeed").reset();
-		var efRate =Ext.getCmp("efRate").reset();
-		var af1 =Ext.getCmp("af1").reset();
-		var af2 =Ext.getCmp("af2").reset();
-		var af3 =Ext.getCmp("af3").reset();
+		Ext.getCmp("rd").reset();
+		Ext.getCmp("neighbourAddress").reset();
+		Ext.getCmp("localPref").reset();
+		Ext.getCmp("med").reset();
+		Ext.getCmp("peerAS").reset();
+		Ext.getCmp("accessRate").reset();
+		Ext.getCmp("vpnAlias").reset();
+		Ext.getCmp("policyGroup").reset();
+		Ext.getCmp("vpnSpeed").reset();
+		Ext.getCmp("efRate").reset();
+		Ext.getCmp("af1").reset();
+		Ext.getCmp("af2").reset();
+		Ext.getCmp("af3").reset();
     },
    handleClearInactiveEntriesFromList:function() {
         // Get a count of the number of entries currently in grid 'stagedInterfacesGrid'.
@@ -5435,7 +5264,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 	//deviceId,port,vlan
 	console.log("device id: "+this.moid);
 	console.log("port id: "+this.port);
-	var vlan = Ext.getCmp("vlanId").getValue()
+	var vlan = Ext.getCmp("vlanId").getValue();
 	console.log("vlanId: "+vlan);
 	var stagedInterfacesStore = Ext.getCmp("stagedInterfacesGrid").getStore();
 	
@@ -5445,9 +5274,9 @@ handleClearAddSiteInterfacePanelButton:function() {
 		if(stagedInterfacesStore.count() > 0){
 			for(var i=0; i < stagedInterfacesStore.count(); i++) {
 				var row = stagedInterfacesStore.getAt(i);
-				console.log("moid>>>>>"+ row.data.pedeviceId);
-				console.log("port2>>>>>"+ row.data.Interface);
-				console.log("vlanId1>>>>>"+ row.data.vlanId);
+				//console.log("moid>>>>>"+ row.data.pedeviceId);
+				//console.log("port2>>>>>"+ row.data.Interface);
+				//console.log("vlanId1>>>>>"+ row.data.vlanId);
 				
 				if((this.moid == row.data.pedeviceId) && (this.port == row.data.port) && (vlan == row.data.vlanId) ){
 				numberOfDuplicateVLAN++;
@@ -5544,11 +5373,7 @@ handleClearAddSiteInterfacePanelButton:function() {
     }
 },
 	getNetworkAddress: function(ipAddress, subnetMask_DecimalNotation) {
-        //console.log("In 'getNetworkAddress()' ...");
-        //console.log("Value of 'ipAddress': " + ipAddress);
-        //console.log("Value of 'subnetMask_DecimalNotation': " + subnetMask_DecimalNotation);
-        
-        var subnetMask_DottedDecimalNotation;
+        var subnetMask_DottedDecimalNotation='';
         
 		if(subnetMask_DecimalNotation == "31") {
             subnetMask_DottedDecimalNotation = "255.255.255.254";
@@ -5576,14 +5401,6 @@ handleClearAddSiteInterfacePanelButton:function() {
             subnetMask_DottedDecimalNotation = "255.255.255.0";
         }
         
-        //console.log("Value of 'subnetMask_DecimalNotation': " + subnetMask_DecimalNotation);
-        //console.log("Value of 'subnetMask_DottedDecimalNotation': " + subnetMask_DottedDecimalNotation);
-        
-        // IP = "A.B.C.D"
-    	// tempArray[0] = A
-    	// tempArray[1] = B
-    	// tempArray[2] = C
-    	// tempArray[3] = D
     	var tempArray1 = ipAddress.split(".");
         var ipAddress_FirstOctet = parseInt(tempArray1[0]);
         var ipAddress_SecondOctet = parseInt(tempArray1[1]);
@@ -5602,13 +5419,7 @@ handleClearAddSiteInterfacePanelButton:function() {
 		var networkOctet3 = parseInt(ipAddress_ThirdOctet) & parseInt(subnetMask_ThirdOctet);
 		var networkOctet4 = parseInt(ipAddress_FouthOctet) & parseInt(subnetMask_FouthOctet);
 		
-		//console.log("Value of 'networkOctet1': " + networkOctet1);
-		//console.log("Value of 'networkOctet2': " + networkOctet2);
-		//console.log("Value of 'networkOctet3': " + networkOctet3);
-		//console.log("Value of 'networkOctet4': " + networkOctet4);
-		
 		var networkAddress = networkOctet1 + "." + networkOctet2 + "." + networkOctet3 + "." + networkOctet4;
-		//console.log("Value of 'networkAddress': " + networkAddress);
 		
 		return networkAddress;
     },
@@ -5618,13 +5429,8 @@ handleClearAddSiteInterfacePanelButton:function() {
         //console.log("Value of 'networkAddress': " + networkAddress);
         
         var broadcastAddress;
-        var broadcastAddress_FourthOctet;
+        var broadcastAddress_FourthOctet='';
         
-        // IP = "A.B.C.D"
-    	// tempArray[0] = A
-    	// tempArray[1] = B
-    	// tempArray[2] = C
-    	// tempArray[3] = D
     	var tempArray = networkAddress.split(".");
         var networkAddress_FirstOctet = parseInt(tempArray[0]);
         var networkAddress_SecondOctet = parseInt(tempArray[1]);
@@ -5658,9 +5464,9 @@ handleClearAddSiteInterfacePanelButton:function() {
         
         //console.log("Value of 'broadcastAddress_FourthOctet': " + broadcastAddress_FourthOctet);
 		
-        broadcastAddress = networkAddress_FirstOctet + "." + networkAddress_SecondOctet + "." + networkAddress_ThirdOctet + "." + broadcastAddress_FourthOctet;
 		//console.log("Value of 'broadcastAddress': " + broadcastAddress);
 		
+        broadcastAddress = networkAddress_FirstOctet + "." + networkAddress_SecondOctet + "." + networkAddress_ThirdOctet + "." + broadcastAddress_FourthOctet;
 		return broadcastAddress;
     },
 	getHardwareModel: function(deviceId) {
@@ -5699,7 +5505,7 @@ getInterfaceDescription: function(interfaceName) {
 	var vendor = 'Juniper';
     var inventoryType = 'device';
 	var device_IntferfaceDesc_XPath = "/device/configuration/interfaces/interface[name='" + interfaceName + "']";
-	var formData = this.scriptUtils.getFormValues(this);
+	//var formData = this.scriptUtils.getFormValues(this);
 	var siteName = Ext.getCmp('siteName').getValue();
 	this.getNodeList(siteName, vendor, inventoryType, device_IntferfaceDesc_XPath, function(results){ 
 		
@@ -5709,7 +5515,7 @@ getInterfaceDescription: function(interfaceName) {
 			//var unit = results["interface"]["unit"].length;
 			
 			//console.log("no of unit "+results["interface"]["unit"])
-			console.log("interface unit length "+results["interface"]["unit"])
+			//console.log("interface unit length "+results["interface"]["unit"])
 			//console.log("no of unit length "+results["interface"]["unit"].length)
 			/*if(results["interface"]["unit"] != undefined && results["interface"]["unit"].length == undefined){
 				Ext.getCmp("qosType").setDisabled(false);
@@ -5740,14 +5546,15 @@ getInterfaceDescription: function(interfaceName) {
 			//Ext.getCmp("multiVRF").setValue(interfaceDescription.split('.').length > 2);
 			
 			var ciuName = Ext.getCmp("ciuName").getValue();
-			var qosType = Ext.getCmp("qosType").getValue();
+			//var qosType = Ext.getCmp("qosType").getValue();
 			console.log("CIUName set on ADVANCED API CALL : "+ciuName);
 			
 			console.log("Value of 'interfaceDescription  comment': " + results["interface"]["description"]["#text"]);
 			
+			
 			if(results["interface"]["description"]["#text"] != undefined){
 			var intfDesc = results["interface"]["description"]["#text"];
-				Ext.getCmp("lblInterfaceDescription").setValue(results["interface"]["description"]["#text"])
+				Ext.getCmp("lblInterfaceDescription").setValue(results["interface"]["description"]["#text"]);
 				Ext.getCmp("multiVRF").setValue(intfDesc.split('.').length > 1);
 				if((intfDesc.split('.').length   >  1) && (ciuName == null || ciuName =='')){
 					Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "This port is used by another customer. Please use another port");
@@ -5755,10 +5562,13 @@ getInterfaceDescription: function(interfaceName) {
 				}
 			}
 			
-			else if(results["interface"]["description"]["#text"] == undefined && (interfaceDescription.split('.').length > 1) && (ciuName == null || ciuName =='')){
-				Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "This port is used by another customer. Please use another port");
-				return;
-			}
+			else {
+					Ext.getCmp("multiVRF").setValue(interfaceDescription.split('.').length > 1);
+					if((interfaceDescription != null && interfaceDescription.split('.').length > 1) && (ciuName == null || ciuName =='')){
+						Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "This port is used by another customer. Please use another port");
+						return;
+					}
+				}
 			
 		}
 		catch(e){
@@ -5768,131 +5578,6 @@ getInterfaceDescription: function(interfaceName) {
 		}
 	}
 	);
-},
-getInterfaceDescription1: function(interfaceName) {
-	var isPortAllowed = false;
-    var vendor = 'Juniper';
-    var inventoryType = 'device';
-    var device_IntferfaceDesc_XPath = "/device/configuration/interfaces/interface[name='" + interfaceName + "']";
-    var interfaceDescription = "";
-    
-    var formData = this.scriptUtils.getFormValues(this);
- var siteName = Ext.getCmp('siteName').getValue();
- console.log("site name: "+siteName);
-    this.getNodeList(siteName, vendor, inventoryType, device_IntferfaceDesc_XPath, function(results){ 
-		try{
-        interfaceDescription = results["interface"].description;
-		var unit = results["interface"].unit;
-		//result["CPPCustomerBean"]["email"]
-        console.log("Value of 'interfaceDescription': " + interfaceDescription);
-		console.log("Value of 'interfaceDescription': " + results["interface"]["description"]["#text"]);
-		console.log("unit > > > > <:>"+unit);
-		var unt ='';
-		if(unit.length==undefined || unit.length=='undefined'){
-			
-			unt =  unit;
-			this.firstUnitForVRF = unt.name;
-			Ext.getCmp("firstUnitForVRF").setValue(this.firstUnitForVRF);
-		}else{
-			unt =  unit[0];
-			this.firstUnitForVRF = unt.name;
-			Ext.getCmp("firstUnitForVRF").setValue(this.firstUnitForVRF);
-		}
-		
-		console.log("unt name: "+unt.name);
-        var customerId = Ext.getCmp('customerId').getValue();
-		console.log("customerId.. "+customerId);
-		if(interfaceDescription == undefined){
-			Ext.getCmp("ciuName").setValue('');
-			Ext.getCmp("qoSType").setValue('');
-			Ext.getCmp("traficControlProfile").setValue('');
-			Ext.getCmp("qosType").setValue('');
-			Ext.getCmp("ciuName").setDisabled(false);
-			Ext.getCmp("qoSType").setDisabled(false);
-		}
-		var tokenizedDescription = '';
-		//var custInfoForMultiVRF = '';
-		
-		try{
-			tokenizedDescription = interfaceDescription.split('.')[0].split('|');
-			//custInfoForMultiVRF = tokenizedDescription[0];
-		}
-		catch(e){
-		console.log("error:   "+e);
-		interfaceDescription = results["interface"]["description"]["#text"];
-		tokenizedDescription = interfaceDescription.split('.')[0].split('|');
-		//custInfoForMultiVRF = tokenizedDescription[0];
-		}
-		
-		console.log("tokenizedDescription > > "+tokenizedDescription);
-		
-		console.log("token length.. "+tokenizedDescription.length);
-		console.log("cust id.. "+tokenizedDescription[0]);
-		
-		
-		if(tokenizedDescription.length > 1){
-			this.CIUName = tokenizedDescription[1];
-			this.TRAFIC_CONTROL_PROFILE = tokenizedDescription[3];
-			Ext.getCmp("traficControlProfile").setValue(this.TRAFIC_CONTROL_PROFILE);
-			console.log("this.CIUName 1"+this.CIUName);
-			Ext.getCmp("ciuName").setValue(this.CIUName);
-			Ext.getCmp("qosType").setValue(tokenizedDescription[2]);
-			Ext.getCmp("ciuName").setDisabled(true);
-			Ext.getCmp("qosType").setDisabled(true);
-				if(customerId != tokenizedDescription[0]){
-				console.log("isPortAllowed>  . . "+isPortAllowed);
-					Ext.MessageBox.alert(Jx.ProvConstants.VALIDATION_ERROR, "This port is used by another customer. Please use another port");
-					isPortAllowed= true;
-					Ext.getCmp("ciuName").setDisabled(false);
-					Ext.getCmp("qosType").setDisabled(false);
-					this.isInterfaceForCustomerExist = true;
-					isPortAllowed = this.isInterfaceForCustomerExist;
-					console.log("this.isInterfaceForCustomerExist>>>>  . . "+this.isInterfaceForCustomerExist);
-					//return true;
-			}else{
-				this.isInterfaceForCustomerExist = false;
-				Ext.getCmp("ciuName").setDisabled(true);
-				Ext.getCmp("qosType").setDisabled(true);
-				Ext.getCmp("multiVRF").setValue(true);
-				
-			}
-		}else{
-			this.CIUName = '';
-			this.firstUnitForVRF = '';
-			this.TRAFIC_CONTROL_PROFILE = '';
-			Ext.getCmp("ciuName").setValue('');
-			Ext.getCmp("ciuName").setDisabled(false);
-			Ext.getCmp("qosType").setDisabled(false);
-			Ext.getCmp("qosType").setValue("");
-			Ext.getCmp("multiVRF").setValue(false);
-			this.isInterfaceForCustomerExist = false;
-		}
-		
-	}catch(e){
-			this.CIUName = '';
-			this.firstUnitForVRF = '';
-			this.TRAFIC_CONTROL_PROFILE = '';
-			this.isInterfaceForCustomerExist = false;
-			Ext.getCmp("qosType").setDisabled(false);
-			Ext.getCmp("ciuName").setDisabled(false);
-			Ext.getCmp("ciuName").setValue('');
-	}		
-																
-																
-		
-        //var tokenizedDescription = interfaceDescription.split('.');
-        //var customerId = tokenizedDescription[0];
-        //var ciuName = tokenizedDescription[1];
-        
-        //console.log("Value of 'customerId': " + customerId);
-        //console.log("Value of 'ciuName': " + ciuName);
-    }
-	
-	
-	
-	
-	);   
-//return isPortAllowed;	
 },
 
 /**
@@ -6117,7 +5802,7 @@ validateAF: function() {
 												//style: this.FIELDSET_BACKGROUND_COLOR,
 												style: 'background-color:#476583;color:#FFFFFF',
 												handler: function(button, event) {
-												var ipv4PrefixListArr = {};
+												//var ipv4PrefixListArr = {};
 												//ipv4PrefixListArr
 												var prefixListGrid = Ext.getCmp("prefixListGrid").getStore();
 												var prefixListGrid_RowCount = prefixListGrid.count();
